@@ -6,122 +6,358 @@ const projects = (await getCollection('projects'))
   .filter((p) => p.data.featured)
   .sort((a, b) => a.data.order - b.data.order);
 
-const [hero, ...rest] = projects;
+const typeLabel: Record<string, string> = { founder: 'own project', client: 'client work', oss: 'OSS' };
+const typeColor: Record<string, string> = { founder: '#58a6ff', client: '#3fb950', oss: '#d2a8ff' };
+
+const clients = [
+  { name: 'Fiverr Pro', note: '100+ contractors' },
+  { name: 'Remotebase', note: 'cross-border payments' },
+  { name: 'GoMyCode', note: '4 cohorts trained' },
+  { name: 'Google DevFest', note: 'speaker' },
+  { name: 'Andela', note: 'mentor' },
+  { name: 'HackerOne', note: 'Stripe program' },
+];
 ---
 
-<Base title="Jedidiah Amaraegbu">
-  <header>
-    <h1>Jedidiah Amaraegbu</h1>
-    <div class="sub">full stack engineer &middot; stripe architect &middot; security researcher</div>
-    <div class="bio">
-      <p class="hero-lede">I build payment infrastructure and AI products for complex, high-stakes workflows.</p>
-      <p>6+ years shipping TypeScript, React, Node.js, and Python across fintech, edtech, and social products.</p>
-      <p>Stripe-certified (Implementation Architect + Payments Developer). Currently hunting bugs on Stripe's HackerOne program and building multiplayer AI tooling.</p>
+<Base title="Jedidiah Amaraegbu" fullBleed>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-inner">
+      <p class="hero-tag sr">full stack engineer · stripe architect · security researcher</p>
+      <h1 class="sr">Jedidiah<br/>Amaraegbu</h1>
+      <p class="hero-lede sr">I build payment infrastructure and AI products for complex, high-stakes workflows.</p>
+      <div class="hero-actions sr">
+        <a class="btn-primary" href="/projects">see selected work</a>
+        <a class="btn-ghost" href="mailto:imunacode@gmail.com">start a conversation</a>
+      </div>
+      <div class="scroll-hint" aria-hidden="true"><span></span></div>
     </div>
-    <div class="hero-actions">
-      <a class="primary-action" href="/projects">see selected work</a>
-      <a href="mailto:imunacode@gmail.com">start a conversation</a>
-    </div>
-  </header>
-
-  <div class="now">
-    <strong>/now</strong> &mdash; building <a href="/projects">Gwela</a> (multiplayer AI agent platform), doing security research on Stripe Connect & MCP, applying to YC W27.
-  </div>
-
-  <section>
-    <h2>Featured Work</h2>
-    <div class="grid">
-      {hero && (
-        <a href={`/projects/${hero.id}`} class="card card-featured">
-          <div>
-            <span class="card-name">{hero.data.title}</span>
-            {hero.data.order === 1 && <span class="card-status">current build</span>}
-          </div>
-          <div class="card-desc">{hero.data.description}</div>
-          <div class="card-footer">
-            <div class="card-tech">{hero.data.tech.join(' · ')}</div>
-            <span class="card-arrow">view project &rarr;</span>
-          </div>
-        </a>
-      )}
-      {rest.map((p) => (
-        <a href={`/projects/${p.id}`} class="card card-secondary">
-          <span class="card-name">{p.data.title}</span>
-          <div class="card-desc">{p.data.description}</div>
-          <div class="card-tech">{p.data.tech.join(' · ')}</div>
-        </a>
-      ))}
-    </div>
-    <a href="/projects" class="see-all">all projects &rarr;</a>
   </section>
 
-  <section class="closing">
-    <p>Have a payment, AI, or real-time product problem? <a href="mailto:imunacode@gmail.com">Let's talk.</a></p>
+  <!-- 01 — NOW -->
+  <section class="now-section">
+    <div class="constrained">
+      <div class="section-label sr">
+        <span class="section-num">01</span>
+        <h2>now</h2>
+      </div>
+      <div class="now sr">
+        Building <a href="/projects/gwela">Gwela</a> (multiplayer AI agent platform), doing security research on Stripe Connect & MCP, applying to YC W27.
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 — FEATURED WORK -->
+  <section class="work-section">
+    <div class="constrained">
+      <div class="section-label sr">
+        <span class="section-num">02</span>
+        <h2>featured work</h2>
+      </div>
+      <div class="project-grid sr-stagger">
+        {projects.map((p) => (
+          <a href={`/projects/${p.id}`} class="project-card" style={`--card-accent: ${typeColor[p.data.type]}`}>
+            <div class="card-header">
+              <span class="card-type" style={`color: ${typeColor[p.data.type]}`}>{typeLabel[p.data.type]}</span>
+              {p.data.order === 1 && <span class="card-live">building now</span>}
+            </div>
+            <h3 class="card-title">{p.data.title}</h3>
+            <p class="card-desc">{p.data.description}</p>
+            {p.data.metric && (
+              <div class="card-metric">
+                <span class="metric-value">{p.data.metric}</span>
+              </div>
+            )}
+            <div class="card-bottom">
+              <div class="card-tech">{p.data.tech.slice(0, 4).join(' · ')}</div>
+              <span class="card-arrow">&rarr;</span>
+            </div>
+          </a>
+        ))}
+      </div>
+      <a href="/projects" class="see-all sr">all projects &rarr;</a>
+    </div>
+  </section>
+
+  <!-- 03 — EXPERIENCE -->
+  <section class="clients-section">
+    <div class="constrained">
+      <div class="section-label sr">
+        <span class="section-num">03</span>
+        <h2>experience</h2>
+      </div>
+      <div class="clients-grid sr-stagger">
+        {clients.map((c) => (
+          <div class="client-item">
+            <span class="client-name">{c.name}</span>
+            <span class="client-note">{c.note}</span>
+          </div>
+        ))}
+      </div>
+      <div class="clients-stats sr">
+        <div class="stat">
+          <span class="stat-num">6+</span>
+          <span class="stat-label">years shipping</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">200+</span>
+          <span class="stat-label">devs mentored</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">3</span>
+          <span class="stat-label">continents</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">2x</span>
+          <span class="stat-label">Stripe certified</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="constrained sr">
+      <p class="cta-text">Have a payment, AI, or real-time product problem?</p>
+      <a class="btn-primary" href="mailto:imunacode@gmail.com">Let's talk</a>
+    </div>
   </section>
 </Base>
 
 <style>
-  header { margin-bottom: 3rem; }
-  .sub { color: var(--dim); font-size: .85rem; margin-top: .15em; margin-bottom: 1.5rem; }
-  .bio { color: var(--fg); font-size: .9rem; line-height: 1.75; max-width: 60ch; }
-  .bio p { margin-bottom: .5em; }
-  .hero-lede { font-size: 1.05rem; line-height: 1.6; margin-bottom: .8em !important; }
-  .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .8rem 1rem; margin-top: 1.5rem; font-size: .8rem; }
-  .hero-actions a { color: var(--dim); }
-  .hero-actions a:hover { color: var(--accent); opacity: 1; }
-  .hero-actions .primary-action {
-    color: var(--bg); background: var(--accent); border: 1px solid var(--accent);
-    border-radius: 5px; padding: .55em .85em; font-weight: 600;
+  /* hero */
+  .hero {
+    min-height: calc(100vh - 3.5rem);
+    display: flex; align-items: center;
+    position: relative;
+    padding: 2rem var(--gutter);
   }
-  .hero-actions .primary-action:hover { color: var(--bg); opacity: .85; }
+  .hero-inner {
+    max-width: var(--max-w); width: 100%;
+    margin: 0 auto;
+  }
+  .hero-tag {
+    color: var(--dim); font-size: .8rem;
+    margin-bottom: 1.2rem; letter-spacing: .02em;
+  }
+  .hero h1 {
+    font-size: clamp(2.2rem, 7vw, 4.5rem);
+    line-height: 1.05;
+    margin-bottom: 1.4rem;
+  }
+  .hero-lede {
+    font-family: var(--font-sans);
+    color: var(--dim); font-size: clamp(.95rem, 2vw, 1.2rem);
+    line-height: 1.7; max-width: 48ch;
+    margin-bottom: 2.5rem; font-weight: 400;
+  }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: .8rem; }
 
+  /* buttons */
+  .btn-primary {
+    font-family: var(--font-mono);
+    color: var(--bg); background: var(--accent);
+    padding: .65em 1.3em; border-radius: 6px;
+    font-size: .8rem; font-weight: 600;
+    transition: opacity .15s;
+  }
+  .btn-primary:hover { opacity: .85; color: var(--bg); }
+  .btn-ghost {
+    font-family: var(--font-mono);
+    color: var(--dim); font-size: .8rem;
+    padding: .65em 1.3em;
+    border: 1px solid var(--border); border-radius: 6px;
+    transition: border-color .15s, color .15s;
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); opacity: 1; }
+
+  /* scroll hint */
+  .scroll-hint {
+    position: absolute; bottom: 2rem; left: 50%;
+    transform: translateX(-50%);
+  }
+  .scroll-hint span {
+    display: block; width: 1px; height: 40px;
+    background: var(--border);
+    animation: pulse-down 2s ease-in-out infinite;
+  }
+  @keyframes pulse-down {
+    0%, 100% { opacity: .2; transform: scaleY(.5); transform-origin: top; }
+    50% { opacity: .6; transform: scaleY(1); }
+  }
+
+  /* constrained */
+  .constrained {
+    max-width: var(--max-w); margin: 0 auto;
+    padding: 0 var(--gutter);
+  }
+
+  /* now */
+  .now-section {
+    padding: 4rem 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
   .now {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
-    padding: 1rem 1.25rem; font-size: .85rem; color: var(--dim);
-    margin-bottom: 2.5rem; line-height: 1.6;
-    box-shadow: 0 0 0 1px var(--glow);
+    font-family: var(--font-sans);
+    font-size: .95rem; color: var(--dim); line-height: 1.7;
+    max-width: 55ch;
   }
-  .now strong { color: var(--fg); font-weight: 600; }
 
-  .grid {
-    display: grid; gap: 1px; background: var(--border);
-    border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+  /* work */
+  .work-section { padding: 5rem 0 3rem; }
+
+  .project-grid {
+    display: grid; grid-template-columns: 1fr;
+    gap: 1px; background: var(--border);
+    border: 1px solid var(--border); border-radius: 12px;
+    overflow: hidden;
   }
-  .card {
-    background: var(--bg); padding: 1rem 1.25rem; display: block;
-    color: inherit; transition: background .15s;
+  .project-card {
+    background: var(--bg);
+    padding: 1.6rem 1.8rem;
+    display: flex; flex-direction: column;
+    color: inherit; position: relative;
+    transition: background .2s;
+    border-left: 3px solid transparent;
   }
-  .card:hover { background: var(--surface); opacity: 1; }
-  .card-featured { grid-column: 1 / -1; padding: 1.25rem 1.4rem; }
-  .card-name { font-weight: 600; color: var(--fg); font-size: .9rem; }
-  .card-featured .card-name { font-size: 1.05rem; }
-  .card-status { color: var(--accent); font-size: .65rem; margin-left: .6em; text-transform: uppercase; letter-spacing: .08em; }
-  .card-desc { color: var(--dim); font-size: .8rem; margin-top: .3em; line-height: 1.55; }
-  .card-featured .card-desc { max-width: 58ch; font-size: .85rem; margin-top: .5em; }
-  .card-tech { color: var(--dim); font-size: .7rem; margin-top: .35em; opacity: .7; }
-  .card-footer { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .5rem 1rem; margin-top: .8rem; }
-  .card-footer .card-tech { margin-top: 0; }
-  .card-arrow { color: var(--accent); font-size: .7rem; }
+  .project-card:hover {
+    background: var(--surface);
+    border-left-color: var(--card-accent);
+    opacity: 1;
+  }
+  .card-header {
+    display: flex; align-items: center; gap: .6em;
+    margin-bottom: .5rem;
+  }
+  .card-type {
+    font-size: .65rem; text-transform: uppercase;
+    letter-spacing: .08em; font-weight: 600;
+  }
+  .card-live {
+    font-size: .6rem; color: var(--bg); background: var(--accent);
+    padding: .15em .5em; border-radius: 3px;
+    text-transform: uppercase; letter-spacing: .06em; font-weight: 600;
+  }
+  .card-title {
+    font-family: var(--font-sans);
+    font-size: 1.15rem; font-weight: 700; color: var(--fg);
+    margin-bottom: .4rem; letter-spacing: -.02em;
+  }
+  .card-desc {
+    color: var(--dim); font-size: .8rem; line-height: 1.6;
+    max-width: 55ch; flex: 1;
+  }
+  .card-metric { margin-top: .6rem; }
+  .metric-value {
+    font-family: var(--font-sans);
+    font-size: .7rem; font-weight: 600;
+    color: var(--accent); opacity: .8;
+    text-transform: uppercase; letter-spacing: .04em;
+  }
+  .card-bottom {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: .8rem;
+  }
+  .card-tech { color: var(--dim); font-size: .7rem; opacity: .6; }
+  .card-arrow {
+    color: var(--accent); font-size: .85rem;
+    opacity: 0; transform: translateX(-4px);
+    transition: opacity .2s, transform .2s;
+  }
+  .project-card:hover .card-arrow { opacity: 1; transform: translateX(0); }
 
   .see-all {
-    display: inline-block; margin-top: .8rem; font-size: .8rem; color: var(--dim);
+    display: inline-block; margin-top: 1.2rem;
+    font-size: .8rem; color: var(--dim);
   }
   .see-all:hover { color: var(--accent); }
 
-  .closing {
-    margin-top: 3.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border);
-    color: var(--dim); font-size: .85rem;
+  /* clients / experience */
+  .clients-section {
+    padding: 5rem 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .clients-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 0;
+  }
+  .client-item {
+    padding: .9rem 0;
+    border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: baseline;
+    gap: .5rem;
+  }
+  .client-name {
+    font-family: var(--font-sans);
+    font-size: .85rem; font-weight: 600; color: var(--fg);
+  }
+  .client-note {
+    font-size: .7rem; color: var(--dim); opacity: .7;
+    text-align: right;
+  }
+  .clients-grid .client-item:nth-child(odd) { padding-right: 1.5rem; }
+  .clients-grid .client-item:nth-child(even) { padding-left: 1.5rem; border-left: 1px solid var(--border); }
+
+  .clients-stats {
+    display: flex; flex-wrap: wrap; gap: 2rem;
+    margin-top: 2.5rem; padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+  .stat { display: flex; flex-direction: column; }
+  .stat-num {
+    font-family: var(--font-sans);
+    font-size: 1.6rem; font-weight: 700; color: var(--fg);
+    letter-spacing: -.03em; line-height: 1.1;
+  }
+  .stat-label {
+    font-size: .7rem; color: var(--dim);
+    margin-top: .15rem; text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+
+  /* cta */
+  .cta-section { padding: 5rem 0; }
+  .cta-section .constrained {
+    text-align: center;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 1.5rem;
+  }
+  .cta-text {
+    font-family: var(--font-sans);
+    color: var(--dim); font-size: 1rem; max-width: 28ch;
+    line-height: 1.6;
   }
 
   @media (min-width: 640px) {
-    .grid { grid-template-columns: 1fr 1fr; }
-    .bio { font-size: .95rem; }
+    .project-grid { grid-template-columns: 1fr 1fr; }
+    .project-card { padding: 1.8rem 2rem; }
+    .clients-grid { grid-template-columns: repeat(3, 1fr); }
+    .clients-grid .client-item:nth-child(odd) { padding-right: 0; }
+    .clients-grid .client-item:nth-child(even) { padding-left: 0; border-left: none; }
+    .clients-grid .client-item { padding: .9rem 1rem; }
+    .clients-grid .client-item:nth-child(3n+2),
+    .clients-grid .client-item:nth-child(3n) {
+      border-left: 1px solid var(--border); padding-left: 1.5rem;
+    }
+  }
+
+  @media (min-width: 960px) {
+    .project-grid { grid-template-columns: repeat(3, 1fr); }
+    .project-card { padding: 2rem 2.2rem; }
+    .clients-stats { gap: 3rem; }
+    .stat-num { font-size: 2rem; }
   }
 
   @media (max-width: 400px) {
-    .now { padding: .85rem 1rem; }
-    .card { padding: .85rem 1rem; }
-    .card-featured { padding: 1rem; }
-    .card-status { display: block; margin: .35em 0 0; }
+    .hero { min-height: calc(100svh - 3.5rem); }
+    .project-card { padding: 1.2rem 1rem; }
+    .scroll-hint { display: none; }
+    .clients-grid { grid-template-columns: 1fr; }
+    .clients-grid .client-item:nth-child(even) { padding-left: 0; border-left: none; }
+    .clients-stats { gap: 1.5rem; }
   }
 </style>

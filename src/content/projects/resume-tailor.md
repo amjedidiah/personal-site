@@ -3,6 +3,7 @@ title: "Resume Tailor"
 description: "AI-powered resume optimisation SaaS with AWS microservice architecture."
 tech: ["Next.js", "AWS Lambda", "SQS", "DynamoDB", "Cognito", "Paystack", "Customer.io"]
 type: "founder"
+metric: "AWS microservice pipeline"
 order: 4
 ---
 

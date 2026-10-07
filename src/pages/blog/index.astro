@@ -25,12 +25,12 @@ const allPosts = [...localPosts, ...externalPosts].sort(
 ---
 
 <Base title="Blog — Jedidiah Amaraegbu" description="Writing about payments, security, AI agents, and building in public.">
-  <header>
+  <header class="sr">
     <h1>Blog</h1>
     <p class="sub">Payments, security, AI agents, and building in public.</p>
   </header>
 
-  <div class="posts">
+  <div class="posts sr-stagger">
     {allPosts.map((post) => (
       <a href={post.href} class="post" target={post.external ? "_blank" : undefined} rel={post.external ? "noopener" : undefined}>
         <time datetime={post.date.toISOString()}>

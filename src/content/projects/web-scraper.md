@@ -4,6 +4,7 @@ description: "Intelligent data ingestion pipeline with custom scoring for high-v
 tech: ["TypeScript", "Crawlee", "SQLite", "REST API"]
 type: "founder"
 featured: true
+metric: "Custom scoring algorithms"
 order: 3
 ---
 

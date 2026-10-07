@@ -6,9 +6,10 @@ import '../styles/global.css';
 interface Props {
   title: string;
   description?: string;
+  fullBleed?: boolean;
 }
 
-const { title, description = 'Full Stack Engineer. Stripe Architect. Security Researcher. Lagos.' } = Astro.props;
+const { title, description = 'Full Stack Engineer. Stripe Architect. Security Researcher. Lagos.', fullBleed = false } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://jedidiah.dev');
 ---
 
@@ -20,6 +21,9 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://jedidiah
   <title>{title}</title>
   <meta name="description" content={description} />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="canonical" href={canonicalURL} />
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalURL} />
@@ -34,9 +38,51 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://jedidiah
 </head>
 <body>
   <Nav />
-  <div class="wrap">
-    <slot />
-    <Footer />
-  </div>
+  {fullBleed ? (
+    <main>
+      <slot />
+    </main>
+  ) : (
+    <main class="wrap">
+      <slot />
+    </main>
+  )}
+  <Footer />
+  <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script is:inline>
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Reveal sections
+    gsap.utils.toArray('.sr').forEach(function(el) {
+      gsap.to(el, {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 85%',
+          once: true,
+        },
+      });
+    });
+
+    // Stagger children
+    gsap.utils.toArray('.sr-stagger').forEach(function(el) {
+      gsap.to(el.children, {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        stagger: 0.08,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 85%',
+          once: true,
+        },
+      });
+    });
+  </script>
 </body>
 </html>

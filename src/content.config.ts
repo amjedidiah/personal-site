@@ -20,6 +20,7 @@ const projects = defineCollection({
     type: z.enum(['founder', 'client', 'oss']),
     url: z.string().optional(),
     featured: z.boolean().optional(),
+    metric: z.string().optional(),
     order: z.number(),
   }),
 });

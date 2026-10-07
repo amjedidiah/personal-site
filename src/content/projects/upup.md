@@ -4,6 +4,7 @@ description: "Open-source React drag-and-drop file uploader on npm."
 tech: ["React", "TypeScript", "pnpm", "Turborepo"]
 type: "oss"
 url: "https://github.com/DevinoSolutions/upup"
+metric: "Published on npm"
 order: 6
 ---
 
