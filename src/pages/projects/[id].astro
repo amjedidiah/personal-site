@@ -1,0 +1,47 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  return projects.map((p) => ({ params: { id: p.id }, props: { project: p } }));
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+const typeLabel: Record<string, string> = { founder: 'own project', client: 'client work', oss: 'OSS contributor' };
+---
+
+<Base title={`${project.data.title} — Jedidiah Amaraegbu`} description={project.data.description}>
+  <article>
+    <header>
+      <div class="meta">
+        <span class="badge">{typeLabel[project.data.type]}</span>
+        {project.data.url && <a href={project.data.url} target="_blank" rel="noopener" class="ext">view source &nearr;</a>}
+      </div>
+      <h1>{project.data.title}</h1>
+      <p class="lead">{project.data.description}</p>
+      <div class="tech">{project.data.tech.join(' · ')}</div>
+    </header>
+    <div class="prose"><Content /></div>
+    <a href="/projects" class="back">&larr; all projects</a>
+  </article>
+</Base>
+
+<style>
+  article { max-width: 600px; }
+  header { margin-bottom: 2rem; }
+  .meta { display: flex; align-items: center; gap: .8em; margin-bottom: .6em; }
+  .badge { font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); border: 1px solid var(--border); padding: .2em .6em; border-radius: 4px; }
+  .ext { font-size: .75rem; color: var(--accent); }
+  h1 { margin-bottom: .3em; }
+  .lead { color: var(--dim); font-size: .85rem; line-height: 1.6; }
+  .tech { color: var(--dim); font-size: .7rem; opacity: .5; margin-top: .5em; }
+  .prose { font-size: .85rem; line-height: 1.8; color: var(--fg); }
+  .prose :global(p) { margin-bottom: 1em; }
+  .prose :global(h2) { font-size: .95rem; font-weight: 600; text-transform: none; letter-spacing: normal; border: none; padding: 0; margin: 2em 0 .6em; color: var(--fg); }
+  .prose :global(ul) { padding-left: 1.5em; margin-bottom: 1em; }
+  .prose :global(li) { margin-bottom: .3em; color: var(--dim); }
+  .back { display: inline-block; margin-top: 2rem; font-size: .8rem; color: var(--dim); }
+  .back:hover { color: var(--accent); }
+</style>
