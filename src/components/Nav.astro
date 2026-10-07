@@ -39,28 +39,31 @@ const links = [
 <style>
   nav {
     position: sticky; top: 0; z-index: 100;
-    background: var(--bg); border-bottom: 1px solid var(--border);
-    padding: 0 16px;
+    background: color-mix(in srgb, var(--bg) 80%, transparent);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
   }
   .nav-inner {
-    max-width: 680px; margin: 0 auto;
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 0 var(--gutter);
     display: flex; align-items: center; gap: 1.5rem;
-    height: 3rem;
+    height: 3.5rem;
   }
   .nav-name {
-    font-weight: 700; font-size: .9rem; color: var(--fg);
+    font-weight: 700; font-size: .95rem; color: var(--fg);
     margin-right: auto; letter-spacing: -.02em;
   }
   .nav-name:hover { opacity: 1; color: var(--accent); }
-  .nav-links { display: flex; gap: .1rem; }
+  .nav-links { display: flex; gap: .15rem; }
   .nav-links a, .nav-social a {
     font-size: .75rem; color: var(--dim);
-    padding: .3em .55em; border-radius: 4px;
+    padding: .35em .6em; border-radius: 4px;
     transition: color .15s, background .15s;
   }
   .nav-social a {
     display: grid; place-items: center;
-    width: 28px; height: 28px;
+    width: 30px; height: 30px;
     padding: 0;
   }
   .nav-social svg { width: 15px; height: 15px; fill: currentColor; }
@@ -68,10 +71,8 @@ const links = [
     color: var(--fg); background: var(--surface); opacity: 1;
   }
   .nav-links a.active { color: var(--accent); background: var(--glow); }
-  .nav-social { display: flex; gap: .1rem; border-left: 1px solid var(--border); padding-left: .8rem; margin-left: .4rem; }
+  .nav-social { display: flex; gap: .15rem; border-left: 1px solid var(--border); padding-left: .8rem; margin-left: .4rem; }
 
-  @media (min-width: 640px) { nav { padding: 0 24px; } }
-  @media (min-width: 960px) { nav { padding: 0 48px; } }
   @media (max-width: 400px) {
     .nav-inner { gap: .8rem; }
     .nav-links a, .nav-social a { font-size: .7rem; padding: .25em .4em; }

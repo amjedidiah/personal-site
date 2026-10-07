@@ -4,6 +4,7 @@ description: "Multiplayer AI agent platform enabling real-time collaborative AI 
 tech: ["React 19", "FastAPI", "WebSockets", "OpenRouter", "Ollama", "Playwright"]
 type: "founder"
 featured: true
+metric: "Multi-provider LLM streaming"
 order: 1
 ---
 

@@ -3,6 +3,7 @@ title: "Free Tribe Network"
 description: "Multilingual health-advocacy PWA for an NGO with 25% international engagement growth."
 tech: ["Next.js", "TypeScript", "WordPress CMS", "Algolia"]
 type: "client"
+metric: "+25% international engagement"
 order: 5
 ---
 

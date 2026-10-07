@@ -4,6 +4,7 @@ description: "AI-powered fintech platform digitising Nigerian savings circles."
 tech: ["Next.js", "Express", "MongoDB", "LangChain", "DeepSeek", "Interswitch"]
 type: "founder"
 featured: true
+metric: "2 LangChain AI agents"
 order: 2
 ---
 
