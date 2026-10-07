@@ -1,0 +1,130 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="About — Jedidiah Amaraegbu" description="Full stack engineer, Stripe architect, security researcher based in Lagos.">
+  <header>
+    <h1>About</h1>
+  </header>
+
+  <div class="content">
+    <p>I'm Jedidiah Amaraegbu, a full stack engineer based in Lagos, Nigeria. I build payment infrastructure, AI-powered products, and real-time collaborative tools.</p>
+
+    <p>I started in electronics engineering at the University of Nigeria, Nsukka, but pivoted to software after a brief stint in dental surgery. I've been shipping production code for 6+ years, mostly in TypeScript, React, Node.js, and Python.</p>
+
+    <p>My speciality is payments. I hold both Stripe certifications (Professional Implementation Architect and Professional Payments Developer). I've built compliant payment systems for government contractors, automated cross-border payment flows, and integrated mobile money APIs across West Africa.</p>
+
+    <p>I also teach. I've mentored 200+ developers across 3 continents through Google Developer Groups, Andela, GoMyCode, and Remotebase. I ran workshops at Google DevFest in 2022 and 2023, and led a bootcamp in the Benin Republic.</p>
+
+    <p>Right now I'm building Gwela, a multiplayer AI agent platform, and doing security research on Stripe's infrastructure through their HackerOne bug bounty program. I'm applying to YC W27.</p>
+  </div>
+
+  <section>
+    <h2>Experience</h2>
+    <div class="timeline">
+      <div class="exp">
+        <div class="exp-head">
+          <span class="exp-name">Fiverr Pro</span>
+          <span class="exp-role">Full Stack Stripe Certified Developer</span>
+          <span class="exp-date">2023&ndash;present</span>
+        </div>
+        <div class="exp-desc">Payment systems for 100+ government contractors. PCI-compliant Stripe integrations. AI-native development workflows.</div>
+      </div>
+      <div class="exp">
+        <div class="exp-head">
+          <span class="exp-name">Remotebase</span>
+          <span class="exp-role">Full Stack Software Engineer</span>
+          <span class="exp-date">2022&ndash;2023</span>
+        </div>
+        <div class="exp-desc">Custom podcast player (+10% engagement), automated cross-border payments (-25% processing time), SSG optimisation (-20% load times). Mentored 5 engineers.</div>
+      </div>
+      <div class="exp">
+        <div class="exp-head">
+          <span class="exp-name">GoMyCode</span>
+          <span class="exp-role">Full Stack JavaScript Instructor</span>
+          <span class="exp-date">2021&ndash;2022</span>
+        </div>
+        <div class="exp-desc">Trained 4 cohorts. 25% student job placement increase. Volunteered a 1-week bootcamp in Benin Republic.</div>
+      </div>
+      <div class="exp">
+        <div class="exp-head">
+          <span class="exp-name">Woozeee</span>
+          <span class="exp-role">Full Stack Web Developer</span>
+          <span class="exp-date">2021</span>
+        </div>
+        <div class="exp-desc">Responsive design patterns for bandwidth-constrained mobile users. 30% page load improvement through modular architecture.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Credentials</h2>
+    <ul class="certs">
+      <li>Stripe Professional Implementation Architect (2022)</li>
+      <li>Stripe Professional Payments Developer (2022)</li>
+      <li>B.E. Electronic Engineering &mdash; University of Nigeria, Nsukka</li>
+      <li>iCreate Skills Festival National Medal (2019)</li>
+      <li>Google DevFest speaker &mdash; Enugu 2022 & 2023</li>
+      <li>200+ developers mentored across 3 continents</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Stack</h2>
+    <div class="stack">
+      <span>TypeScript</span><span>React</span><span>Next.js</span><span>Node.js</span>
+      <span>Python</span><span>FastAPI</span><span>LangChain</span><span>PostgreSQL</span>
+      <span>MongoDB</span><span>Redis</span><span>AWS</span><span>Docker</span>
+      <span>Stripe</span><span>React Native</span><span>TailwindCSS</span><span>Playwright</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Contact</h2>
+    <div class="links">
+      <a href="mailto:imunacode@gmail.com">email</a>
+      <a href="https://github.com/amjedidiah" target="_blank" rel="noopener">github</a>
+      <a href="https://linkedin.com/in/amjedidiah" target="_blank" rel="noopener">linkedin</a>
+      <a href="https://twitter.com/amjedidiah" target="_blank" rel="noopener">x / twitter</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  header { margin-bottom: 2rem; }
+
+  .content { margin-bottom: 2.5rem; }
+  .content p { color: var(--fg); font-size: .85rem; line-height: 1.75; margin-bottom: .8em; }
+
+  .timeline { display: flex; flex-direction: column; gap: 0; }
+  .exp { padding: .9em 0 .9em 1em; border-left: 2px solid var(--border); }
+  .exp:first-child { padding-top: 0; }
+  .exp:last-child { padding-bottom: 0; }
+  .exp-head { display: flex; align-items: baseline; gap: .5em; flex-wrap: wrap; }
+  .exp-name { font-weight: 600; color: var(--fg); font-size: .85rem; }
+  .exp-role { color: var(--dim); font-size: .75rem; }
+  .exp-date { color: var(--dim); font-size: .7rem; opacity: .6; margin-left: auto; }
+  .exp-desc { color: var(--dim); font-size: .8rem; margin-top: .2em; line-height: 1.55; }
+
+  .certs { list-style: none; padding: 0; color: var(--dim); font-size: .8rem; }
+  .certs li { margin-bottom: .4em; padding-left: 1.2em; position: relative; line-height: 1.5; }
+  .certs li::before { content: "›"; color: var(--accent); position: absolute; left: 0; font-weight: 700; }
+
+  .stack { display: flex; flex-wrap: wrap; gap: .4em; }
+  .stack span {
+    font-size: .75rem; color: var(--dim); padding: .3em .65em;
+    border: 1px solid var(--border); border-radius: 4px;
+  }
+
+  .links { display: flex; flex-wrap: wrap; gap: .5em; }
+  .links a {
+    display: inline-flex; padding: .45em .85em;
+    border: 1px solid var(--border); border-radius: 6px;
+    font-size: .8rem; color: var(--dim); transition: border-color .15s, color .15s;
+  }
+  .links a:hover { border-color: var(--accent); color: var(--accent); opacity: 1; }
+
+  @media (max-width: 640px) {
+    .exp-date { margin-left: 0; width: 100%; }
+  }
+</style>

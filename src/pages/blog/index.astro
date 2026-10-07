@@ -1,0 +1,73 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { hashnodePosts } from '../../data/hashnode';
+
+const localPosts = (await getCollection('blog')).map((p) => ({
+  title: p.data.title,
+  description: p.data.description,
+  date: p.data.date,
+  href: `/blog/${p.id}`,
+  external: false,
+}));
+
+const externalPosts = hashnodePosts.map((p) => ({
+  title: p.title,
+  description: p.brief,
+  date: new Date(p.date),
+  href: p.url,
+  external: true,
+}));
+
+const allPosts = [...localPosts, ...externalPosts].sort(
+  (a, b) => b.date.valueOf() - a.date.valueOf()
+);
+---
+
+<Base title="Blog — Jedidiah Amaraegbu" description="Writing about payments, security, AI agents, and building in public.">
+  <header>
+    <h1>Blog</h1>
+    <p class="sub">Payments, security, AI agents, and building in public.</p>
+  </header>
+
+  <div class="posts">
+    {allPosts.map((post) => (
+      <a href={post.href} class="post" target={post.external ? "_blank" : undefined} rel={post.external ? "noopener" : undefined}>
+        <time datetime={post.date.toISOString()}>
+          {post.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+        </time>
+        <span class="post-title">
+          {post.title}
+          {post.external && <span class="ext">&nearr;</span>}
+        </span>
+        {post.description && <span class="post-desc">{post.description}</span>}
+      </a>
+    ))}
+  </div>
+</Base>
+
+<style>
+  header { margin-bottom: 2rem; }
+  .sub { color: var(--dim); font-size: .85rem; margin-top: .3em; }
+
+  .posts { display: flex; flex-direction: column; }
+  .post {
+    display: grid; grid-template-columns: 7em 1fr; gap: .2em .8em;
+    padding: .8em 0; border-bottom: 1px solid var(--border);
+    color: inherit; transition: background .15s;
+    align-items: baseline;
+  }
+  .post:first-child { border-top: 1px solid var(--border); }
+  .post:hover { opacity: 1; }
+  .post:hover .post-title { color: var(--accent); }
+
+  time { font-size: .7rem; color: var(--dim); opacity: .6; white-space: nowrap; }
+  .post-title { font-size: .85rem; font-weight: 600; color: var(--fg); transition: color .15s; }
+  .ext { font-size: .7rem; color: var(--dim); opacity: .5; margin-left: .3em; }
+  .post-desc { grid-column: 2; font-size: .75rem; color: var(--dim); line-height: 1.5; }
+
+  @media (max-width: 500px) {
+    .post { grid-template-columns: 1fr; gap: .1em; }
+    .post-desc { grid-column: 1; }
+  }
+</style>

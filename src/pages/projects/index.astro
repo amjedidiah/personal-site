@@ -1,0 +1,42 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const allProjects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+const typeLabel: Record<string, string> = { founder: 'own project', client: 'client work', oss: 'OSS contributor' };
+---
+
+<Base title="Projects — Jedidiah Amaraegbu" description="Selected projects: AI agents, fintech, security tools, and open source.">
+  <header>
+    <h1>Projects</h1>
+    <p class="sub">Things I've built, shipped, or contributed to.</p>
+  </header>
+
+  <div class="grid">
+    {allProjects.map((p) => (
+      <a href={`/projects/${p.id}`} class="card">
+        <div class="card-head">
+          <span class="card-name">{p.data.title}</span>
+          <span class="card-badge">{typeLabel[p.data.type]}</span>
+        </div>
+        <div class="card-desc">{p.data.description}</div>
+        <div class="card-tech">{p.data.tech.join(' · ')}</div>
+      </a>
+    ))}
+  </div>
+</Base>
+
+<style>
+  header { margin-bottom: 2rem; }
+  .sub { color: var(--dim); font-size: .85rem; margin-top: .3em; }
+  .grid { display: grid; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .card { background: var(--bg); padding: 1.1rem 1.25rem; display: block; color: inherit; transition: background .15s; }
+  .card:hover { background: var(--surface); opacity: 1; }
+  .card-head { display: flex; align-items: baseline; gap: .5em; flex-wrap: wrap; }
+  .card-name { font-weight: 600; color: var(--fg); font-size: .9rem; }
+  .card-badge { color: var(--dim); font-size: .65rem; opacity: .6; text-transform: uppercase; letter-spacing: .06em; }
+  .card-desc { color: var(--dim); font-size: .8rem; margin-top: .3em; line-height: 1.6; }
+  .card-tech { color: var(--dim); font-size: .7rem; margin-top: .4em; opacity: .5; }
+  @media (min-width: 640px) { .grid { grid-template-columns: 1fr 1fr; } .grid .card:last-child:nth-child(odd) { grid-column: 1 / -1; } }
+  @media (max-width: 400px) { .card { padding: .85rem 1rem; } }
+</style>
