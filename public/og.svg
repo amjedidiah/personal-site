@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#0a0c10"/>
+  <text x="80" y="260" font-family="SF Mono,SFMono-Regular,Menlo,Consolas,monospace" font-size="56" font-weight="700" fill="#c9d1d9">Jedidiah Amaraegbu</text>
+  <text x="80" y="330" font-family="SF Mono,SFMono-Regular,Menlo,Consolas,monospace" font-size="28" fill="#8b949e">full stack engineer · stripe architect · security researcher</text>
+  <text x="80" y="420" font-family="SF Mono,SFMono-Regular,Menlo,Consolas,monospace" font-size="22" fill="#58a6ff">jedidiah.dev</text>
+  <rect x="0" y="610" width="1200" height="20" fill="#58a6ff" opacity="0.3"/>
+</svg>
