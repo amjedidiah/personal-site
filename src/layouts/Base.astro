@@ -9,6 +9,7 @@ interface Props {
 }
 
 const { title, description = 'Full Stack Engineer. Stripe Architect. Security Researcher. Lagos.' } = Astro.props;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://jedidiah.dev');
 ---
 
 <!doctype html>
@@ -19,6 +20,17 @@ const { title, description = 'Full Stack Engineer. Stripe Architect. Security Re
   <title>{title}</title>
   <meta name="description" content={description} />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="canonical" href={canonicalURL} />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={canonicalURL} />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content="/og.svg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@amjedidiah" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content="/og.svg" />
 </head>
 <body>
   <Nav />

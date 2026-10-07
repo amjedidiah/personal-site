@@ -1,7 +1,7 @@
 :root {
   --bg: #0a0c10;
   --fg: #c9d1d9;
-  --dim: #6e7681;
+  --dim: #8b949e;
   --accent: #58a6ff;
   --border: #21262d;
   --surface: #161b22;
@@ -12,7 +12,7 @@
   :root:not([data-theme="dark"]) {
     --bg: #fff;
     --fg: #1f2328;
-    --dim: #656d76;
+    --dim: #57606a;
     --accent: #0969da;
     --border: #d0d7de;
     --surface: #f6f8fa;
@@ -44,6 +44,7 @@ body {
 
 a { color: var(--accent); text-decoration: none; transition: opacity .15s; }
 a:hover { opacity: .8; }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
 h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: -.03em; color: var(--fg); }
 h2 {

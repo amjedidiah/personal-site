@@ -1,5 +1,12 @@
 ---
 import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('projects'))
+  .filter((p) => p.data.featured)
+  .sort((a, b) => a.data.order - b.data.order);
+
+const [hero, ...rest] = projects;
 ---
 
 <Base title="Jedidiah Amaraegbu">
@@ -7,8 +14,13 @@ import Base from '../layouts/Base.astro';
     <h1>Jedidiah Amaraegbu</h1>
     <div class="sub">full stack engineer &middot; stripe architect &middot; security researcher</div>
     <div class="bio">
-      <p>I build payment systems, AI agents, and real-time platforms. 6+ years shipping TypeScript, React, Node.js, and Python across fintech, edtech, and social products.</p>
+      <p class="hero-lede">I build payment infrastructure and AI products for complex, high-stakes workflows.</p>
+      <p>6+ years shipping TypeScript, React, Node.js, and Python across fintech, edtech, and social products.</p>
       <p>Stripe-certified (Implementation Architect + Payments Developer). Currently hunting bugs on Stripe's HackerOne program and building multiplayer AI tooling.</p>
+    </div>
+    <div class="hero-actions">
+      <a class="primary-action" href="/projects">see selected work</a>
+      <a href="mailto:imunacode@gmail.com">start a conversation</a>
     </div>
   </header>
 
@@ -19,38 +31,49 @@ import Base from '../layouts/Base.astro';
   <section>
     <h2>Featured Work</h2>
     <div class="grid">
-      <a href="/projects" class="card">
-        <span class="card-name">Gwela</span>
-        <div class="card-desc">Multiplayer AI agent platform with real-time WebSocket streaming and multi-provider LLM support.</div>
-        <div class="card-tech">React 19 &middot; FastAPI &middot; WebSockets</div>
-      </a>
-      <a href="/projects" class="card">
-        <span class="card-name">AjoFlow</span>
-        <div class="card-desc">AI-powered fintech digitising Nigerian savings circles with LangChain agents.</div>
-        <div class="card-tech">Next.js &middot; LangChain &middot; Interswitch</div>
-      </a>
-      <a href="/projects" class="card">
-        <span class="card-name">Web Scraper</span>
-        <div class="card-desc">Intelligent data pipeline with custom scoring for high-value signal extraction.</div>
-        <div class="card-tech">TypeScript &middot; Crawlee &middot; SQLite</div>
-      </a>
+      {hero && (
+        <a href={`/projects/${hero.id}`} class="card card-featured">
+          <div>
+            <span class="card-name">{hero.data.title}</span>
+            {hero.data.order === 1 && <span class="card-status">current build</span>}
+          </div>
+          <div class="card-desc">{hero.data.description}</div>
+          <div class="card-footer">
+            <div class="card-tech">{hero.data.tech.join(' · ')}</div>
+            <span class="card-arrow">view project &rarr;</span>
+          </div>
+        </a>
+      )}
+      {rest.map((p) => (
+        <a href={`/projects/${p.id}`} class="card card-secondary">
+          <span class="card-name">{p.data.title}</span>
+          <div class="card-desc">{p.data.description}</div>
+          <div class="card-tech">{p.data.tech.join(' · ')}</div>
+        </a>
+      ))}
     </div>
     <a href="/projects" class="see-all">all projects &rarr;</a>
   </section>
 
-  <section>
-    <h2>Latest</h2>
-    <div class="posts">
-      <p class="empty">Blog posts coming soon. Check back or follow on <a href="https://twitter.com/amjedidiah">X</a>.</p>
-    </div>
+  <section class="closing">
+    <p>Have a payment, AI, or real-time product problem? <a href="mailto:imunacode@gmail.com">Let's talk.</a></p>
   </section>
 </Base>
 
 <style>
   header { margin-bottom: 3rem; }
   .sub { color: var(--dim); font-size: .85rem; margin-top: .15em; margin-bottom: 1.5rem; }
-  .bio { color: var(--fg); font-size: .9rem; line-height: 1.75; }
+  .bio { color: var(--fg); font-size: .9rem; line-height: 1.75; max-width: 60ch; }
   .bio p { margin-bottom: .5em; }
+  .hero-lede { font-size: 1.05rem; line-height: 1.6; margin-bottom: .8em !important; }
+  .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .8rem 1rem; margin-top: 1.5rem; font-size: .8rem; }
+  .hero-actions a { color: var(--dim); }
+  .hero-actions a:hover { color: var(--accent); opacity: 1; }
+  .hero-actions .primary-action {
+    color: var(--bg); background: var(--accent); border: 1px solid var(--accent);
+    border-radius: 5px; padding: .55em .85em; font-weight: 600;
+  }
+  .hero-actions .primary-action:hover { color: var(--bg); opacity: .85; }
 
   .now {
     background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
@@ -69,26 +92,36 @@ import Base from '../layouts/Base.astro';
     color: inherit; transition: background .15s;
   }
   .card:hover { background: var(--surface); opacity: 1; }
+  .card-featured { grid-column: 1 / -1; padding: 1.25rem 1.4rem; }
   .card-name { font-weight: 600; color: var(--fg); font-size: .9rem; }
+  .card-featured .card-name { font-size: 1.05rem; }
+  .card-status { color: var(--accent); font-size: .65rem; margin-left: .6em; text-transform: uppercase; letter-spacing: .08em; }
   .card-desc { color: var(--dim); font-size: .8rem; margin-top: .3em; line-height: 1.55; }
-  .card-tech { color: var(--dim); font-size: .7rem; margin-top: .35em; opacity: .55; }
+  .card-featured .card-desc { max-width: 58ch; font-size: .85rem; margin-top: .5em; }
+  .card-tech { color: var(--dim); font-size: .7rem; margin-top: .35em; opacity: .7; }
+  .card-footer { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .5rem 1rem; margin-top: .8rem; }
+  .card-footer .card-tech { margin-top: 0; }
+  .card-arrow { color: var(--accent); font-size: .7rem; }
 
   .see-all {
     display: inline-block; margin-top: .8rem; font-size: .8rem; color: var(--dim);
   }
   .see-all:hover { color: var(--accent); }
 
-  .posts { color: var(--dim); font-size: .85rem; }
-  .empty { font-style: italic; opacity: .7; }
+  .closing {
+    margin-top: 3.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border);
+    color: var(--dim); font-size: .85rem;
+  }
 
   @media (min-width: 640px) {
     .grid { grid-template-columns: 1fr 1fr; }
-    .grid .card:last-child:nth-child(odd) { grid-column: 1 / -1; }
     .bio { font-size: .95rem; }
   }
 
   @media (max-width: 400px) {
     .now { padding: .85rem 1rem; }
     .card { padding: .85rem 1rem; }
+    .card-featured { padding: 1rem; }
+    .card-status { display: block; margin: .35em 0 0; }
   }
 </style>
