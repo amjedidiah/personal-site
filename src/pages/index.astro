@@ -14,6 +14,11 @@ const otherFeatured = projects.filter((p) => p.id !== 'ajoflow' && p.id !== 'gwe
 
 const caseFocus: Record<string, string> = { ajoflow: 'Payments + AI', gwela: 'Collaborative AI' };
 
+const paymentInquirySubject = 'Payment project inquiry';
+const paymentInquiryMessage = "Hi Jedidiah, I'd like to discuss a payment project.";
+const paymentInquiryEmail = `mailto:imunacode@gmail.com?subject=${encodeURIComponent(paymentInquirySubject)}&body=${encodeURIComponent(paymentInquiryMessage)}`;
+const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComponent(paymentInquiryMessage)}`;
+
 const clients = [
   { name: 'Fiverr Pro', note: '100+ contractors' },
   { name: 'Remotebase', note: 'cross-border payments' },
@@ -34,7 +39,7 @@ const clients = [
       <h1 class="sr">Payments and AI that hold up in production.</h1>
       <p class="hero-lede sr">From Stripe Connect integrations and cross-border payouts to collaborative AI agents — I take complex systems from prototype to production.</p>
       <div class="hero-actions sr">
-        <a class="btn-primary" href="mailto:imunacode@gmail.com?subject=Payment%20project%20inquiry">discuss a payment project</a>
+        <a class="btn-primary hero-contact" href={paymentInquiryEmail} data-email-href={paymentInquiryEmail} data-whatsapp-href={paymentInquiryWhatsApp}>discuss a payment project</a>
         <a class="btn-ghost" href="/projects/gwela">explore Gwela (AI)</a>
       </div>
       <div class="scroll-hint" aria-hidden="true"><span></span></div>
@@ -45,7 +50,6 @@ const clients = [
   <section class="now-section" data-nav-surface="surface">
     <div class="constrained">
       <div class="section-label sr">
-        <span class="section-num">01</span>
         <h2>now</h2>
       </div>
       <div class="now-grid sr">
@@ -72,12 +76,11 @@ const clients = [
   <section class="work-section">
     <div class="constrained">
       <div class="section-label sr">
-        <span class="section-num">02</span>
         <h2>featured work</h2>
       </div>
       <div class="case-list sr-stagger">
-        {caseStudies.map((p) => (
-          <article class="case-study">
+        {caseStudies.map((p, index) => (
+          <article class:list={['case-study', { 'case-study--lead': index === 0 }]}>
             <a href={`/projects/${p.id}`} class="case-image-link" aria-label={`Read ${p.data.title} case study`}>
               <div class="case-image">
                 {p.data.image && <ProgressiveImage src={p.data.image} alt={p.data.imageAlt ?? p.data.title} placeholder={imagePlaceholders[p.id]} sizes="(max-width: 900px) calc(100vw - 2rem), 45vw" />}
@@ -109,35 +112,16 @@ const clients = [
   <section class="clients-section" data-nav-surface="surface">
     <div class="constrained">
       <div class="section-label sr">
-        <span class="section-num">03</span>
         <h2>experience</h2>
       </div>
       <p class="experience-summary sr">Work spanning payment infrastructure, developer education, and security research.</p>
-      <div class="clients-grid sr-stagger">
+      <div class="proof-list sr-stagger">
         {clients.map((c) => (
-          <div class="client-item">
-            <span class="client-name">{c.name}</span>
-            <span class="client-note">{c.note}</span>
-          </div>
+          <span class="proof-item">
+            <strong>{c.name}</strong>
+            <span>{c.note}</span>
+          </span>
         ))}
-      </div>
-      <div class="clients-stats sr">
-        <div class="stat">
-          <span class="stat-num">6+</span>
-          <span class="stat-label">years shipping</span>
-        </div>
-        <div class="stat">
-          <span class="stat-num">200+</span>
-          <span class="stat-label">devs mentored</span>
-        </div>
-        <div class="stat">
-          <span class="stat-num">3</span>
-          <span class="stat-label">continents</span>
-        </div>
-        <div class="stat">
-          <span class="stat-num">2x</span>
-          <span class="stat-label">Stripe certified</span>
-        </div>
       </div>
     </div>
   </section>
@@ -156,7 +140,7 @@ const clients = [
   /* hero */
   .hero { overflow: visible; }
   .hero-tag {
-    color: var(--dim); font-size: .8rem;
+    color: var(--dim); font: .8rem/1.5 var(--font-mono);
     margin-bottom: 1.2rem; letter-spacing: .02em;
   }
   .hero-name {
@@ -183,7 +167,7 @@ const clients = [
     min-height: 44px;
     font-family: var(--font-mono);
     color: var(--bg); background: var(--accent);
-    padding: .65em 1.3em; border-radius: 6px;
+    padding: .65em 1.3em; border-radius: 2px;
     font-size: .8rem; font-weight: 600;
     transition: opacity .15s;
   }
@@ -194,7 +178,7 @@ const clients = [
     font-family: var(--font-mono);
     color: var(--dim); font-size: .8rem;
     padding: .65em 1.3em;
-    border: 1px solid var(--border); border-radius: 6px;
+    border: 1px solid var(--border); border-radius: 2px;
     transition: border-color .15s, color .15s;
   }
   .btn-ghost:hover { border-color: var(--accent); color: var(--accent); opacity: 1; }
@@ -222,8 +206,8 @@ const clients = [
 
   /* now */
   .now-section {
-    padding: 2rem 0 3rem;
-    background: var(--surface);
+    padding: 1.4rem 0 1.6rem;
+    background: transparent;
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
   }
@@ -231,7 +215,7 @@ const clients = [
   .now-grid {
     display: grid;
     grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
-    gap: 3rem;
+    gap: 3.5rem;
   }
   .now {
     font-family: var(--font-sans);
@@ -271,7 +255,7 @@ const clients = [
   .current-reviewed { margin-top: 1.5rem; min-height: 1rem; }
 
   /* work */
-  .work-section { padding: 5rem 0 3rem; }
+  .work-section { padding: 6rem 0 4rem; }
   .case-list { border-bottom: 1px solid var(--border); }
   .case-study {
     display: grid;
@@ -281,13 +265,17 @@ const clients = [
     padding: 2.25rem 0;
     border-top: 1px solid var(--border);
   }
+  .case-study--lead {
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, .65fr);
+    padding-top: 0;
+  }
   .case-image-link { display: block; min-width: 0; }
   .case-image {
     display: grid; place-items: center;
     aspect-ratio: 16 / 10;
     overflow: hidden;
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: 0;
     background: var(--surface);
   }
   .case-image :global(.progressive-image) {
@@ -304,10 +292,11 @@ const clients = [
   .case-caption {
     display: block; margin-top: .5rem;
     color: var(--dim); font-size: .75rem; line-height: 1.45;
+    font-family: var(--font-mono);
   }
   .case-copy { min-width: 0; }
   .case-focus {
-    color: var(--accent); font-size: .75rem;
+    color: var(--accent); font: .75rem/1.4 var(--font-mono);
     text-transform: uppercase; letter-spacing: .05em;
     margin-bottom: .6rem;
   }
@@ -333,10 +322,11 @@ const clients = [
   .case-facts dt {
     color: var(--dim); font-size: .75rem;
     text-transform: uppercase; letter-spacing: .04em;
+    font-family: var(--font-mono);
   }
   .case-facts dd { color: var(--fg); font-size: .8rem; line-height: 1.5; }
   .case-actions { display: flex; flex-wrap: wrap; gap: .25rem 1.4rem; }
-  .case-actions a { display: inline-flex; align-items: center; min-height: 40px; color: var(--accent); font-size: .8rem; }
+  .case-actions a { display: inline-flex; align-items: center; min-height: 40px; color: var(--accent); font: .8rem/1.4 var(--font-mono); }
   .case-actions a:hover { text-decoration: underline; text-underline-offset: 3px; }
   .other-work {
     margin-top: 1.4rem;
@@ -354,20 +344,12 @@ const clients = [
     .case-image :global(.progressive-image) { transition: none; }
   }
 
-  /* clients / experience */
+  /* experience */
   .clients-section {
     padding: 5rem 0;
-    background: var(--surface);
+    background: transparent;
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
-  }
-  .clients-grid {
-    display: grid; grid-template-columns: repeat(2, 1fr);
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    overflow: hidden;
   }
   .experience-summary {
     max-width: 48ch;
@@ -377,59 +359,34 @@ const clients = [
     font-size: .95rem;
     line-height: 1.65;
   }
-  .client-item {
-    min-height: 6.5rem;
-    padding: 1.15rem 1.25rem;
-    background: var(--bg);
+  .proof-list {
     display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: .75rem;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: .7rem 1.2rem;
+    padding: 1.1rem 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
   }
-  .client-name {
+  .proof-item {
+    display: inline-flex;
+    align-items: baseline;
+    gap: .55rem;
+  }
+  .proof-item strong {
     font-family: var(--font-sans);
-    font-size: .95rem; font-weight: 600; color: var(--fg);
+    font-size: .9rem; font-weight: 600; color: var(--fg);
   }
-  .client-note {
-    font-size: .75rem; color: var(--dim);
-  }
-
-  .clients-stats {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1px;
-    margin-top: 1.25rem;
-    background: var(--border);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    overflow: hidden;
-  }
-  .stat {
-    min-height: 6rem;
-    padding: 1rem 1.15rem;
-    background: var(--surface);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-  .stat-num {
-    font-family: var(--font-sans);
-    font-size: 1.6rem; font-weight: 700; color: var(--fg);
-    letter-spacing: 0; line-height: 1.1;
-  }
-  .stat-label {
-    font-size: .75rem; color: var(--dim);
-    margin-top: .15rem; text-transform: uppercase;
-    letter-spacing: .06em;
+  .proof-item span {
+    font: .75rem/1.4 var(--font-mono); color: var(--dim);
   }
 
   /* cta */
   .cta-section { padding: 4.5rem 0; }
   .cta-section .constrained {
-    text-align: center;
+    text-align: left;
     display: flex; flex-direction: column;
-    align-items: center; gap: 1.5rem;
+    align-items: flex-start; gap: 1.2rem;
   }
   .cta-text {
     font-family: var(--font-sans);
@@ -440,13 +397,10 @@ const clients = [
   .cta-email:hover { color: var(--accent); }
 
   @media (min-width: 640px) {
-    .clients-grid { grid-template-columns: repeat(3, 1fr); }
     .hero h1 { font-size: 2.8rem; }
   }
 
   @media (min-width: 960px) {
-    .clients-stats { gap: 3rem; }
-    .stat-num { font-size: 2rem; }
     .hero h1 { font-size: 3.3rem; }
     .hero-lede { font-size: 1.15rem; }
     .case-copy h3 { font-size: 1.85rem; }
@@ -481,8 +435,6 @@ const clients = [
     .hero { padding-bottom: 2.5rem; }
     .current-signals { grid-template-columns: 1fr; }
     .scroll-hint { display: none; }
-    .clients-grid { grid-template-columns: 1fr; }
-    .clients-stats { grid-template-columns: repeat(2, 1fr); }
   }
 
   @media (max-width: 400px) and (max-height: 760px) {
@@ -499,6 +451,27 @@ const clients = [
 
 <script>
   import { currentIssueUrls, parseAvailabilityIssue, parseLatestIssue } from '../lib/current-feed';
+
+  const heroContact = document.querySelector<HTMLAnchorElement>('.hero-contact');
+  if (heroContact) {
+    const mobileBreakpoint = window.matchMedia('(max-width: 639px)');
+    const updateHeroContact = () => {
+      const isMobile = mobileBreakpoint.matches;
+      heroContact.href = isMobile
+        ? heroContact.dataset.whatsappHref ?? heroContact.href
+        : heroContact.dataset.emailHref ?? heroContact.href;
+      heroContact.setAttribute('aria-label', `Discuss a payment project via ${isMobile ? 'WhatsApp' : 'email'}`);
+      if (isMobile) {
+        heroContact.target = '_blank';
+        heroContact.rel = 'noopener';
+      } else {
+        heroContact.removeAttribute('target');
+        heroContact.removeAttribute('rel');
+      }
+    };
+    updateHeroContact();
+    mobileBreakpoint.addEventListener('change', updateHeroContact);
+  }
 
   type FeedResult<T> =
     | { kind: 'data'; value: T; raw: unknown }
