@@ -1,5 +1,6 @@
 ---
-import { ArrowUpRight } from '@lucide/astro';
+import ListingExplore, { type ListingExplorePaper } from './ListingExplore.astro';
+import type { ListingExploreWire } from '../lib/listing-explore';
 
 interface Post {
   title: string;
@@ -15,412 +16,51 @@ interface Props {
 }
 
 const { groups } = Astro.props;
-const papers = groups.flatMap(([year, posts]) => posts.map((post) => ({ year, post })));
-const first = papers[0];
+
+const papers: ListingExplorePaper[] = groups.flatMap(([year, posts]) =>
+  posts.map((post) => ({
+    title: post.title,
+    description: post.description,
+    href: post.href,
+    cardMetaA: String(year),
+    cardMetaB: post.external ? 'HASHNODE' : 'JOURNAL',
+    detailMetaA: post.date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+    detailMetaB: post.external ? 'Hashnode' : 'Journal',
+    metaLine: post.date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }),
+    exploreJump: String(year),
+    external: post.external,
+    filterAttrs: {
+      'data-blog-post': '',
+      'data-post-href': post.href,
+      'data-categories': post.categories.join(' '),
+      'data-year': String(year),
+    },
+  })),
+);
+
+const wire: ListingExploreWire = {
+  listingRoot: '.blog-view',
+  eventEnter: 'blogexploreenter',
+  eventFilter: 'blogcategorychange',
+  eventJump: 'blogexploreyear',
+  eventSelectJump: 'blogexploreselectyear',
+  itemNoun: 'paper',
+  readLabel: 'Read article',
+  fallbackHref: '#blog-archive-timeline',
+  emptyTitle: 'No papers in this category',
+  emptyDescription: 'Choose another category to keep exploring.',
+  previewNote: 'Click the paper to select it',
+};
 ---
 
-<section class="explore" aria-label="Explore blog posts">
-  <div class="explore-scene">
-    <div class="globe-stage" tabindex="0" aria-label="Paper globe. Use left and right arrows to browse papers, up and down arrows to tilt. Tab reaches Reset globe, then Read article.">
-      <button class="explore-reset" type="button">Reset globe</button>
-      <p class="globe-hint"><span class="globe-hint-desktop">drag to turn · click to select</span><span class="globe-hint-mobile">swipe to turn · tap a paper</span></p>
-      <div class="globe-orbit" aria-hidden="true"></div>
-      <div class="globe-axis">
-        <div class="paper-globe">
-          {papers.map(({ year, post }, index) => (
-            <article
-              class="paper"
-              data-blog-post
-              data-year={year}
-              data-categories={post.categories.join(' ')}
-              data-title={post.title}
-              data-description={post.description}
-              data-date={post.date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-              data-source={post.external ? 'Hashnode' : 'Journal'}
-              data-href={post.href}
-              data-external={String(post.external)}
-            >
-              <div class="paper-surface">
-                <button
-                  class="paper-select"
-                  type="button"
-                  tabindex="-1"
-                  aria-pressed={index === 0 ? 'true' : 'false'}
-                  aria-controls="selected-paper"
-                  aria-labelledby={'paper-title-' + index}
-                  aria-describedby={post.description ? 'paper-desc-' + index : undefined}
-                >
-                  <span class="paper-meta"><span>{year}</span><span>{post.external ? 'HASHNODE' : 'JOURNAL'}</span></span>
-                  <span class="paper-date">{post.date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}</span>
-                  <span class="paper-title" id={'paper-title-' + index}>{post.title}</span>
-                  {post.description && <span class="paper-description" id={'paper-desc-' + index}>{post.description}</span>}
-                </button>
-              </div>
-            </article>
-          ))}
-        </div>
-      </div>
-    </div>
-
-    <aside class="selected-paper" id="selected-paper" aria-label="Selected article">
-      <p class="selected-label"><span data-detail-label>Selected paper</span><span data-paper-position>{first ? '01 / ' + String(papers.length).padStart(2, '0') : '00 / 00'}</span></p>
-      <div class="selected-content">
-        <p class="selected-meta"><span data-selected-date>{first?.post.date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span><span data-selected-source>{first?.post.external ? 'Hashnode' : 'Journal'}</span></p>
-        <h3 data-selected-title aria-live="polite">{first?.post.title ?? 'No papers found'}</h3>
-        <p class="selected-description" data-selected-description>{first?.post.description ?? ''}</p>
-      </div>
-      <a class="selected-read" data-selected-read href={first?.post.href ?? '#blog-archive'} target={first?.post.external ? '_blank' : undefined} rel={first?.post.external ? 'noopener noreferrer' : undefined}>
-        Read article <ArrowUpRight size={16} strokeWidth={1.8} aria-hidden="true" />
-      </a>
-      <p class="preview-note" data-preview-note hidden>Click the paper to select it</p>
-    </aside>
-  </div>
-  <p class="explore-keyboard">With the globe focused, use left and right arrows to browse papers. Tab reaches Reset globe, then Read article.</p>
-</section>
-
-<style>
-  .explore { padding: .2rem 0 3rem; }
-  .explore-reset { position: absolute; top: 1rem; right: 1rem; z-index: 5; min-height: 44px; padding: .55rem .8rem; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); color: var(--fg); font: 600 .72rem/1 var(--font-sans); cursor: pointer; }
-  .explore-reset:hover { border-color: var(--accent); color: var(--accent); }
-  .explore-reset:focus-visible, .globe-stage:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-  .globe-hint { position: absolute; top: 1.25rem; left: 1.25rem; z-index: 2; max-width: calc(100% - 8rem); color: var(--dim); font: 600 .62rem/1.4 var(--font-mono); letter-spacing: .02em; pointer-events: none; transition: opacity .2s ease; }
-  .globe-stage.has-interacted .globe-hint { opacity: 0; }
-  .globe-hint-mobile { display: none; }
-
-  .explore-scene { display: grid; grid-template-columns: minmax(0, 1fr) minmax(17rem, 20rem); min-height: 610px; overflow: hidden; border: 1px solid var(--border); border-radius: 7px; background: radial-gradient(circle at 36% 50%, color-mix(in srgb, var(--surface) 72%, var(--bg)), var(--bg) 63%); }
-  .globe-stage { --radius: clamp(170px, 21vw, 255px); position: relative; min-width: 0; min-height: 610px; overflow: hidden; perspective: 1000px; cursor: grab; touch-action: pan-y; }
-  .globe-stage.is-sparse { --radius: clamp(125px, 14vw, 180px); }
-  .globe-stage.is-dragging { cursor: grabbing; }
-  .globe-orbit { position: absolute; top: 50%; left: 50%; width: calc(var(--radius) * 2.05); aspect-ratio: 1; transform: translate(-50%, -50%); border: 1px solid color-mix(in srgb, var(--accent) 19%, transparent); border-radius: 50%; box-shadow: inset 0 0 80px color-mix(in srgb, var(--accent) 4%, transparent); pointer-events: none; }
-  .globe-orbit::before, .globe-orbit::after { content: ''; position: absolute; top: 50%; left: 50%; border: 1px solid color-mix(in srgb, var(--accent) 11%, transparent); border-radius: 50%; }
-  .globe-orbit::before { width: 100%; height: 33%; transform: translate(-50%, -50%) rotate(-12deg); }
-  .globe-orbit::after { width: 39%; height: 100%; transform: translate(-50%, -50%) rotate(13deg); }
-  .globe-axis, .paper-globe { transform-style: preserve-3d; }
-  .globe-axis { position: absolute; top: 50%; left: 50%; width: 0; height: 0; transform: rotateX(var(--pitch, 0deg)); transition: transform .55s cubic-bezier(.17, .84, .3, 1); }
-  .paper-globe { position: absolute; width: 0; height: 0; transform: rotateY(var(--yaw, 0deg)); transition: transform .55s cubic-bezier(.17, .84, .3, 1); }
-  .globe-stage:not(.is-ready) { overflow: auto; }
-  .globe-stage:not(.is-ready) .globe-axis { position: relative; top: auto; left: auto; width: 100%; height: auto; transform: none; }
-  .paper-globe:not(.is-ready) { position: relative; display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 1rem; width: 100%; height: auto; padding: 1rem; transform: none; }
-  .paper { position: absolute; top: 0; left: 0; width: 100px; height: 124px; margin-top: -62px; margin-left: -50px; opacity: var(--depth-alpha, 1); transform: rotateY(var(--lon, 0deg)) rotateX(var(--neg-lat, 0deg)) translateZ(var(--radius)); backface-visibility: hidden; transition: opacity .16s ease; }
-  .paper.is-selected { transform: rotateY(var(--lon, 0deg)) rotateX(var(--neg-lat, 0deg)) translateZ(calc(var(--radius) + 200px)); }
-  .paper:hover, .paper:focus-within { opacity: 1; }
-  .paper[hidden] { display: none; }
-  .paper-globe:not(.is-ready) .paper { position: relative; width: 100%; margin: 0; transform: none; }
-  .paper-surface { position: relative; width: 100%; height: 100%; padding: 9px; background: linear-gradient(145deg, #fffefb, #f3efe5); color: #30343a; box-shadow: 0 15px 23px -14px rgba(0, 0, 0, .55), 0 3px 7px -4px rgba(0, 0, 0, .25); transition: transform .3s cubic-bezier(.17, .84, .3, 1), box-shadow .3s ease; }
-  .paper-surface::after { content: ''; position: absolute; top: 0; right: 0; width: 15px; height: 15px; background: linear-gradient(225deg, color-mix(in srgb, var(--bg) 72%, transparent) 49%, #ded9cc 50%, #f1ecdf 75%); pointer-events: none; }
-  .paper:hover .paper-surface, .paper:focus-within .paper-surface, .paper.is-selected .paper-surface { transform: scale(1.1); box-shadow: 0 28px 36px -19px rgba(0, 0, 0, .6), 0 8px 16px -9px rgba(0, 0, 0, .34); }
-  .paper.is-selected .paper-surface { transform: scale(1); }
-  .paper-select { display: flex; flex-direction: column; align-items: stretch; width: 100%; height: 100%; padding: 0; border: 0; background: transparent; color: inherit; text-align: left; font: inherit; cursor: pointer; }
-  .paper-select:focus-visible, .selected-read:focus-visible { outline: 2px solid #0969da; outline-offset: 3px; }
-  .paper-meta { display: flex; justify-content: space-between; gap: .4rem; color: #626b73; font: 600 .54rem/1.35 var(--font-mono); letter-spacing: .04em; }
-  .paper-date { margin-top: .55rem; color: #626b73; font: 600 .56rem/1.2 var(--font-mono); }
-  .paper-title { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden; margin-top: .35rem; color: #24292f; font: 700 .68rem/1.28 var(--font-sans); letter-spacing: -.015em; }
-  .paper-description { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; margin-top: .45rem; color: #4e565e; opacity: .7; font: .55rem/1.35 var(--font-sans); transition: opacity .2s ease; }
-  .paper:hover .paper-description, .paper:focus-within .paper-description, .paper.is-selected .paper-description { opacity: 1; }
-
-  .selected-paper { display: flex; flex-direction: column; justify-content: space-between; gap: 2rem; min-width: 0; padding: 1.6rem; border-left: 1px solid var(--border); background: color-mix(in srgb, var(--bg) 94%, var(--surface)); }
-  .selected-label { display: flex; justify-content: space-between; gap: 1rem; color: var(--dim); font: 600 .64rem/1.4 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
-  .selected-content { margin-block: auto; }
-  .selected-meta { display: flex; justify-content: space-between; gap: .8rem; margin-bottom: 1rem; color: var(--dim); font: .68rem/1.4 var(--font-mono); }
-  .selected-content h3 { max-width: 18ch; margin: 0; color: var(--fg); font: 650 clamp(1.4rem, 2.4vw, 2.2rem)/1.14 var(--font-sans); letter-spacing: -.03em; text-wrap: pretty; }
-  .selected-description { margin-top: 1.2rem; color: var(--dim); font: .88rem/1.65 var(--font-sans); }
-  .selected-read { display: inline-flex; align-items: center; justify-content: space-between; gap: .5rem; align-self: stretch; min-height: 44px; padding: .65rem 0; border-top: 1px solid var(--border); color: var(--accent); font: 600 .83rem/1.4 var(--font-sans); text-decoration: none; }
-  .selected-read:hover { opacity: 1; text-decoration: underline; text-underline-offset: .2em; }
-  .selected-read[hidden] { display: none; }
-  .preview-note { min-height: 44px; padding: .75rem 0; border-top: 1px solid var(--border); color: var(--dim); font: .72rem/1.4 var(--font-mono); }
-  .preview-note[hidden] { display: none; }
-  .explore-keyboard { margin-top: .7rem; color: var(--dim); font: .68rem/1.5 var(--font-mono); }
-  .globe-stage.is-dragging .globe-axis, .globe-stage.is-dragging .paper-globe, .globe-stage.is-dragging .paper { transition: none; }
-
-  @media (max-width: 760px) {
-    .globe-hint-desktop { display: none; }
-    .globe-hint-mobile { display: inline; }
-    .explore-scene { grid-template-columns: 1fr; min-height: 0; }
-    .globe-stage { --radius: clamp(135px, 36vw, 190px); min-height: min(90vw, 430px); }
-    .globe-stage.is-sparse { --radius: clamp(112px, 30vw, 155px); }
-    .selected-paper { min-height: 200px; padding: 1.25rem; border-top: 1px solid var(--border); border-left: 0; }
-    .selected-content h3 { max-width: 27ch; }
-  }
-  @media (max-width: 520px) {
-    .explore-reset { padding-inline: .6rem; }
-    .globe-stage { --radius: clamp(112px, 35vw, 150px); min-height: min(82vw, 330px); }
-    .selected-paper { min-height: 180px; }
-    .paper { width: 90px; height: 112px; margin-top: -56px; margin-left: -45px; }
-    .paper-meta { font-size: .48rem; }
-    .paper-date { font-size: .5rem; }
-    .paper-title { font-size: .6rem; }
-    .paper-description { font-size: .52rem; }
-    .explore-keyboard { display: none; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .globe-axis, .paper-globe, .paper, .paper-surface, .paper-description, .globe-hint { transition: none; }
-  }
-</style>
-
-<script>
-  const explore = document.querySelector<HTMLElement>('.explore');
-  if (explore) {
-    const stage = explore.querySelector<HTMLElement>('.globe-stage')!;
-    const axis = explore.querySelector<HTMLElement>('.globe-axis')!;
-    const globe = explore.querySelector<HTMLElement>('.paper-globe')!;
-    const papers = Array.from(explore.querySelectorAll<HTMLElement>('.paper'));
-    const detail = explore.querySelector<HTMLElement>('.selected-paper')!;
-    const selectedTitle = detail.querySelector<HTMLElement>('[data-selected-title]')!;
-    const selectedDescription = detail.querySelector<HTMLElement>('[data-selected-description]')!;
-    const selectedDate = detail.querySelector<HTMLElement>('[data-selected-date]')!;
-    const selectedSource = detail.querySelector<HTMLElement>('[data-selected-source]')!;
-    const selectedPosition = detail.querySelector<HTMLElement>('[data-paper-position]')!;
-    const detailLabel = detail.querySelector<HTMLElement>('[data-detail-label]')!;
-    const selectedRead = detail.querySelector<HTMLAnchorElement>('[data-selected-read]')!;
-    const previewNote = detail.querySelector<HTMLElement>('[data-preview-note]')!;
-    const mobile = window.matchMedia('(max-width: 760px)');
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const fineHover = window.matchMedia('(hover: hover) and (pointer: fine)');
-    let yaw = 0;
-    let pitch = 0;
-    let selected: HTMLElement | null = papers[0] ?? null;
-    let previewed: HTMLElement | null = null;
-    let drag: { id: number; x: number; y: number; yaw: number; pitch: number; moved: boolean; lastTime: number; velocityYaw: number; velocityPitch: number } | null = null;
-    let inertiaFrame = 0;
-    let suppressClick = false;
-
-    const stopInertia = () => {
-      if (inertiaFrame) window.cancelAnimationFrame(inertiaFrame);
-      inertiaFrame = 0;
-      if (!drag) stage.classList.remove('is-dragging');
-    };
-
-    const updateDepth = () => {
-      const toRadians = Math.PI / 180;
-      const rotation = pitch * toRadians;
-      papers.forEach((paper) => {
-        if (paper.hidden) return;
-        const latitude = Number(paper.dataset.lat ?? 0) * toRadians;
-        const longitude = (Number(paper.dataset.lon ?? 0) + yaw) * toRadians;
-        const facing = Math.sin(rotation) * Math.sin(latitude)
-          + Math.cos(rotation) * Math.cos(latitude) * Math.cos(longitude);
-        const depth = Math.max(0, Math.min(1, (facing - .08) / .92));
-        paper.style.setProperty('--depth-alpha', String(paper === selected ? 1 : .3 + .7 * depth));
-        paper.style.pointerEvents = paper === selected || facing > .12 ? 'auto' : 'none';
-      });
-    };
-
-    const turn = () => {
-      axis.style.setProperty('--pitch', String(pitch) + 'deg');
-      globe.style.setProperty('--yaw', String(yaw) + 'deg');
-      updateDepth();
-    };
-
-    const renderDetail = (paper: HTMLElement, preview = false) => {
-      const visible = papers.filter((item) => !item.hidden);
-      detailLabel.textContent = preview ? 'Preview paper' : 'Selected paper';
-      selectedPosition.textContent = String(visible.indexOf(paper) + 1).padStart(2, '0') + ' / ' + String(visible.length).padStart(2, '0');
-      selectedTitle.textContent = paper.dataset.title ?? '';
-      selectedDescription.textContent = paper.dataset.description ?? '';
-      selectedDate.textContent = paper.dataset.date ?? '';
-      selectedSource.textContent = paper.dataset.source ?? '';
-      selectedRead.href = paper.dataset.href ?? '#blog-archive';
-      selectedRead.setAttribute('aria-label', 'Read ' + (paper.dataset.title ?? 'article') + (paper.dataset.external === 'true' ? ' (opens in a new tab)' : ''));
-      if (paper.dataset.external === 'true') {
-        selectedRead.target = '_blank';
-        selectedRead.rel = 'noopener noreferrer';
-      } else {
-        selectedRead.removeAttribute('target');
-        selectedRead.removeAttribute('rel');
-      }
-      selectedRead.hidden = preview;
-      previewNote.hidden = !preview;
-    };
-
-    const selectPaper = (paper: HTMLElement, focusRead = false) => {
-      if (paper.hidden) return;
-      stopInertia();
-      previewed = null;
-      selected = paper;
-      papers.forEach((item) => {
-        const active = item === paper;
-        item.classList.toggle('is-selected', active);
-        item.querySelector<HTMLButtonElement>('.paper-select')?.setAttribute('aria-pressed', String(active));
-      });
-      renderDetail(paper);
-      pitch = Number(paper.dataset.lat ?? 0);
-      yaw = -Number(paper.dataset.lon ?? 0);
-      turn();
-      document.querySelector('.blog-view')?.dispatchEvent(new CustomEvent('blogexploreselectyear', { detail: paper.dataset.year }));
-      if (focusRead) selectedRead.focus();
-    };
-
-    const revealDetail = () => {
-      if (mobile.matches) detail.scrollIntoView({ block: 'center', behavior: reduceMotion.matches ? 'instant' : 'smooth' });
-    };
-
-    const arrange = () => {
-      stopInertia();
-      const visible = papers.filter((paper) => !paper.hidden);
-      stage.classList.toggle('is-sparse', visible.length <= 5);
-      const compact = [
-        { latitude: 0, longitude: 0 },
-        { latitude: 18, longitude: -38 },
-        { latitude: -18, longitude: 38 },
-        { latitude: -29, longitude: -31 },
-        { latitude: 29, longitude: 31 },
-      ];
-      visible.forEach((paper, index) => {
-        let latitude = 0;
-        let longitude = 0;
-        if (visible.length <= compact.length) {
-          ({ latitude, longitude } = compact[index]);
-        } else if (index > 0) {
-          const fraction = (index - .5) / Math.max(1, visible.length - 1);
-          latitude = Math.asin(1 - 2 * fraction) * 180 / Math.PI;
-          longitude = ((index * 137.508 + 36) % 360) - 180;
-        }
-        paper.dataset.lat = String(latitude);
-        paper.dataset.lon = String(longitude);
-        paper.style.setProperty('--lon', String(longitude) + 'deg');
-        paper.style.setProperty('--neg-lat', String(-latitude) + 'deg');
-      });
-      if (visible.length) selectPaper(selected && !selected.hidden ? selected : visible[0]);
-      else {
-        selected = null;
-        previewed = null;
-        detailLabel.textContent = 'Selected paper';
-        selectedPosition.textContent = '00 / 00';
-        selectedTitle.textContent = 'No papers in this category';
-        selectedDescription.textContent = 'Choose another category to keep exploring.';
-        selectedDate.textContent = '';
-        selectedSource.textContent = '';
-        previewNote.hidden = true;
-        yaw = 0;
-        pitch = 0;
-        turn();
-      }
-      selectedRead.hidden = visible.length === 0;
-    };
-
-    const reset = (focus = false) => {
-      stage.classList.remove('has-interacted');
-      const firstVisible = papers.find((paper) => !paper.hidden);
-      if (firstVisible) selectPaper(firstVisible);
-      else { yaw = 0; pitch = 0; turn(); }
-      if (focus) stage.focus();
-    };
-
-    explore.querySelector<HTMLButtonElement>('.explore-reset')?.addEventListener('click', () => reset(true));
-    document.querySelector('.blog-view')?.addEventListener('blogexploreenter', () => reset());
-    document.querySelector('.blog-view')?.addEventListener('blogcategorychange', () => arrange());
-    document.querySelector('.blog-view')?.addEventListener('blogexploreyear', (event) => {
-      const year = String((event as CustomEvent<string>).detail);
-      const paper = papers.find((item) => !item.hidden && item.dataset.year === year);
-      if (paper) {
-        selectPaper(paper);
-        revealDetail();
-      }
-    });
-    papers.forEach((paper) => {
-      const button = paper.querySelector<HTMLButtonElement>('.paper-select')!;
-      paper.addEventListener('pointerenter', () => {
-        if (!fineHover.matches || drag || paper.hidden || paper === selected || document.activeElement === selectedRead) return;
-        previewed = paper;
-        renderDetail(paper, true);
-      });
-      paper.addEventListener('pointerleave', () => {
-        if (previewed !== paper) return;
-        previewed = null;
-        if (selected) renderDetail(selected);
-      });
-      button.addEventListener('focus', () => selectPaper(paper));
-      button.addEventListener('click', (event) => {
-        if (!suppressClick) {
-          stage.classList.add('has-interacted');
-          selectPaper(paper, event.detail === 0);
-          if (event.detail > 0) revealDetail();
-        }
-      });
-    });
-
-    stage.addEventListener('pointerdown', (event) => {
-      if (event.button !== 0 || (event.target as Element).closest('.explore-reset')) return;
-      stage.classList.add('has-interacted');
-      stopInertia();
-      if (previewed && selected) {
-        previewed = null;
-        renderDetail(selected);
-      }
-      drag = { id: event.pointerId, x: event.clientX, y: event.clientY, yaw, pitch, moved: false, lastTime: event.timeStamp, velocityYaw: 0, velocityPitch: 0 };
-    });
-    window.addEventListener('pointermove', (event) => {
-      if (!drag || drag.id !== event.pointerId) return;
-      const dx = event.clientX - drag.x;
-      const dy = event.clientY - drag.y;
-      if (!drag.moved && Math.hypot(dx, dy) < 6) return;
-      if (!drag.moved) {
-        drag.moved = true;
-        stage.setPointerCapture(event.pointerId);
-        stage.classList.add('is-dragging');
-      }
-      const previousYaw = yaw;
-      const previousPitch = pitch;
-      yaw = drag.yaw + dx * .38;
-      pitch = Math.max(-78, Math.min(78, drag.pitch - dy * .3));
-      const elapsed = Math.max(8, event.timeStamp - drag.lastTime);
-      drag.velocityYaw = Math.max(-.28, Math.min(.28, (yaw - previousYaw) / elapsed));
-      drag.velocityPitch = Math.max(-.28, Math.min(.28, (pitch - previousPitch) / elapsed));
-      drag.lastTime = event.timeStamp;
-      turn();
-    });
-    const endDrag = (event: PointerEvent) => {
-      if (!drag || drag.id !== event.pointerId) return;
-      const completed = drag;
-      if (drag.moved) {
-        suppressClick = true;
-        window.setTimeout(() => { suppressClick = false; }, 100);
-      }
-      drag = null;
-      if (completed.moved && event.type === 'pointerup' && event.timeStamp - completed.lastTime < 90 && !reduceMotion.matches
-        && Math.abs(completed.velocityYaw) + Math.abs(completed.velocityPitch) > .025) {
-        let velocityYaw = completed.velocityYaw;
-        let velocityPitch = completed.velocityPitch;
-        let previousTime = 0;
-        const coast = (time: number) => {
-          const elapsed = Math.min(32, time - (previousTime || time - 16));
-          previousTime = time;
-          yaw += velocityYaw * elapsed;
-          pitch = Math.max(-78, Math.min(78, pitch + velocityPitch * elapsed));
-          turn();
-          const decay = Math.pow(.86, elapsed / 16);
-          velocityYaw *= decay;
-          velocityPitch *= decay;
-          if (Math.abs(velocityYaw) + Math.abs(velocityPitch) < .012) stopInertia();
-          else inertiaFrame = window.requestAnimationFrame(coast);
-        };
-        inertiaFrame = window.requestAnimationFrame(coast);
-      } else stage.classList.remove('is-dragging');
-    };
-    window.addEventListener('pointerup', endDrag);
-    window.addEventListener('pointercancel', endDrag);
-    reduceMotion.addEventListener('change', () => { if (reduceMotion.matches) stopInertia(); });
-    stage.addEventListener('keydown', (event) => {
-      if (event.target !== stage) return;
-      const step = event.shiftKey ? 30 : 12;
-      const visible = papers.filter((paper) => !paper.hidden);
-      const current = visible.indexOf(selected!);
-      if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-        const direction = event.key === 'ArrowRight' ? 1 : -1;
-        if (visible.length) selectPaper(visible[(current + direction + visible.length) % visible.length]);
-      } else if (event.key === 'Home' && visible.length) selectPaper(visible[0]);
-      else if (event.key === 'End' && visible.length) selectPaper(visible[visible.length - 1]);
-      else if (event.key === 'ArrowUp') { pitch = Math.min(78, pitch + step); turn(); }
-      else if (event.key === 'ArrowDown') { pitch = Math.max(-78, pitch - step); turn(); }
-      else return;
-      stage.classList.add('has-interacted');
-      event.preventDefault();
-    });
-
-    if (CSS.supports('transform-style', 'preserve-3d')) {
-      globe.classList.add('is-ready');
-      stage.classList.add('is-ready');
-    }
-    arrange();
-  }
-</script>
+<ListingExplore
+  exploreId="blog-explore-globe"
+  ariaLabel="Explore blog posts"
+  stageAriaLabel="Paper globe. Use left and right arrows to browse papers, up and down arrows to tilt. Tab reaches Reset globe, then Read article."
+  hintDesktop="drag to turn · click to select"
+  hintMobile="swipe to turn · tap a paper"
+  keyboardHint="With the globe focused, use left and right arrows to browse papers. Tab reaches Reset globe, then Read article."
+  selectedAsideLabel="selected-paper"
+  papers={papers}
+  wire={wire}
+/>

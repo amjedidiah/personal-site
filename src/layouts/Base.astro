@@ -80,6 +80,7 @@ const socialImageURL = Astro.site ? new URL('/og.svg', Astro.site) : '/og.svg';
   <div class="page-progress" data-page-progress aria-hidden="true">
     <span></span>
   </div>
+  <OfflineNotice />
   <Nav />
   {fullBleed ? (
     <main id="main-content">
@@ -91,7 +92,6 @@ const socialImageURL = Astro.site ? new URL('/og.svg', Astro.site) : '/og.svg';
     </main>
   )}
   <Footer />
-  <OfflineNotice />
   <BackToTop />
   <script is:inline>
     const pageProgress = document.querySelector('[data-page-progress]');

@@ -1,0 +1,43 @@
+---
+import { ArrowRight } from '@lucide/astro';
+import { formatProjectScope } from '../data/project-scope';
+import { formatProjectMonthStart } from '../data/project-timeline';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+  typeColor: string;
+}
+
+const { project, typeColor } = Astro.props;
+const href = `/projects/${project.id}`;
+const platforms = project.data.platforms.join(' ');
+const shortType: Record<string, string> = { founder: 'independent', client: 'client', oss: 'OSS' };
+const monthLabel = formatProjectMonthStart(project.data.monthStart);
+---
+
+<li
+  class="timeline-item"
+  data-project-type={project.data.type}
+  data-project-platforms={platforms}
+  data-project-href={href}
+  data-sort-title={project.data.title}
+>
+  <a
+    href={href}
+    class="timeline-entry project-entry"
+    aria-labelledby={`project-${project.id}-title`}
+    aria-describedby={`project-${project.id}-desc`}
+  >
+    <span class="timeline-entry-aside">{monthLabel}</span>
+    <span class="timeline-entry-copy">
+      <span class="timeline-entry-type" style={`color: ${typeColor}`}>{shortType[project.data.type]}</span>
+      <span class="timeline-entry-title" id={`project-${project.id}-title`}>{project.data.title}</span>
+      <span class="timeline-entry-scope">{formatProjectScope(project.data)}</span>
+      <span class="timeline-entry-desc" id={`project-${project.id}-desc`}>{project.data.description}</span>
+    </span>
+    <span class="timeline-entry-action view-cue">
+      View project <ArrowRight size={13} strokeWidth={1.7} aria-hidden="true" />
+    </span>
+  </a>
+</li>

@@ -1,11 +1,12 @@
 ---
 import PortraitScene from './PortraitScene.astro';
+
 interface Props {
   modelSrc?: string;
   fallbackSrc?: string;
   /** Degrees around vertical axis; export front-facing toward glTF +Z for 0. */
   modelYaw?: number;
-  initialMode?: 0 | 1 | 2;
+  initialMode?: 0 | 1;
 }
 const {
   modelSrc = `${import.meta.env.BASE_URL}models/jedidiah-bust.glb`,
@@ -14,61 +15,84 @@ const {
   initialMode = 0,
 } = Astro.props;
 ---
+
 <div class="hero-visual" data-hero-scene data-volumetric-hero data-model-src={modelSrc}
-  data-model-yaw={modelYaw} data-mode={initialMode} data-portrait-status="loading" aria-hidden="true">
-  <PortraitScene fallbackSrc={fallbackSrc} />
-  <div class="system-map-labels">
-    <span class="system-map-label production">production</span>
-    <span class="system-map-label payments">payments</span>
-    <span class="system-map-label ai">AI</span>
-    <span class="system-map-label security">security</span>
+  data-model-yaw={modelYaw} data-mode={initialMode} data-portrait-status="loading">
+  <div class="hero-portrait" aria-hidden="true">
+    <PortraitScene fallbackSrc={fallbackSrc} />
+    <svg class="system-diagram" viewBox="0 0 600 540" fill="none">
+      <!-- Routing, collaboration, and a permission boundary: illustrative system sketches. -->
+      <g data-system-diagram="0">
+        <path data-system-trace pathLength="1" d="M50 190V330L104 402M550 190V330L496 402M50 190L102 130M550 190L498 130M104 402Q300 530 496 402" />
+        <circle cx="50" cy="190" r="5" /><circle cx="550" cy="190" r="5" />
+        <circle cx="104" cy="402" r="5" /><circle cx="496" cy="402" r="5" />
+        <circle cx="102" cy="130" r="5" /><circle cx="498" cy="130" r="5" />
+      </g>
+      <g data-system-diagram="1">
+        <path data-system-trace pathLength="1" d="M134 74H90Q42 74 42 122V392Q42 440 90 440H132M466 74H510Q558 74 558 122V392Q558 440 510 440H468M42 250H100M558 250H500" />
+        <circle cx="134" cy="74" r="5" /><circle cx="466" cy="74" r="5" />
+        <circle cx="100" cy="250" r="5" /><circle cx="500" cy="250" r="5" />
+        <circle cx="132" cy="440" r="5" /><circle cx="468" cy="440" r="5" />
+      </g>
+    </svg>
   </div>
+  <noscript>
+    <p class="hero-static-links"><a href="/projects/gwela">Explore AI work</a> · <a href="/projects/gwela#what-i-built">See permission controls</a></p>
+  </noscript>
 </div>
+
 <style>
   .hero-visual {
-    position: absolute; inset-block: 0; inset-inline-start: 50%; inline-size: 100vw;
-    transform: translateX(-50%);
-    overflow: hidden;
-    pointer-events: none;
+    position: relative;
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    min-width: 0;
+    width: 100%;
     color: var(--accent);
-    z-index: 0;
+    align-self: center;
   }
-  .system-map-labels {
+  .hero-portrait {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 10 / 9;
+    isolation: isolate;
+  }
+  .system-diagram {
     position: absolute;
     inset: 0;
-    color: var(--dim, #8193a7);
-    font: .65rem/1 var(--font-mono, monospace);
-    letter-spacing: .08em;
-    text-transform: uppercase;
+    width: 100%;
+    height: 100%;
     pointer-events: none;
+    overflow: visible;
+    color: var(--accent);
   }
-  .system-map-label {
-    position: absolute;
-    display: inline-flex;
-    align-items: center;
-    gap: .45rem;
-    white-space: nowrap;
+  .system-diagram g { opacity: 0; transition: opacity 180ms ease-out; }
+  [data-mode="0"] .system-diagram { color: #61d6bb; }
+  [data-mode="1"] .system-diagram { color: #b494e8; }
+  :global(:root[data-theme="light"]) [data-mode="0"] .system-diagram { color: #237864; }
+  :global(:root[data-theme="light"]) [data-mode="1"] .system-diagram { color: #73509f; }
+  [data-mode="0"] [data-system-diagram="0"],
+  [data-mode="1"] [data-system-diagram="1"] { opacity: 1; }
+  .system-diagram path { stroke: currentColor; stroke-width: 1; opacity: .6; }
+  .system-diagram circle { stroke: currentColor; stroke-width: 1.25; fill: var(--bg); }
+  .hero-static-links {
+    margin-top: 1rem;
+    text-align: center;
+    font-size: .8rem;
   }
-  .system-map-label::before {
-    content: '';
-    inline-size: .35rem;
-    block-size: .35rem;
-    border: 1px solid currentColor;
-    border-radius: 50%;
-  }
-  .production { inset-inline-start: 65%; inset-block-start: 37%; color: var(--fg, #dfebfa); }
-  .payments { inset-inline-start: 61%; inset-block-start: 67%; color: var(--accent, #58a6ff); }
-  .ai { inset-inline-start: 85%; inset-block-start: 29%; color: #61d6bb; }
-  .security { inset-inline-start: 86%; inset-block-start: 67%; color: #b494e8; }
-  :global(:root[data-theme="light"]) .ai { color: #237864; }
-  :global(:root[data-theme="light"]) .security { color: #73509f; }
-  @media (max-width: 960px) {
-    .system-map-labels { display: none; }
-  }
+  .hero-static-links a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .hero-visual ::selection { background: color-mix(in srgb, var(--accent) 25%, var(--bg)); color: var(--fg); }
+
   @media (max-width: 760px) {
-    .hero-visual { opacity: var(--portrait-mobile-opacity, .24); }
+    .hero-visual { grid-column: 1; grid-row: 2; margin-top: .25rem; }
+    .hero-portrait { max-width: 20rem; margin-inline: auto; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .system-diagram g { transition: none; }
   }
 </style>
+
 <script>
+  import '../lib/portrait/hero-interactions';
   import '../lib/portrait/bootstrap';
 </script>

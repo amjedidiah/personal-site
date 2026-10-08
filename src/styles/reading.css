@@ -1,0 +1,106 @@
+/* Shared reading details for project notes and journal articles. */
+:is(.project-article, .article-shell) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  --reading-muted: color-mix(in srgb, var(--dim) 65%, var(--fg));
+}
+
+:is(.project-article, .article-shell) ::selection {
+  color: var(--fg);
+  background: color-mix(in srgb, var(--accent) 28%, var(--bg));
+}
+:is(.project-article, .article-shell) :is(pre, .article-table-scroll, .article-rail) {
+  scrollbar-color: var(--dim) var(--surface);
+}
+
+:is(.project-article, .article-shell) .prose :is(h2, h3, h4) {
+  text-wrap: pretty;
+  scroll-margin-top: var(--article-scroll-offset, 7rem);
+}
+
+:is(.project-article, .article-shell) :is(.project-nav a, .article-nav-link, .related-link) {
+  min-height: 44px;
+}
+
+:is(.project-article, .article-shell) .prose h3 { margin: 1.7em 0 .45em; }
+:is(.project-article, .article-shell) .prose code {
+  padding: .15em .4em;
+  border-radius: 3px;
+  background: var(--surface);
+  font: .88em var(--font-mono);
+}
+:is(.project-article, .article-shell) .prose pre {
+  max-width: 100%;
+  margin: 1.4rem 0;
+  padding: 1.1rem 1.2rem;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  font: .8rem/1.65 var(--font-mono);
+}
+:is(.project-article, .article-shell) .prose pre code {
+  padding: 0;
+  background: none;
+  white-space: pre;
+  overflow-wrap: normal;
+}
+:is(.project-article, .article-shell) .prose blockquote {
+  margin: 1.5rem 0;
+  padding-inline-start: 1rem;
+  border-inline-start: 1px solid var(--accent);
+  color: var(--reading-muted);
+}
+:is(.project-article, .article-shell) .prose img { max-width: 100%; height: auto; }
+:is(.project-article, .article-shell) .prose hr { margin: 2.5rem 0; border: 0; border-top: 1px solid var(--border); }
+.article-table-scroll { max-width: 100%; margin-block: 1.5rem; overflow-x: auto; }
+.article-table-scroll table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+.article-table-scroll :is(th, td) { padding: .7rem .9rem; border-bottom: 1px solid var(--border); text-align: start; }
+.article-table-scroll th { color: var(--fg); font-weight: 600; background: var(--surface); }
+:is(.article-table-scroll, .prose pre):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.article-empty { padding-block: 1.5rem; border-top: 1px solid var(--border); color: var(--reading-muted); }
+.article-empty a { display: inline-flex; align-items: center; min-height: 44px; }
+
+@media (max-width: 800px) {
+  article:is(.project-article, .article-shell) .article-layout .article-chrome { display: contents; }
+  article:is(.project-article, .article-shell) .article-layout :is(.project-headline, .article-headline) {
+    position: static;
+    width: 100%;
+    padding-block: 0 1rem;
+    margin-bottom: 0;
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  article:is(.project-article, .article-shell) .article-layout .article-rail {
+    position: sticky;
+    top: 3.5rem;
+    align-self: stretch;
+    width: auto;
+    max-width: none;
+    max-height: none;
+    overflow: visible;
+    align-items: stretch;
+    text-align: start;
+    margin-inline: calc(-1 * var(--gutter));
+    margin-bottom: 1.25rem;
+    padding: .4rem var(--gutter) .5rem;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+  article:is(.project-article, .article-shell) .article-layout .back-rail { margin-bottom: 0; }
+}
+
+@media (max-width: 639px) {
+  article:is(.project-article, .article-shell) .article-layout .article-rail { top: calc(52px + env(safe-area-inset-top)); }
+}
+
+/* Short landscape viewports need space for the work itself. */
+@media (max-height: 500px) {
+  article:is(.project-article, .article-shell) .article-layout :is(.article-rail, .project-headline, .article-headline) { position: static; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.project-article, .article-shell) a,
+  :is(.project-article, .article-shell) a :is(span, strong, svg) { transition: none; }
+}

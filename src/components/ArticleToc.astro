@@ -1,0 +1,90 @@
+---
+interface Props {
+  headings: { slug: string; text: string }[];
+}
+
+const { headings } = Astro.props;
+if (headings.length === 0) return null;
+---
+
+<aside class="article-toc" data-article-toc aria-label="On this page">
+  <details open>
+    <summary>On this page <span data-toc-current>Overview</span></summary>
+    <p aria-hidden="true">On this page</p>
+    <nav aria-label="On this page">
+      <a href="#overview" data-toc-link>Overview</a>
+      {headings.map((heading) => (
+        <a href={`#${heading.slug}`} data-toc-link>{heading.text}</a>
+      ))}
+    </nav>
+  </details>
+</aside>
+
+<style>
+  .article-toc {
+    padding-top: .2rem;
+    --toc-muted: color-mix(in srgb, var(--dim) 65%, var(--fg));
+  }
+  .article-toc details > p {
+    margin-bottom: .75rem;
+    color: var(--toc-muted);
+    font: .68rem/1.4 var(--font-mono);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+  .article-toc nav { display: grid; gap: .5rem; }
+  .article-toc summary { display: none; }
+  .article-toc a {
+    display: inline-block;
+    min-height: 32px;
+    padding: .3rem 0;
+    color: var(--toc-muted);
+    font: .72rem/1.4 var(--font-sans);
+    transition: color .2s ease;
+  }
+  .article-toc a:hover,
+  .article-toc a.is-active,
+  .article-toc a[aria-current='location'] {
+    color: var(--accent);
+    opacity: 1;
+  }
+  .article-toc a.is-active,
+  .article-toc a[aria-current='location'] {
+    font-weight: 600;
+  }
+
+  :global(.article-layout.has-toc .prose h2),
+  :global(#overview) {
+    scroll-margin-top: var(--article-scroll-offset, 7rem);
+  }
+
+  @media (max-width: 800px) {
+    .article-toc { padding-top: 0; }
+    .article-toc details > p { display: none; }
+    .article-toc summary {
+      display: flex;
+      align-items: center;
+      gap: .65rem;
+      min-height: 44px;
+      color: var(--toc-muted);
+      font: .7rem/1.4 var(--font-mono);
+      cursor: pointer;
+      list-style: none;
+    }
+    .article-toc summary::-webkit-details-marker { display: none; }
+    .article-toc summary::after { content: '+'; margin-inline-start: auto; font-size: 1rem; }
+    .article-toc details[open] summary::after { content: '−'; }
+    .article-toc summary span { min-width: 0; max-width: 45%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--accent); font-family: var(--font-sans); }
+    .article-toc summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .article-toc nav { display: flex; flex-wrap: wrap; gap: .3rem 1rem; }
+    .article-toc a { min-height: 44px; display: inline-flex; align-items: center; }
+    .article-toc details[open] nav { max-height: 35dvh; overflow-y: auto; padding: .2rem 3px; }
+  }
+</style>
+
+<script>
+  import { initArticleToc } from '../lib/article-toc';
+
+  document.addEventListener('astro:page-load', initArticleToc);
+  initArticleToc();
+</script>

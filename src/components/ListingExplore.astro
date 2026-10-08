@@ -1,0 +1,143 @@
+---
+import { ArrowUpRight } from '@lucide/astro';
+import '../styles/explore-globe.css';
+import type { ListingExploreWire } from '../lib/listing-explore';
+
+export interface ListingExplorePaper {
+  title: string;
+  description: string;
+  href: string;
+  cardMetaA: string;
+  cardMetaB: string;
+  detailMetaA: string;
+  detailMetaB: string;
+  metaLine?: string;
+  exploreJump: string;
+  external?: boolean;
+  /** Extra attributes for listing-page filters (e.g. data-blog-post, data-project-type). */
+  filterAttrs?: Record<string, string | undefined>;
+}
+
+interface Props {
+  exploreId: string;
+  ariaLabel: string;
+  stageAriaLabel: string;
+  hintDesktop: string;
+  hintMobile: string;
+  keyboardHint: string;
+  selectedAsideLabel: string;
+  papers: ListingExplorePaper[];
+  wire: ListingExploreWire;
+  /** `paper` = blog-style sheets; `module` = flat portfolio tiles (projects). */
+  surface?: 'paper' | 'module';
+}
+
+const {
+  exploreId,
+  ariaLabel,
+  stageAriaLabel,
+  hintDesktop,
+  hintMobile,
+  keyboardHint,
+  selectedAsideLabel,
+  papers,
+  wire,
+  surface = 'paper',
+} = Astro.props;
+const first = papers[0];
+---
+
+<section
+  class:list={['explore', { 'explore--module': surface === 'module' }]}
+  id={exploreId}
+  data-listing-explore
+  data-listing-explore-wire={JSON.stringify(wire)}
+  data-explore-surface={surface}
+  aria-label={ariaLabel}
+>
+  <div class="explore-scene">
+    <div class="globe-stage" tabindex="0" role="group" aria-label={stageAriaLabel} aria-describedby={`${exploreId}-keyboard`}>
+      <button class="explore-reset" type="button">Reset globe</button>
+      <p class="globe-hint">
+        <span class="globe-hint-desktop">{hintDesktop}</span>
+        <span class="globe-hint-mobile">{hintMobile}</span>
+      </p>
+      <div class="globe-orbit" aria-hidden="true"></div>
+      <div class="globe-axis">
+        <div class="paper-globe">
+          {papers.map((paper, index) => (
+            <article
+              class="paper"
+              data-title={paper.title}
+              data-description={paper.description}
+              data-href={paper.href}
+              data-explore-jump={paper.exploreJump}
+              data-explore-meta-a={paper.detailMetaA}
+              data-explore-meta-b={paper.detailMetaB}
+              data-external={paper.external ? 'true' : 'false'}
+              {...paper.filterAttrs}
+            >
+              <div class="paper-surface">
+                <button
+                  class="paper-select"
+                  type="button"
+                  tabindex="-1"
+                  aria-pressed={index === 0 ? 'true' : 'false'}
+                  aria-controls={selectedAsideLabel}
+                  aria-labelledby={`paper-title-${exploreId}-${index}`}
+                  aria-describedby={paper.description ? `paper-desc-${exploreId}-${index}` : undefined}
+                >
+                  <span class="paper-meta">
+                    <span>{paper.cardMetaA}</span>
+                    <span>{paper.cardMetaB}</span>
+                  </span>
+                  {paper.metaLine && <span class="paper-date">{paper.metaLine}</span>}
+                  <span class="paper-title" id={`paper-title-${exploreId}-${index}`}>{paper.title}</span>
+                  {paper.description && (
+                    <span class="paper-description" id={`paper-desc-${exploreId}-${index}`}>{paper.description}</span>
+                  )}
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <aside class="selected-paper" id={selectedAsideLabel} aria-label={`Selected ${wire.itemNoun}`}>
+      <p class="selected-label">
+        <span data-detail-label>Selected {wire.itemNoun}</span>
+        <span data-paper-position>{first ? `01 / ${String(papers.length).padStart(2, '0')}` : '00 / 00'}</span>
+      </p>
+      <div class="selected-content">
+        <p class="selected-meta">
+          <span data-selected-date>{first?.detailMetaA ?? ''}</span>
+          <span data-selected-source>{first?.detailMetaB ?? ''}</span>
+        </p>
+        <h3 data-selected-title aria-live="polite">{first?.title ?? wire.emptyTitle}</h3>
+        <p class="selected-description" data-selected-description>{first?.description ?? ''}</p>
+      </div>
+      <a class="selected-read" data-selected-read href={first?.href ?? wire.fallbackHref} hidden={!first} target={first?.external ? '_blank' : undefined} rel={first?.external ? 'noopener noreferrer' : undefined}>
+        {wire.readLabel} <ArrowUpRight size={16} strokeWidth={1.8} aria-hidden="true" />
+      </a>
+      <p class="preview-note" data-preview-note hidden>{wire.previewNote}</p>
+    </aside>
+  </div>
+  <p class="explore-keyboard" id={`${exploreId}-keyboard`}>{keyboardHint}</p>
+</section>
+
+<script>
+  import { initListingExplore, type ListingExploreWire } from '../lib/listing-explore';
+
+  const explores = document.querySelectorAll<HTMLElement>('[data-listing-explore]');
+  explores.forEach((explore) => {
+    const wireRaw = explore.dataset.listingExploreWire;
+    if (!wireRaw) return;
+    try {
+      const wire = JSON.parse(wireRaw) as ListingExploreWire;
+      initListingExplore(explore, wire);
+    } catch {
+      // Globe stays in static fallback layout if config is invalid.
+    }
+  });
+</script>

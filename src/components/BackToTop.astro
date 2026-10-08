@@ -11,7 +11,7 @@ import { ArrowUp } from '@lucide/astro';
   .back-to-top {
     position: fixed;
     right: max(var(--gutter), calc((100vw - var(--max-w)) / 2 - 5rem));
-    bottom: max(24px, env(safe-area-inset-bottom));
+    bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
     z-index: 130;
     display: inline-flex;
     align-items: center;
@@ -56,7 +56,7 @@ import { ArrowUp } from '@lucide/astro';
 
   @media (max-width: 639px) {
     .back-to-top {
-      bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom) + 12px + var(--notice-offset, 0px));
+      bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px) + 3.25rem);
       width: 44px;
       min-width: 44px;
       padding: 0;
@@ -76,8 +76,6 @@ import { ArrowUp } from '@lucide/astro';
   if (button) {
     button.inert = true;
     button.setAttribute('aria-hidden', 'true');
-    const notice = document.querySelector<HTMLElement>('[data-cached-notice]');
-    const mobile = window.matchMedia('(max-width: 639px)');
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     let frame = 0;
 
@@ -86,12 +84,8 @@ import { ArrowUp } from '@lucide/astro';
       const scrollRoot = document.scrollingElement ?? document.documentElement;
       const threshold = Math.max(400, window.innerHeight * .8);
       const hasRoom = scrollRoot.scrollHeight - window.innerHeight > threshold + 80;
-      const noticeCoversButton = mobile.matches && notice && !notice.hidden;
       const focused = document.activeElement === button;
-      const visible = ((hasRoom && scrollRoot.scrollTop > threshold) || focused) && (!noticeCoversButton || focused);
-
-      // A focused control stays reachable above the notice until focus moves away.
-      button.style.setProperty('--notice-offset', `${noticeCoversButton && focused ? (notice?.offsetHeight ?? 0) + 12 : 0}px`);
+      const visible = (hasRoom && scrollRoot.scrollTop > threshold) || focused;
       button.classList.toggle('is-visible', Boolean(visible));
       button.inert = !visible;
       button.setAttribute('aria-hidden', String(!visible));
@@ -117,7 +111,6 @@ import { ArrowUp } from '@lucide/astro';
     window.addEventListener('resize', requestUpdate, { passive: true });
     window.addEventListener('load', requestUpdate, { once: true });
     window.addEventListener('pageshow', requestUpdate);
-    if (notice) new MutationObserver(requestUpdate).observe(notice, { attributes: true, attributeFilter: ['hidden'] });
     updateVisibility();
   }
 </script>

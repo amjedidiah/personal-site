@@ -56,9 +56,17 @@ Keep the fallback in `src/data/current.ts` accurate for visitors without JavaScr
 Production builds emit `dist/sw.js` from `integrations/service-worker/`. It precaches every built file, versioned by a hash of their contents, so each deploy installs a fresh cache and deletes the old one.
 
 - Pages load network-first. If the network fails or takes longer than 3s, a cached copy is served. Routes that were never cached fall back to `/offline`.
-- Cached pages are tagged `data-cached-copy` on `<html>`, which shows the notice in `src/components/OfflineNotice.astro`: bottom-left on desktop, above the tab bar on phones. It checks every 15s, on reconnect and when the tab regains focus, and changes to "back online" once the site responds.
+- Cached pages are tagged `data-cached-copy` on `<html>`, which shows the notice in `src/components/OfflineNotice.astro` as a banner above the header. It checks every 15s, on reconnect and when the tab regains focus, and changes to "back online" once the site responds.
 - The status dot after the wordmark (`src/components/FreshnessDot.astro`) shows on every cached page: grey on a saved copy, blue with a pulse once the site responds. It is display-only. Dismissing the notice (× or Esc) keeps it hidden on later saved pages for the browser session, until a fresh page loads. If the site comes back, the notice reappears with "load latest".
 - Everything else (hashed `/_astro/` assets, fonts, images, icons) loads from cache first, then the network.
 - Dev builds never register the worker. They also remove any worker left behind by `astro preview`, which uses the same port.
 
 Kill switch: if a broken worker ships, build with `SW_KILL_SWITCH=1` and deploy. That build emits a `sw.js` that clears caches, unregisters itself and reloads open tabs. Its pages also stop registering the worker. Deploy a normal build afterwards to turn offline support back on.
+
+## Private feedback
+
+Project case studies link to a project-specific feedback form; the footer links to the general form. Submissions are sent privately by the Astro `/api/feedback` endpoint, deployed as a Vercel Function. No feedback is stored in the site or a database. The form keeps the draft when a submission fails and offers a direct email link.
+
+Configure `GMAIL_USER` and `GMAIL_APP_PASSWORD` in Vercel Project Settings → Environment Variables for each environment that should accept feedback. `FEEDBACK_TO` is optional and defaults to `GMAIL_USER`. The password must be a Google App Password from an account with 2-Step Verification, not the account password. Add the same values to ignored `.env.local` for local end-to-end testing; `.env.example` lists the names. Redeploy after changing Vercel environment variables.
+
+The endpoint uses a honeypot, same-origin checks, and input size limits. If submission volume becomes abusive, add a Vercel Firewall rate limit scoped to `POST /api/feedback`; do not rely on in-memory counters in a serverless function. Run `node --experimental-strip-types --test tests/feedback.test.ts` to check validation and delivery behavior without sending real mail.
