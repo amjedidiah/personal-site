@@ -1,47 +1,145 @@
 ---
+import { FileText, House, LayoutGrid, Mail, MessageCircle, Phone, PhoneCall, UserRound } from '@lucide/astro';
+
 const pathname = Astro.url.pathname;
 const links = [
   { href: '/', label: 'home' },
-  { href: '/projects', label: 'projects' },
+  { href: '/projects', label: 'portfolio' },
   { href: '/blog', label: 'blog' },
   { href: '/about', label: 'about' },
 ];
+const isActive = (href: string) => pathname === href || (href !== '/' && pathname.startsWith(`${href}/`));
+const brandLetters = ['a', 'm', 'j', 'e', 'd'];
 ---
 
-<nav>
+<header class="mobile-topbar">
+  <a href="/" class="mobile-brand" aria-label="amjed, home">
+    <span class="brand-wordmark" aria-hidden="true">
+      {brandLetters.map((letter, index) => (
+        <span class:list={['brand-letter', { 'brand-letter--am': index < 2 }]}>{letter}</span>
+      ))}
+    </span>
+  </a>
+  <div class="mobile-social" role="group" aria-label="Social and contact links">
+    <a href="https://github.com/amjedidiah" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.084-.73.084-.73 1.205.084 1.84 1.237 1.84 1.237 1.07 1.835 2.809 1.305 3.495.998.108-.776.418-1.305.762-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+      </svg>
+    </a>
+    <a href="https://twitter.com/am_jedidiah" target="_blank" rel="noopener" aria-label="X" title="X">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817-5.967 6.817H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/>
+      </svg>
+    </a>
+    <a href="https://www.linkedin.com/in/am-jedidiah/" target="_blank" rel="noopener" aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V8.999h3.414v1.561h.046c.476-.9 1.637-1.85 3.37-1.85 3.601 0 4.266 2.37 4.266 5.455v6.287zM5.337 7.433a2.062 2.062 0 1 1 0-4.124 2.062 2.062 0 0 1 0 4.124zM7.119 20.452H3.555V8.999h3.564v11.453zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.225 0z"/>
+      </svg>
+    </a>
+    <details class="mobile-contact">
+      <summary aria-label="Phone or WhatsApp" title="Phone or WhatsApp">
+        <Phone size={19} stroke-width={2} aria-hidden="true" />
+      </summary>
+      <div class="contact-options">
+        <p>+234 816 597 2229</p>
+        <a href="https://wa.me/2348165972229" target="_blank" rel="noopener">
+          <MessageCircle size={18} stroke-width={2} aria-hidden="true" /> WhatsApp
+        </a>
+        <a href="tel:+2348165972229">
+          <PhoneCall size={18} stroke-width={2} aria-hidden="true" /> Phone call
+        </a>
+      </div>
+    </details>
+  </div>
+</header>
+
+<nav class="desktop-nav" aria-label="Primary navigation">
   <div class="nav-inner">
-    <a href="/" class="nav-name">jed</a>
+    <a href="/" class="nav-name" aria-label="amjed, home">
+      <span class="brand-wordmark" aria-hidden="true">
+        {brandLetters.map((letter, index) => (
+          <span class:list={['brand-letter', { 'brand-letter--am': index < 2 }]}>{letter}</span>
+        ))}
+      </span>
+    </a>
     <div class="nav-links">
       {links.map(({ href, label }) => (
-        <a href={href} class:list={[{ active: pathname === href || (href !== '/' && pathname.startsWith(href)) }]}>{label}</a>
+        <a href={href} class:list={[{ active: isActive(href) }]} aria-current={isActive(href) ? 'page' : undefined}>
+          <span class="desktop-selection" aria-hidden="true"></span>{label}
+        </a>
       ))}
     </div>
     <div class="nav-social">
-      <a href="https://github.com/amjedidiah" target="_blank" rel="noopener" aria-label="GitHub">
+      <a href="https://github.com/amjedidiah" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.084-.73.084-.73 1.205.084 1.84 1.237 1.84 1.237 1.07 1.835 2.809 1.305 3.495.998.108-.776.418-1.305.762-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
         </svg>
       </a>
-      <a href="https://linkedin.com/in/amjedidiah" target="_blank" rel="noopener" aria-label="LinkedIn">
+      <a href="https://twitter.com/am_jedidiah" target="_blank" rel="noopener" aria-label="X" title="X">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817-5.967 6.817H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/>
+        </svg>
+      </a>
+      <a href="https://www.linkedin.com/in/am-jedidiah/" target="_blank" rel="noopener" aria-label="LinkedIn" title="LinkedIn">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V8.999h3.414v1.561h.046c.476-.9 1.637-1.85 3.37-1.85 3.601 0 4.266 2.37 4.266 5.455v6.287zM5.337 7.433a2.062 2.062 0 1 1 0-4.124 2.062 2.062 0 0 1 0 4.124zM7.119 20.452H3.555V8.999h3.564v11.453zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.225 0z"/>
         </svg>
       </a>
-      <a href="https://twitter.com/amjedidiah" target="_blank" rel="noopener" aria-label="Twitter">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817-5.967 6.817H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/>
-        </svg>
+      <a href="mailto:imunacode@gmail.com?subject=Project%20inquiry" aria-label="Email Jedidiah" title="Email Jedidiah">
+        <Mail size={17} stroke-width={2} aria-hidden="true" />
       </a>
     </div>
   </div>
 </nav>
 
+<nav class="mobile-nav" aria-label="Primary navigation">
+  <a href="/" class:list={[{ active: isActive('/') }]} aria-current={isActive('/') ? 'page' : undefined}>
+    <span class="mobile-selection" aria-hidden="true"></span>
+    <House size={22} stroke-width={2} aria-hidden="true" />
+    <span>Home</span>
+  </a>
+  <a href="/projects" class:list={[{ active: isActive('/projects') }]} aria-current={isActive('/projects') ? 'page' : undefined}>
+    <span class="mobile-selection" aria-hidden="true"></span>
+    <LayoutGrid size={22} stroke-width={2} aria-hidden="true" />
+    <span>Portfolio</span>
+  </a>
+  <a href="/blog" class:list={[{ active: isActive('/blog') }]} aria-current={isActive('/blog') ? 'page' : undefined}>
+    <span class="mobile-selection" aria-hidden="true"></span>
+    <FileText size={22} stroke-width={2} aria-hidden="true" />
+    <span>Blog</span>
+  </a>
+  <a href="/about" class:list={[{ active: isActive('/about') }]} aria-current={isActive('/about') ? 'page' : undefined}>
+    <span class="mobile-selection" aria-hidden="true"></span>
+    <UserRound size={22} stroke-width={2} aria-hidden="true" />
+    <span>About</span>
+  </a>
+</nav>
+
 <style>
-  nav {
+  .brand-wordmark { display: inline-flex; letter-spacing: 0; }
+  .brand-letter {
+    --brand-start: var(--fg);
+    color: var(--brand-start);
+  }
+  .brand-letter--am { --brand-start: var(--accent); }
+  .mobile-topbar {
+    display: none;
+    --nav-surface: var(--bg);
+  }
+  .mobile-topbar[data-nav-surface="surface"] { --nav-surface: var(--surface); }
+  .desktop-nav {
     position: sticky; top: 0; z-index: 100;
-    background: color-mix(in srgb, var(--bg) 80%, transparent);
+    --nav-surface: var(--bg);
+    background-color: transparent;
+    backdrop-filter: none; -webkit-backdrop-filter: none;
+    border-bottom: 1px solid transparent;
+    transition: background-color .24s ease, border-color .24s ease, backdrop-filter .24s ease;
+  }
+  .desktop-nav[data-nav-surface="surface"] { --nav-surface: var(--surface); }
+  .desktop-nav.is-scrolled {
+    background-color: color-mix(in srgb, var(--nav-surface) 92%, transparent);
     backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
+    border-color: var(--border);
   }
   .nav-inner {
     max-width: var(--max-w);
@@ -51,31 +149,284 @@ const links = [
     height: 3.5rem;
   }
   .nav-name {
-    font-weight: 700; font-size: .95rem; color: var(--fg);
-    margin-right: auto; letter-spacing: -.02em;
+    font-weight: 700; font-size: 1.125rem; color: var(--fg);
+    display: inline-flex; align-items: center; min-height: 40px;
+    margin-right: auto; letter-spacing: 0;
   }
-  .nav-name:hover { opacity: 1; color: var(--accent); }
   .nav-links { display: flex; gap: .15rem; }
   .nav-links a, .nav-social a {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: 40px;
     font-size: .75rem; color: var(--dim);
     padding: .35em .6em; border-radius: 4px;
     transition: color .15s, background .15s;
   }
+  .nav-links a {
+    position: relative;
+    isolation: isolate;
+    font: 500 .82rem/1 var(--font-sans);
+  }
+  .desktop-selection {
+    position: absolute;
+    inset: auto 0 -8px;
+    height: 2px;
+    z-index: -1;
+    background: var(--accent);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .desktop-nav.is-scrolled .nav-links a.active .desktop-selection {
+    opacity: 1;
+    view-transition-name: desktop-nav-selection;
+  }
   .nav-social a {
-    display: grid; place-items: center;
-    width: 30px; height: 30px;
+    width: 40px; height: 40px;
     padding: 0;
   }
   .nav-social svg { width: 15px; height: 15px; fill: currentColor; }
+  .nav-social :global(svg.lucide) { fill: none; }
   .nav-links a:hover, .nav-social a:hover {
-    color: var(--fg); background: var(--surface); opacity: 1;
+    color: var(--fg); background: transparent; opacity: 1;
   }
-  .nav-links a.active { color: var(--accent); background: var(--glow); }
+  .nav-links a.active { color: var(--accent); background: transparent; }
   .nav-social { display: flex; gap: .15rem; border-left: 1px solid var(--border); padding-left: .8rem; margin-left: .4rem; }
+  .mobile-nav { display: none; }
 
-  @media (max-width: 400px) {
-    .nav-inner { gap: .8rem; }
-    .nav-links a, .nav-social a { font-size: .7rem; padding: .25em .4em; }
-    .nav-social { display: none; }
+  @media (max-width: 639px) {
+    .desktop-nav { display: none; }
+    .mobile-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: calc(52px + env(safe-area-inset-top));
+      padding: env(safe-area-inset-top) var(--gutter) 0;
+      background: var(--bg);
+      border-bottom: 1px solid transparent;
+      transition: background-color .24s ease, border-color .24s ease, backdrop-filter .24s ease;
+    }
+    .mobile-topbar.is-scrolled {
+      background: color-mix(in srgb, var(--nav-surface) 92%, transparent);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-color: var(--border);
+    }
+    .mobile-brand {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      color: var(--fg);
+      font: 700 1.125rem/1 var(--font-sans);
+      transition: opacity .12s;
+    }
+    .mobile-brand:active { opacity: .65; }
+    .mobile-social { display: flex; align-items: center; gap: 2px; }
+    .mobile-contact { position: relative; width: 44px; height: 44px; }
+    .mobile-social > a, .mobile-contact > summary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      color: var(--dim);
+      border-radius: 4px;
+      transition: color .15s, background-color .15s;
+      touch-action: manipulation;
+    }
+    .mobile-contact > summary { list-style: none; cursor: pointer; }
+    .mobile-contact > summary::-webkit-details-marker { display: none; }
+    .mobile-contact > summary::marker { content: ''; }
+    .mobile-contact > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+    .mobile-social > a:hover, .mobile-contact > summary:hover {
+      color: var(--fg); background: transparent; opacity: 1;
+    }
+    .mobile-contact[open] > summary,
+    .mobile-social > a:active, .mobile-contact > summary:active {
+      color: var(--accent); background: transparent;
+    }
+    .mobile-social :global(svg) { width: 18px; height: 18px; fill: currentColor; }
+    .mobile-social :global(svg.lucide) { fill: none; }
+    .mobile-social > a :global(svg), .mobile-contact > summary :global(svg) { transition: transform .12s ease-out; }
+    .mobile-social > a:active :global(svg), .mobile-contact > summary:active :global(svg) { transform: scale(.9); }
+    .contact-options {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      z-index: 1;
+      width: 192px;
+      padding: 6px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg);
+      box-shadow: 0 12px 28px rgb(0 0 0 / .14);
+    }
+    .contact-options p {
+      padding: 5px 9px 7px;
+      color: var(--dim);
+      font: 500 .7rem/1.3 var(--font-mono);
+      white-space: nowrap;
+    }
+    .contact-options a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 44px;
+      padding: 6px 9px;
+      border-radius: 4px;
+      color: var(--fg);
+      font: 500 .85rem/1.2 var(--font-sans);
+    }
+    .contact-options a:hover { color: var(--accent); background: transparent; opacity: 1; }
+    .mobile-nav {
+      position: fixed;
+      inset: auto 0 0;
+      z-index: 150;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      height: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom));
+      padding: 3px env(safe-area-inset-right) calc(3px + env(safe-area-inset-bottom)) env(safe-area-inset-left);
+      border-top: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .mobile-nav a {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      min-width: 0;
+      min-height: 56px;
+      color: color-mix(in srgb, var(--fg) 78%, var(--bg));
+      font: 600 11px/1.1 var(--font-sans);
+      transition: color .15s, background-color .15s;
+      border-radius: 4px;
+      touch-action: manipulation;
+    }
+    .mobile-nav a :global(svg) { transition: transform .12s ease-out; }
+    .mobile-nav a:active { color: var(--accent); background: transparent; }
+    .mobile-nav a:active :global(svg) { transform: scale(.9); }
+    .mobile-nav a:hover,
+    .mobile-nav a.active { color: var(--accent); opacity: 1; }
+    .mobile-selection {
+      position: absolute;
+      top: -4px;
+      width: 24px;
+      height: 2px;
+      background: var(--accent);
+      opacity: 0;
+      pointer-events: none;
+    }
+    .mobile-nav a.active .mobile-selection {
+      opacity: 1;
+      view-transition-name: mobile-nav-selection;
+    }
+    .mobile-nav a:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -3px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .desktop-nav { transition: none; }
+    .mobile-topbar { transition: none; }
+    .mobile-brand { transition: none; }
+    .mobile-social > a, .mobile-contact > summary { transition: none; }
+    .mobile-social > a :global(svg), .mobile-contact > summary :global(svg) { transition: none; }
+    .mobile-social > a:active :global(svg), .mobile-contact > summary:active :global(svg) { transform: none; }
+    .mobile-nav a { transition: none; }
+    .mobile-nav a :global(svg) { transition: none; }
+    .mobile-nav a:active :global(svg) { transform: none; }
   }
 </style>
+
+<script>
+  const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const wordmarkAnimations = new Map<HTMLElement, Animation[]>();
+
+  const playWordmark = (wordmark: HTMLElement) => {
+    if (motionPreference.matches || !wordmark.offsetWidth || !Element.prototype.animate) return;
+    if (wordmarkAnimations.get(wordmark)?.some((animation) => animation.playState === 'running')) return;
+
+    const colors = getComputedStyle(document.documentElement);
+    const accent = colors.getPropertyValue('--accent').trim();
+    const foreground = colors.getPropertyValue('--fg').trim();
+    const animations = Array.from(wordmark.querySelectorAll<HTMLElement>('.brand-letter')).map((letter, index) => {
+      const start = index < 2 ? accent : foreground;
+      const end = index < 2 ? foreground : accent;
+      return letter.animate([
+        { color: start, offset: 0 },
+        { color: start, offset: .2 },
+        { color: end, offset: .38 },
+        { color: end, offset: .62 },
+        { color: start, offset: .8 },
+        { color: start, offset: 1 },
+      ], { duration: 1800, delay: index * 90, easing: 'ease-in-out' });
+    });
+    wordmarkAnimations.set(wordmark, animations);
+  };
+
+  document.querySelectorAll<HTMLElement>('.brand-wordmark').forEach((wordmark) => {
+    const link = wordmark.closest('a');
+    link?.addEventListener('pointerenter', () => playWordmark(wordmark));
+    link?.addEventListener('focus', () => playWordmark(wordmark));
+    playWordmark(wordmark);
+  });
+
+  const cancelWordmarkAnimations = () => {
+    wordmarkAnimations.forEach((animations) => animations.forEach((animation) => animation.cancel()));
+  };
+  motionPreference.addEventListener('change', (event) => {
+    if (event.matches) cancelWordmarkAnimations();
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) cancelWordmarkAnimations();
+  });
+
+  const mobileContact = document.querySelector<HTMLDetailsElement>('.mobile-contact');
+  if (mobileContact) {
+    const trigger = mobileContact.querySelector<HTMLElement>('summary');
+    document.addEventListener('pointerdown', (event) => {
+      if (mobileContact.open && event.target instanceof Node && !mobileContact.contains(event.target)) {
+        mobileContact.open = false;
+      }
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && mobileContact.open) {
+        mobileContact.open = false;
+        trigger?.focus();
+      }
+    });
+    mobileContact.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => { mobileContact.open = false; });
+    });
+  }
+
+  const headers = document.querySelectorAll<HTMLElement>('.desktop-nav, .mobile-topbar');
+
+  if (headers.length) {
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      headers.forEach((header) => {
+        if (!header.offsetWidth) return;
+        header.classList.toggle('is-scrolled', window.scrollY > 8);
+        const edge = header.getBoundingClientRect().bottom + 1;
+        const beneath = document.elementFromPoint(window.innerWidth / 2, edge);
+        const section = beneath?.closest('main > section');
+        header.dataset.navSurface = section?.getAttribute('data-nav-surface') === 'surface' ? 'surface' : 'base';
+      });
+    };
+    const requestUpdate = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener('scroll', requestUpdate, { passive: true });
+    window.addEventListener('resize', requestUpdate, { passive: true });
+    window.addEventListener('pageshow', requestUpdate);
+  }
+</script>

@@ -1,0 +1,85 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="404 — Route not found"
+  description="This route is not part of Jedidiah Amaraegbu's site."
+  fullBleed
+>
+  <section class="missing-page hero-frame" aria-labelledby="missing-title">
+    <div class="missing-inner hero-frame-inner">
+      <p class="missing-code">404 / route not found</p>
+      <h1 id="missing-title">This route isn't in the network.</h1>
+      <p class="missing-copy">The page may have moved, or it never existed. Try a known path below.</p>
+      <div class="missing-actions">
+        <a class="missing-primary" href="/">back home</a>
+        <a class="missing-secondary" href="/projects">browse projects</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .missing-code {
+    color: var(--accent);
+    font-size: .7rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  h1 {
+    max-width: 15ch;
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: clamp(2.2rem, 6vw, 4.1rem);
+    line-height: 1.08;
+    letter-spacing: -.04em;
+    margin-bottom: 1rem;
+  }
+
+  .missing-copy {
+    max-width: 38ch;
+    color: var(--dim);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 1.75rem;
+  }
+
+  .missing-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .8rem;
+  }
+
+  .missing-actions a {
+    border-radius: 6px;
+    font-size: .8rem;
+    padding: .65em 1.3em;
+  }
+
+  .missing-primary {
+    color: var(--bg);
+    background: var(--accent);
+    font-weight: 600;
+  }
+
+  .missing-primary:hover {
+    color: var(--bg);
+    opacity: .85;
+  }
+
+  .missing-secondary {
+    color: var(--dim);
+    border: 1px solid var(--border);
+  }
+
+  .missing-secondary:hover {
+    color: var(--fg);
+    border-color: var(--fg);
+    opacity: 1;
+  }
+
+</style>

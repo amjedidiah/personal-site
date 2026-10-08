@@ -1,13 +1,18 @@
 ---
 import Base from '../layouts/Base.astro';
+import HeroScene from '../components/HeroScene.astro';
+import ProgressiveImage from '../components/ProgressiveImage.astro';
 import { getCollection } from 'astro:content';
+import { current } from '../data/current';
+import { imagePlaceholders } from '../data/image-placeholders';
 
 const projects = (await getCollection('projects'))
   .filter((p) => p.data.featured)
   .sort((a, b) => a.data.order - b.data.order);
+const caseStudies = projects.filter((p) => p.id === 'ajoflow' || p.id === 'gwela');
+const otherFeatured = projects.filter((p) => p.id !== 'ajoflow' && p.id !== 'gwela');
 
-const typeLabel: Record<string, string> = { founder: 'own project', client: 'client work', oss: 'OSS' };
-const typeColor: Record<string, string> = { founder: '#58a6ff', client: '#3fb950', oss: '#d2a8ff' };
+const caseFocus: Record<string, string> = { ajoflow: 'Payments + AI', gwela: 'Collaborative AI' };
 
 const clients = [
   { name: 'Fiverr Pro', note: '100+ contractors' },
@@ -19,31 +24,47 @@ const clients = [
 ];
 ---
 
-<Base title="Jedidiah Amaraegbu" fullBleed>
+<Base title="Jedidiah Amaraegbu | Payments and AI Engineer" description="I help fintech and platform teams ship payments and AI that hold up in production. Explore working products and get in touch." fullBleed>
   <!-- HERO -->
-  <section class="hero">
-    <div class="hero-inner">
-      <p class="hero-tag sr">full stack engineer · stripe architect · security researcher</p>
-      <h1 class="sr">Jedidiah<br/>Amaraegbu</h1>
-      <p class="hero-lede sr">I build payment infrastructure and AI products for complex, high-stakes workflows.</p>
+  <section class="hero hero-frame">
+    <HeroScene />
+    <div class="hero-frame-inner">
+      <p class="hero-name sr">Jedidiah Amaraegbu</p>
+      <p class="hero-tag sr">full-stack engineer · Stripe architect · security researcher</p>
+      <h1 class="sr">Payments and AI that hold up in production.</h1>
+      <p class="hero-lede sr">From Stripe Connect integrations and cross-border payouts to collaborative AI agents — I take complex systems from prototype to production.</p>
       <div class="hero-actions sr">
-        <a class="btn-primary" href="/projects">see selected work</a>
-        <a class="btn-ghost" href="mailto:imunacode@gmail.com">start a conversation</a>
+        <a class="btn-primary" href="mailto:imunacode@gmail.com?subject=Payment%20project%20inquiry">discuss a payment project</a>
+        <a class="btn-ghost" href="/projects/gwela">explore Gwela (AI)</a>
       </div>
       <div class="scroll-hint" aria-hidden="true"><span></span></div>
     </div>
   </section>
 
   <!-- 01 — NOW -->
-  <section class="now-section">
+  <section class="now-section" data-nav-surface="surface">
     <div class="constrained">
       <div class="section-label sr">
         <span class="section-num">01</span>
         <h2>now</h2>
       </div>
-      <div class="now sr">
-        Building <a href="/projects/gwela">Gwela</a> (multiplayer AI agent platform), doing security research on Stripe Connect & MCP, applying to YC W27.
+      <div class="now-grid sr">
+        <p class="now">Building <a href="/projects/gwela">Gwela</a>, a shared AI session product, and researching Stripe Connect and MCP security.</p>
+        <div class="current-signals" data-current-signals>
+          <div class="current-signal">
+            <span class="signal-label">Availability</span>
+            <strong class="availability" data-current-availability data-available="true"><span class="availability-dot" aria-hidden="true"></span><span data-current-availability-label>{current.availability}</span></strong>
+            <span class="signal-detail" data-current-availability-detail>{current.availabilityDetail}</span>
+          </div>
+          <div class="current-signal">
+            <span class="signal-label">Latest Gwela update</span>
+            <a href={current.latest.href} class="signal-title" data-current-latest-link><span data-current-latest-title>{current.latest.title}</span> <span aria-hidden="true">&rarr;</span></a>
+            <span class="signal-detail" data-current-latest-detail>{current.latest.detail}</span>
+            <time datetime={current.latest.date} data-current-latest-date>{new Date(`${current.latest.date}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })}</time>
+          </div>
+        </div>
       </div>
+      <p class="current-reviewed" data-current-status role="status">Status last reviewed <time datetime={current.reviewedAt}>{new Date(`${current.reviewedAt}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })}</time></p>
     </div>
   </section>
 
@@ -54,38 +75,44 @@ const clients = [
         <span class="section-num">02</span>
         <h2>featured work</h2>
       </div>
-      <div class="project-grid sr-stagger">
-        {projects.map((p) => (
-          <a href={`/projects/${p.id}`} class="project-card" style={`--card-accent: ${typeColor[p.data.type]}`}>
-            <div class="card-header">
-              <span class="card-type" style={`color: ${typeColor[p.data.type]}`}>{typeLabel[p.data.type]}</span>
-              {p.data.order === 1 && <span class="card-live">building now</span>}
-            </div>
-            <h3 class="card-title">{p.data.title}</h3>
-            <p class="card-desc">{p.data.description}</p>
-            {p.data.metric && (
-              <div class="card-metric">
-                <span class="metric-value">{p.data.metric}</span>
+      <div class="case-list sr-stagger">
+        {caseStudies.map((p) => (
+          <article class="case-study">
+            <a href={`/projects/${p.id}`} class="case-image-link" aria-label={`Read ${p.data.title} case study`}>
+              <div class="case-image">
+                {p.data.image && <ProgressiveImage src={p.data.image} alt={p.data.imageAlt ?? p.data.title} placeholder={imagePlaceholders[p.id]} sizes="(max-width: 900px) calc(100vw - 2rem), 45vw" />}
               </div>
-            )}
-            <div class="card-bottom">
-              <div class="card-tech">{p.data.tech.slice(0, 4).join(' · ')}</div>
-              <span class="card-arrow">&rarr;</span>
+              <span class="case-caption">{p.data.imageCaption}</span>
+            </a>
+            <div class="case-copy">
+              <p class="case-focus">{caseFocus[p.id]}</p>
+              <h3><a href={`/projects/${p.id}`}>{p.data.title}</a></h3>
+              <p class="case-description">{p.data.description}</p>
+              <dl class="case-facts">
+                <div><dt>My role</dt><dd>{p.data.role}</dd></div>
+                <div><dt>Proof</dt><dd>{p.data.evidence}</dd></div>
+              </dl>
+              <div class="case-actions">
+                <a href={`/projects/${p.id}`}>Read case study <span aria-hidden="true">&rarr;</span></a>
+                {p.data.url && <a href={p.data.url} target="_blank" rel="noopener noreferrer">{p.data.urlLabel ?? 'View project'} <span aria-hidden="true">&nearr;</span></a>}
+              </div>
             </div>
-          </a>
+          </article>
         ))}
       </div>
-      <a href="/projects" class="see-all sr">all projects &rarr;</a>
+      {otherFeatured.length > 0 && <p class="other-work">Also built: {otherFeatured.map((p, index) => <span>{index > 0 && ', '}<a href={`/projects/${p.id}`}>{p.data.title}</a></span>)}</p>}
+      <a href="/projects" class="see-all">all projects &rarr;</a>
     </div>
   </section>
 
   <!-- 03 — EXPERIENCE -->
-  <section class="clients-section">
+  <section class="clients-section" data-nav-surface="surface">
     <div class="constrained">
       <div class="section-label sr">
         <span class="section-num">03</span>
         <h2>experience</h2>
       </div>
+      <p class="experience-summary sr">Work spanning payment infrastructure, developer education, and security research.</p>
       <div class="clients-grid sr-stagger">
         {clients.map((c) => (
           <div class="client-item">
@@ -118,43 +145,42 @@ const clients = [
   <!-- CTA -->
   <section class="cta-section">
     <div class="constrained sr">
-      <p class="cta-text">Have a payment, AI, or real-time product problem?</p>
-      <a class="btn-primary" href="mailto:imunacode@gmail.com">Let's talk</a>
+      <p class="cta-text">Planning a payment integration or a production AI feature?</p>
+      <a class="btn-primary" href="mailto:imunacode@gmail.com?subject=Project%20inquiry">Tell me what you're building</a>
+      <a class="cta-email" href="mailto:imunacode@gmail.com">imunacode@gmail.com</a>
     </div>
   </section>
 </Base>
 
 <style>
   /* hero */
-  .hero {
-    min-height: calc(100vh - 3.5rem);
-    display: flex; align-items: center;
-    position: relative;
-    padding: 2rem var(--gutter);
-  }
-  .hero-inner {
-    max-width: var(--max-w); width: 100%;
-    margin: 0 auto;
-  }
+  .hero { overflow: visible; }
   .hero-tag {
     color: var(--dim); font-size: .8rem;
     margin-bottom: 1.2rem; letter-spacing: .02em;
   }
+  .hero-name {
+    color: var(--fg); font-family: var(--font-sans);
+    font-size: .95rem; font-weight: 600;
+    margin-bottom: .35rem;
+  }
   .hero h1 {
-    font-size: clamp(2.2rem, 7vw, 4.5rem);
+    font-size: 2.2rem;
     line-height: 1.05;
-    margin-bottom: 1.4rem;
+    margin-bottom: 1rem;
+    max-width: 16ch;
   }
   .hero-lede {
     font-family: var(--font-sans);
-    color: var(--dim); font-size: clamp(.95rem, 2vw, 1.2rem);
+    color: var(--dim); font-size: 1rem;
     line-height: 1.7; max-width: 48ch;
-    margin-bottom: 2.5rem; font-weight: 400;
+    margin-bottom: 1.5rem; font-weight: 400;
   }
   .hero-actions { display: flex; flex-wrap: wrap; gap: .8rem; }
-
   /* buttons */
   .btn-primary {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: 44px;
     font-family: var(--font-mono);
     color: var(--bg); background: var(--accent);
     padding: .65em 1.3em; border-radius: 6px;
@@ -163,6 +189,8 @@ const clients = [
   }
   .btn-primary:hover { opacity: .85; color: var(--bg); }
   .btn-ghost {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: 44px;
     font-family: var(--font-mono);
     color: var(--dim); font-size: .8rem;
     padding: .65em 1.3em;
@@ -194,85 +222,137 @@ const clients = [
 
   /* now */
   .now-section {
-    padding: 4rem 0;
+    padding: 2rem 0 3rem;
     background: var(--surface);
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
   }
+  .section-label h2 { font-size: .82rem; }
+  .now-grid {
+    display: grid;
+    grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+    gap: 3rem;
+  }
   .now {
     font-family: var(--font-sans);
-    font-size: .95rem; color: var(--dim); line-height: 1.7;
-    max-width: 55ch;
+    font-size: 1rem; color: var(--fg); line-height: 1.65;
+    max-width: 40ch;
   }
+  .current-signals {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+  .current-signal {
+    display: flex; flex-direction: column; align-items: flex-start;
+    gap: .4rem;
+    padding-top: .75rem;
+    border-top: 1px solid var(--border);
+  }
+  .signal-label {
+    font-size: .75rem; color: var(--dim);
+    text-transform: uppercase; letter-spacing: .06em;
+  }
+  .current-signal strong, .signal-title {
+    font: 600 .9rem/1.4 var(--font-sans);
+    color: var(--fg);
+  }
+  .signal-title:hover { color: var(--accent); }
+  .availability { display: inline-flex; align-items: center; gap: .55rem; }
+  .availability-dot {
+    width: .42rem; height: .42rem; flex: none;
+    border-radius: 50%; background: #2f9f69;
+  }
+  .availability:not([data-available="true"]) .availability-dot { background: var(--dim); }
+  .signal-detail { color: var(--dim); font-size: .78rem; line-height: 1.55; }
+  .current-signal time, .current-reviewed {
+    color: var(--dim); font-size: .75rem;
+  }
+  .current-reviewed { margin-top: 1.5rem; min-height: 1rem; }
 
   /* work */
   .work-section { padding: 5rem 0 3rem; }
-
-  .project-grid {
-    display: grid; grid-template-columns: 1fr;
-    gap: 1px; background: var(--border);
-    border: 1px solid var(--border); border-radius: 12px;
+  .case-list { border-bottom: 1px solid var(--border); }
+  .case-study {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
+    gap: clamp(2rem, 5vw, 4.5rem);
+    align-items: center;
+    padding: 2.25rem 0;
+    border-top: 1px solid var(--border);
+  }
+  .case-image-link { display: block; min-width: 0; }
+  .case-image {
+    display: grid; place-items: center;
+    aspect-ratio: 16 / 10;
     overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: #101112;
   }
-  .project-card {
-    background: var(--bg);
-    padding: 1.6rem 1.8rem;
-    display: flex; flex-direction: column;
-    color: inherit; position: relative;
-    transition: background .2s;
-    border-left: 3px solid transparent;
+  .case-image :global(.progressive-image) {
+    height: 100%;
+    aspect-ratio: auto;
+    background-size: cover;
+    transform: scale(1);
+    transition: transform .45s cubic-bezier(.2, .7, .2, 1);
   }
-  .project-card:hover {
-    background: var(--surface);
-    border-left-color: var(--card-accent);
-    opacity: 1;
+  .case-image :global(.progressive-image img) { object-fit: cover; }
+  .case-image-link:is(:hover, :focus-visible) .case-image :global(.progressive-image) {
+    transform: scale(1.025);
   }
-  .card-header {
-    display: flex; align-items: center; gap: .6em;
-    margin-bottom: .5rem;
+  .case-caption {
+    display: block; margin-top: .5rem;
+    color: var(--dim); font-size: .75rem; line-height: 1.45;
   }
-  .card-type {
-    font-size: .65rem; text-transform: uppercase;
-    letter-spacing: .08em; font-weight: 600;
+  .case-copy { min-width: 0; }
+  .case-focus {
+    color: var(--accent); font-size: .75rem;
+    text-transform: uppercase; letter-spacing: .05em;
+    margin-bottom: .6rem;
   }
-  .card-live {
-    font-size: .6rem; color: var(--bg); background: var(--accent);
-    padding: .15em .5em; border-radius: 3px;
-    text-transform: uppercase; letter-spacing: .06em; font-weight: 600;
+  .case-copy h3 {
+    color: var(--fg); font-family: var(--font-sans);
+    font-size: 1.45rem;
+    line-height: 1.2; margin-bottom: .7rem;
   }
-  .card-title {
-    font-family: var(--font-sans);
-    font-size: 1.15rem; font-weight: 700; color: var(--fg);
-    margin-bottom: .4rem; letter-spacing: -.02em;
+  .case-copy h3 a { color: inherit; }
+  .case-copy h3 a:hover { color: var(--accent); }
+  .case-description {
+    color: var(--dim); font-family: var(--font-sans);
+    font-size: .92rem; line-height: 1.65;
+    max-width: 45ch;
   }
-  .card-desc {
-    color: var(--dim); font-size: .8rem; line-height: 1.6;
-    max-width: 55ch; flex: 1;
+  .case-facts {
+    display: grid; gap: .75rem;
+    margin: 1.2rem 0;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
   }
-  .card-metric { margin-top: .6rem; }
-  .metric-value {
-    font-family: var(--font-sans);
-    font-size: .7rem; font-weight: 600;
-    color: var(--accent); opacity: .8;
+  .case-facts div { display: grid; grid-template-columns: 4.2rem 1fr; gap: .6rem; }
+  .case-facts dt {
+    color: var(--dim); font-size: .75rem;
     text-transform: uppercase; letter-spacing: .04em;
   }
-  .card-bottom {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-top: .8rem;
+  .case-facts dd { color: var(--fg); font-size: .8rem; line-height: 1.5; }
+  .case-actions { display: flex; flex-wrap: wrap; gap: .25rem 1.4rem; }
+  .case-actions a { display: inline-flex; align-items: center; min-height: 40px; color: var(--accent); font-size: .8rem; }
+  .case-actions a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .other-work {
+    margin-top: 1.4rem;
+    color: var(--dim); font-size: .75rem;
   }
-  .card-tech { color: var(--dim); font-size: .7rem; opacity: .6; }
-  .card-arrow {
-    color: var(--accent); font-size: .85rem;
-    opacity: 0; transform: translateX(-4px);
-    transition: opacity .2s, transform .2s;
-  }
-  .project-card:hover .card-arrow { opacity: 1; transform: translateX(0); }
-
+  .other-work a { color: var(--fg); }
+  .other-work a:hover { color: var(--accent); }
   .see-all {
     display: inline-block; margin-top: 1.2rem;
-    font-size: .8rem; color: var(--dim);
+    font-size: .8rem; color: var(--accent);
   }
   .see-all:hover { color: var(--accent); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .case-image :global(.progressive-image) { transition: none; }
+  }
 
   /* clients / experience */
   .clients-section {
@@ -283,44 +363,69 @@ const clients = [
   }
   .clients-grid {
     display: grid; grid-template-columns: repeat(2, 1fr);
-    gap: 0;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .experience-summary {
+    max-width: 48ch;
+    margin: -0.35rem 0 1.75rem;
+    color: var(--dim);
+    font-family: var(--font-sans);
+    font-size: .95rem;
+    line-height: 1.65;
   }
   .client-item {
-    padding: .9rem 0;
-    border-bottom: 1px solid var(--border);
-    display: flex; justify-content: space-between; align-items: baseline;
-    gap: .5rem;
+    min-height: 6.5rem;
+    padding: 1.15rem 1.25rem;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: .75rem;
   }
   .client-name {
     font-family: var(--font-sans);
-    font-size: .85rem; font-weight: 600; color: var(--fg);
+    font-size: .95rem; font-weight: 600; color: var(--fg);
   }
   .client-note {
-    font-size: .7rem; color: var(--dim); opacity: .7;
-    text-align: right;
+    font-size: .75rem; color: var(--dim);
   }
-  .clients-grid .client-item:nth-child(odd) { padding-right: 1.5rem; }
-  .clients-grid .client-item:nth-child(even) { padding-left: 1.5rem; border-left: 1px solid var(--border); }
 
   .clients-stats {
-    display: flex; flex-wrap: wrap; gap: 2rem;
-    margin-top: 2.5rem; padding-top: 1.5rem;
-    border-top: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    margin-top: 1.25rem;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
   }
-  .stat { display: flex; flex-direction: column; }
+  .stat {
+    min-height: 6rem;
+    padding: 1rem 1.15rem;
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
   .stat-num {
     font-family: var(--font-sans);
     font-size: 1.6rem; font-weight: 700; color: var(--fg);
-    letter-spacing: -.03em; line-height: 1.1;
+    letter-spacing: 0; line-height: 1.1;
   }
   .stat-label {
-    font-size: .7rem; color: var(--dim);
+    font-size: .75rem; color: var(--dim);
     margin-top: .15rem; text-transform: uppercase;
     letter-spacing: .06em;
   }
 
   /* cta */
-  .cta-section { padding: 5rem 0; }
+  .cta-section { padding: 4.5rem 0; }
   .cta-section .constrained {
     text-align: center;
     display: flex; flex-direction: column;
@@ -328,36 +433,236 @@ const clients = [
   }
   .cta-text {
     font-family: var(--font-sans);
-    color: var(--dim); font-size: 1rem; max-width: 28ch;
+    color: var(--fg); font-size: 1.15rem; max-width: 28ch;
     line-height: 1.6;
   }
+  .cta-email { color: var(--dim); font-size: .78rem; }
+  .cta-email:hover { color: var(--accent); }
 
   @media (min-width: 640px) {
-    .project-grid { grid-template-columns: 1fr 1fr; }
-    .project-card { padding: 1.8rem 2rem; }
     .clients-grid { grid-template-columns: repeat(3, 1fr); }
-    .clients-grid .client-item:nth-child(odd) { padding-right: 0; }
-    .clients-grid .client-item:nth-child(even) { padding-left: 0; border-left: none; }
-    .clients-grid .client-item { padding: .9rem 1rem; }
-    .clients-grid .client-item:nth-child(3n+2),
-    .clients-grid .client-item:nth-child(3n) {
-      border-left: 1px solid var(--border); padding-left: 1.5rem;
-    }
+    .hero h1 { font-size: 2.8rem; }
   }
 
   @media (min-width: 960px) {
-    .project-grid { grid-template-columns: repeat(3, 1fr); }
-    .project-card { padding: 2rem 2.2rem; }
     .clients-stats { gap: 3rem; }
     .stat-num { font-size: 2rem; }
+    .hero h1 { font-size: 3.3rem; }
+    .hero-lede { font-size: 1.15rem; }
+    .case-copy h3 { font-size: 1.85rem; }
+    .cta-text { font-size: 1.3rem; }
+  }
+
+  @media (min-width: 1400px) {
+    .hero h1 { font-size: 4.1rem; }
+    .hero-lede { font-size: 1.2rem; }
+    .case-copy h3 { font-size: 2rem; }
+  }
+
+  @media (max-width: 900px) {
+    .now-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .case-study { grid-template-columns: 1fr; gap: 1.2rem; }
+    .case-copy { max-width: 42rem; }
+  }
+
+  @media (min-width: 761px) and (max-width: 959px) {
+    .hero-lede { max-width: 40ch; }
+  }
+
+  @media (max-width: 639px) {
+    .hero {
+      align-items: flex-start;
+      min-height: calc(min(72svh, 640px) - 52px - env(safe-area-inset-top));
+      padding-top: 3rem;
+    }
   }
 
   @media (max-width: 400px) {
-    .hero { min-height: calc(100svh - 3.5rem); }
-    .project-card { padding: 1.2rem 1rem; }
+    .hero { padding-bottom: 2.5rem; }
+    .current-signals { grid-template-columns: 1fr; }
     .scroll-hint { display: none; }
     .clients-grid { grid-template-columns: 1fr; }
-    .clients-grid .client-item:nth-child(even) { padding-left: 0; border-left: none; }
-    .clients-stats { gap: 1.5rem; }
+    .clients-stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 400px) and (max-height: 760px) {
+    .hero { padding-top: 2rem; padding-bottom: 1rem; }
+    .hero-tag { margin-bottom: .5rem; }
+    .hero-lede { margin-bottom: 1rem; }
+    .now-section { padding-top: 1.25rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scroll-hint span { animation: none; }
   }
 </style>
+
+<script>
+  import { currentIssueUrls, parseAvailabilityIssue, parseLatestIssue } from '../lib/current-feed';
+
+  type FeedResult<T> =
+    | { kind: 'data'; value: T; raw: unknown }
+    | { kind: 'empty' }
+    | { kind: 'error' }
+    | { kind: 'rate-limited'; retryAt: number };
+
+  type CachedIssue = { savedAt: number; raw: unknown };
+  type FeedCache = { availability?: CachedIssue; latest?: CachedIssue; retryAt?: number };
+  const cacheKey = 'jed-current-feed-v1';
+  const refreshInterval = 5 * 60 * 1000;
+
+  async function readIssue<T>(url: string, parse: (value: unknown) => T | null): Promise<FeedResult<T>> {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 8000);
+    try {
+      const response = await fetch(url, {
+        headers: { Accept: 'application/vnd.github+json' },
+        cache: 'no-store',
+        signal: controller.signal,
+      });
+      if (response.status === 404) return { kind: 'empty' };
+      if (response.status === 403 || response.status === 429) {
+        const reset = Number(response.headers.get('x-ratelimit-reset')) * 1000;
+        const retryAfter = Number(response.headers.get('retry-after')) * 1000;
+        return {
+          kind: 'rate-limited',
+          retryAt: reset > Date.now() ? reset + 1000 : Date.now() + (retryAfter > 0 ? retryAfter : refreshInterval),
+        };
+      }
+      if (!response.ok) return { kind: 'error' };
+      const raw = await response.json();
+      const value = parse(raw);
+      return value ? { kind: 'data', value, raw } : { kind: 'empty' };
+    } catch {
+      return { kind: 'error' };
+    } finally {
+      window.clearTimeout(timeout);
+    }
+  }
+
+  const signals = document.querySelector<HTMLElement>('[data-current-signals]');
+  const availability = signals?.querySelector<HTMLElement>('[data-current-availability]');
+  const availabilityLabel = signals?.querySelector<HTMLElement>('[data-current-availability-label]');
+  const availabilityDetail = signals?.querySelector<HTMLElement>('[data-current-availability-detail]');
+  const latestLink = signals?.querySelector<HTMLAnchorElement>('[data-current-latest-link]');
+  const latestTitle = signals?.querySelector<HTMLElement>('[data-current-latest-title]');
+  const latestDetail = signals?.querySelector<HTMLElement>('[data-current-latest-detail]');
+  const latestDate = signals?.querySelector<HTMLTimeElement>('[data-current-latest-date]');
+  const status = document.querySelector<HTMLElement>('[data-current-status]');
+
+  if (availability && availabilityLabel && availabilityDetail && latestLink && latestTitle && latestDetail && latestDate && status) {
+    const fallbackStatus = status.textContent?.trim() ?? 'Status last reviewed';
+    const dateFormat = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    const checkFormat = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    const cache: FeedCache = (() => {
+      try {
+        const stored = JSON.parse(localStorage.getItem(cacheKey) ?? 'null');
+        return stored && typeof stored === 'object' ? stored as FeedCache : {};
+      } catch { return {}; }
+    })();
+    const saveCache = () => {
+      try { localStorage.setItem(cacheKey, JSON.stringify(cache)); } catch { /* Storage is optional. */ }
+    };
+    const cachedValue = <T,>(entry: CachedIssue | undefined, parse: (raw: unknown) => T | null): T | null => {
+      if (!entry || typeof entry.savedAt !== 'number' || Date.now() - entry.savedAt > 60 * 60 * 1000) return null;
+      return parse(entry.raw);
+    };
+    const showAvailability = (value: NonNullable<ReturnType<typeof parseAvailabilityIssue>>, fresh: boolean) => {
+      availability.dataset.available = fresh ? String(value.available) : 'unknown';
+      availabilityLabel.textContent = value.label;
+      availabilityDetail.textContent = value.detail;
+    };
+    const showLatest = (value: NonNullable<ReturnType<typeof parseLatestIssue>>) => {
+      latestTitle.textContent = value.title;
+      latestDetail.textContent = value.detail;
+      latestLink.href = value.href;
+      latestDate.dateTime = value.updatedAt;
+      latestDate.textContent = dateFormat.format(new Date(value.updatedAt));
+      latestDate.hidden = false;
+    };
+    let pending = false;
+    let checked = false;
+    let lastCheck = 0;
+    let lastKnownStatus = fallbackStatus;
+
+    const savedAvailability = cachedValue(cache.availability, parseAvailabilityIssue);
+    const savedLatest = cachedValue(cache.latest, parseLatestIssue);
+    if (savedAvailability && savedLatest && cache.availability && cache.latest) {
+      showAvailability(savedAvailability, false);
+      showLatest(savedLatest);
+      lastCheck = Math.min(cache.availability.savedAt, cache.latest.savedAt);
+      lastKnownStatus = `Last synced ${checkFormat.format(new Date(lastCheck))}`;
+      status.dataset.state = 'cached';
+      status.textContent = lastKnownStatus;
+      checked = true;
+    }
+
+    const refresh = async () => {
+      if (pending || (cache.retryAt && Date.now() < cache.retryAt)) return;
+      pending = true;
+      lastCheck = Date.now();
+      if (!checked) {
+        availability.dataset.available = 'unknown';
+        status.dataset.state = 'loading';
+        status.textContent = 'Checking current status...';
+      }
+
+      const [availabilityResult, latestResult] = await Promise.all([
+        readIssue(currentIssueUrls.availability, parseAvailabilityIssue),
+        readIssue(currentIssueUrls.latest, parseLatestIssue),
+      ]);
+
+      if (availabilityResult.kind === 'data') {
+        showAvailability(availabilityResult.value, true);
+        cache.availability = { savedAt: Date.now(), raw: availabilityResult.raw };
+      } else if (availabilityResult.kind === 'empty') {
+        availability.dataset.available = 'false';
+        availabilityLabel.textContent = 'Availability not published';
+        availabilityDetail.textContent = 'Please email to ask about timing.';
+        delete cache.availability;
+      } else {
+        availability.dataset.available = 'unknown';
+      }
+
+      if (latestResult.kind === 'data') {
+        showLatest(latestResult.value);
+        cache.latest = { savedAt: Date.now(), raw: latestResult.raw };
+      } else if (latestResult.kind === 'empty') {
+        latestTitle.textContent = 'No public update yet';
+        latestDetail.textContent = 'Explore the Gwela case study.';
+        latestLink.href = '/projects/gwela';
+        latestDate.hidden = true;
+        delete cache.latest;
+      }
+
+      cache.retryAt = Math.max(
+        availabilityResult.kind === 'rate-limited' ? availabilityResult.retryAt : 0,
+        latestResult.kind === 'rate-limited' ? latestResult.retryAt : 0,
+      );
+      saveCache();
+      const errorCount = Number(availabilityResult.kind === 'error' || availabilityResult.kind === 'rate-limited')
+        + Number(latestResult.kind === 'error' || latestResult.kind === 'rate-limited');
+      status.dataset.state = errorCount === 0 ? 'data' : errorCount === 2 ? 'error' : 'partial';
+      if (errorCount === 0) lastKnownStatus = `Last synced ${checkFormat.format(new Date())}`;
+      status.textContent = errorCount === 0
+        ? `Live status checked ${checkFormat.format(new Date())}`
+        : `Unable to refresh live status. ${lastKnownStatus}`;
+      checked = true;
+      pending = false;
+    };
+
+    if (cache.retryAt && Date.now() < cache.retryAt) {
+      availability.dataset.available = 'unknown';
+      status.dataset.state = 'error';
+      status.textContent = `Unable to refresh live status. ${lastKnownStatus}`;
+    } else if (!savedAvailability || !savedLatest || Date.now() - lastCheck >= refreshInterval) {
+      void refresh();
+    }
+    window.setInterval(() => {
+      if (document.visibilityState === 'visible' && Date.now() - lastCheck >= refreshInterval) void refresh();
+    }, 60 * 1000);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && Date.now() - lastCheck >= refreshInterval) void refresh();
+    });
+  }
+</script>

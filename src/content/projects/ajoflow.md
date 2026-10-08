@@ -1,22 +1,33 @@
 ---
 title: "AjoFlow"
-description: "AI-powered fintech platform digitising Nigerian savings circles."
+description: "A working savings-circle demo with wallet funding, payouts, and AI-assisted trust scoring."
 tech: ["Next.js", "Express", "MongoDB", "LangChain", "DeepSeek", "Interswitch"]
 type: "founder"
 featured: true
-metric: "2 LangChain AI agents"
-order: 2
+metric: "Wallets + payouts + trust scoring"
+order: 1
+url: "https://ajo-flow.vercel.app/"
+urlLabel: "open working demo"
+role: "Full-stack development and AI integration"
+evidence: "Working demo built for the Interswitch x Enyata Hackathon"
+image: "../../assets/projects/ajoflow-dashboard.webp"
+imageAlt: "AjoFlow demo dashboard showing savings pods, trust scores, and upcoming contributions"
+imageCaption: "AjoFlow demo account; values shown are seeded test data."
 ---
 
-AI-powered fintech digitising traditional Nigerian savings circles (ajo/esusu). Two LangChain agents handle different aspects of the platform.
+AjoFlow is a hackathon-built digital savings-circle demo for Nigerian ajo/esusu groups. I developed the frontend, backend, and AI integration, with Esther Inyang supporting communications and Interswitch API testing and feedback.
 
-## What it does
+## The problem
 
-AjoFlow brings informal rotating savings groups online with AI-powered trust scoring and a conversational interface for managing contributions.
+Savings groups need a clear record of contributions, member reliability, and the order in which payouts happen. Cash and spreadsheet processes make those decisions difficult to inspect.
 
-## Technical highlights
+## What I built
 
-- Two LangChain/DeepSeek agents: conversational chatbot and trust-scoring engine
-- Structured output for reliable agent responses
-- Interswitch wallet API integration for payments
-- Full stack: Next.js frontend, Express API, MongoDB
+- Pod creation and contribution flows backed by Interswitch wallets, virtual-account callbacks, and disbursements
+- A trust-scoring agent that evaluates payment history and explains changes to the payout queue
+- A conversational AI assistant for navigating the product
+- A Next.js frontend, Express API, and MongoDB data layer
+
+## Evidence and status
+
+The [working demo](https://ajo-flow.vercel.app/) includes seeded accounts for exploring the dashboard and trust-scoring flow. The screenshot above uses that demo data; it is not a claim about live customer volume or transaction performance.

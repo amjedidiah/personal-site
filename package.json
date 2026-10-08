@@ -7,12 +7,19 @@
   },
   "scripts": {
     "dev": "astro dev",
+    "prebuild": "node scripts/generate-lqip.mjs",
     "build": "astro build",
+    "images:lqip": "node scripts/generate-lqip.mjs",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^7.3.6"
+    "@lucide/astro": "^1.52.0",
+    "astro": "^7.3.6",
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "sharp": "0.35.5"
   },
   "allowScripts": {
     "esbuild": true

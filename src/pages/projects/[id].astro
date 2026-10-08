@@ -1,6 +1,8 @@
 ---
 import Base from '../../layouts/Base.astro';
+import ProgressiveImage from '../../components/ProgressiveImage.astro';
 import { getCollection, render } from 'astro:content';
+import { imagePlaceholders } from '../../data/image-placeholders';
 
 export async function getStaticPaths() {
   const projects = await getCollection('projects');
@@ -9,7 +11,7 @@ export async function getStaticPaths() {
 
 const { project } = Astro.props;
 const { Content } = await render(project);
-const typeLabel: Record<string, string> = { founder: 'own project', client: 'client work', oss: 'OSS contributor' };
+const typeLabel: Record<string, string> = { founder: 'independent build', client: 'client work', oss: 'OSS contributor' };
 ---
 
 <Base title={`${project.data.title} — Jedidiah Amaraegbu`} description={project.data.description}>
@@ -17,31 +19,44 @@ const typeLabel: Record<string, string> = { founder: 'own project', client: 'cli
     <header>
       <div class="meta">
         <span class="badge">{typeLabel[project.data.type]}</span>
-        {project.data.url && <a href={project.data.url} target="_blank" rel="noopener" class="ext">view source &nearr;</a>}
+        {project.data.url && <a href={project.data.url} target="_blank" rel="noopener noreferrer" class="ext">{project.data.urlLabel ?? 'view source'} &nearr;</a>}
       </div>
       <h1>{project.data.title}</h1>
       <p class="lead">{project.data.description}</p>
+      {project.data.role && <p class="project-role"><strong>My role</strong> {project.data.role}</p>}
+      {project.data.evidence && <p class="project-evidence">{project.data.evidence}</p>}
       <div class="tech">{project.data.tech.join(' · ')}</div>
     </header>
+    {project.data.image && <figure class="project-figure">
+      <ProgressiveImage src={project.data.image} alt={project.data.imageAlt ?? project.data.title} placeholder={imagePlaceholders[project.id]} sizes="(max-width: 840px) calc(100vw - 2rem), 800px" priority />
+      {project.data.imageCaption && <figcaption>{project.data.imageCaption}</figcaption>}
+    </figure>}
     <div class="prose"><Content /></div>
     <a href="/projects" class="back">&larr; all projects</a>
   </article>
 </Base>
 
 <style>
-  article { max-width: 600px; }
+  article { max-width: 800px; }
   header { margin-bottom: 2rem; }
   .meta { display: flex; align-items: center; gap: .8em; margin-bottom: .6em; }
   .badge { font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); border: 1px solid var(--border); padding: .2em .6em; border-radius: 4px; }
   .ext { font-size: .75rem; color: var(--accent); }
   h1 { margin-bottom: .3em; }
-  .lead { color: var(--dim); font-size: .85rem; line-height: 1.6; }
+  .lead { color: var(--dim); font: 400 1rem/1.65 var(--font-sans); max-width: 60ch; }
+  .project-role { margin-top: 1.25rem; color: var(--fg); font-size: .78rem; }
+  .project-role strong { color: var(--dim); margin-right: .5rem; text-transform: uppercase; font-size: .67rem; letter-spacing: .04em; }
+  .project-evidence { margin-top: .5rem; color: var(--accent); font-size: .78rem; }
   .tech { color: var(--dim); font-size: .7rem; opacity: .5; margin-top: .5em; }
-  .prose { font-size: .85rem; line-height: 1.8; color: var(--fg); }
+  .project-figure { margin: 0 0 2.5rem; }
+  .project-figure :global(.progressive-image) { border: 1px solid var(--border); border-radius: 6px; }
+  .project-figure figcaption { margin-top: .5rem; color: var(--dim); font-size: .7rem; }
+  .prose { max-width: 65ch; font-size: .85rem; line-height: 1.8; color: var(--fg); }
   .prose :global(p) { margin-bottom: 1em; }
   .prose :global(h2) { font-size: .95rem; font-weight: 600; text-transform: none; letter-spacing: normal; border: none; padding: 0; margin: 2em 0 .6em; color: var(--fg); }
   .prose :global(ul) { padding-left: 1.5em; margin-bottom: 1em; }
   .prose :global(li) { margin-bottom: .3em; color: var(--dim); }
+  .prose :global(a) { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
   .back { display: inline-block; margin-top: 2rem; font-size: .8rem; color: var(--dim); }
   .back:hover { color: var(--accent); }
 </style>
