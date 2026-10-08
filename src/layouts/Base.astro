@@ -19,13 +19,39 @@ const socialImageURL = Astro.site ? new URL('/og.svg', Astro.site) : '/og.svg';
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0a0c10" media="(prefers-color-scheme: dark)" />
-  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" data-theme-color content="#0a0c10" />
+  <script is:inline>
+    (() => {
+      const root = document.documentElement;
+      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      let preference = 'system';
+
+      try {
+        const stored = window.localStorage.getItem('amjed-theme');
+        if (stored === 'light' || stored === 'dark') preference = stored;
+      } catch {
+        // Storage can be unavailable without preventing theme initialization.
+      }
+
+      const resolvedTheme = preference === 'system'
+        ? (systemPrefersDark ? 'dark' : 'light')
+        : preference;
+
+      root.dataset.theme = resolvedTheme;
+      root.dataset.themePreference = preference;
+      root.style.colorScheme = resolvedTheme;
+      document.querySelector('[data-theme-color]')?.setAttribute(
+        'content',
+        resolvedTheme === 'dark' ? '#0a0c10' : '#ffffff',
+      );
+    })();
+  </script>
   <title>{title}</title>
   <meta name="description" content={description} />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="manifest" href="/manifest.json" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="amjed" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />

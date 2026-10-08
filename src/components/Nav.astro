@@ -1,5 +1,6 @@
 ---
 import { FileText, House, LayoutGrid, Mail, MessageCircle, Phone, PhoneCall, UserRound } from '@lucide/astro';
+import ThemeControl from './ThemeControl.astro';
 
 const pathname = Astro.url.pathname;
 const links = [
@@ -50,6 +51,7 @@ const brandLetters = ['a', 'm', 'j', 'e', 'd'];
         </a>
       </div>
     </details>
+    <ThemeControl />
   </div>
 </header>
 
@@ -88,6 +90,7 @@ const brandLetters = ['a', 'm', 'j', 'e', 'd'];
       <a href="mailto:imunacode@gmail.com?subject=Project%20inquiry" aria-label="Email Jedidiah" title="Email Jedidiah">
         <Mail size={17} stroke-width={2} aria-hidden="true" />
       </a>
+      <ThemeControl />
     </div>
   </div>
 </nav>
@@ -116,7 +119,15 @@ const brandLetters = ['a', 'm', 'j', 'e', 'd'];
 </nav>
 
 <style>
-  .brand-wordmark { display: inline-flex; letter-spacing: 0; }
+  .brand-wordmark {
+    display: inline-flex;
+    letter-spacing: 0;
+    text-shadow:
+      -1px -1px 0 var(--imprint-highlight),
+      -1px -1px 1px var(--imprint-highlight),
+      1px 1px 0 var(--imprint-shadow),
+      1px 1px 1px var(--imprint-shadow);
+  }
   .brand-letter {
     --brand-start: var(--fg);
     color: var(--brand-start);
@@ -343,6 +354,111 @@ const brandLetters = ['a', 'm', 'j', 'e', 'd'];
 </style>
 
 <script>
+  import {
+    THEME_CHANGE_EVENT,
+    THEME_STORAGE_KEY,
+    isThemePreference,
+    readThemePreference,
+    resolveTheme,
+    writeThemePreference,
+  } from '../lib/theme';
+
+  const themeRoot = document.documentElement;
+  const themeMedia = window.matchMedia('(prefers-color-scheme: dark)');
+  const themeControls = Array.from(document.querySelectorAll<HTMLDetailsElement>('[data-theme-control]'));
+  const themeColors = { dark: '#0a0c10', light: '#ffffff' };
+  const themeMenuCloseMs = 180;
+  const themeCloseTimers = new WeakMap<HTMLDetailsElement, number>();
+  let themePreference = readThemePreference(getThemeStorage());
+
+  function getThemeStorage(): Storage | null {
+    try {
+      return window.localStorage;
+    } catch {
+      return null;
+    }
+  }
+
+  const updateThemeControls = () => {
+    themeControls.forEach((control) => {
+      control.querySelectorAll<HTMLButtonElement>('[data-theme-option]').forEach((button) => {
+        button.setAttribute('aria-pressed', String(button.dataset.themeOption === themePreference));
+      });
+      const summary = control.querySelector('summary');
+      summary?.setAttribute('aria-label', `Color theme: ${themePreference}`);
+    });
+  };
+
+  const applyTheme = (preference: typeof themePreference, persist: boolean) => {
+    themePreference = preference;
+    if (persist) writeThemePreference(getThemeStorage(), preference);
+
+    const resolvedTheme = resolveTheme(preference, themeMedia.matches);
+    themeRoot.dataset.theme = resolvedTheme;
+    themeRoot.dataset.themePreference = preference;
+    themeRoot.style.colorScheme = resolvedTheme;
+    document.querySelector('[data-theme-color]')?.setAttribute('content', themeColors[resolvedTheme]);
+    updateThemeControls();
+    document.dispatchEvent(new CustomEvent(THEME_CHANGE_EVENT, {
+      detail: { preference, resolvedTheme },
+    }));
+  };
+
+  themeControls.forEach((control) => {
+    const summary = control.querySelector('summary');
+    summary?.addEventListener('click', (event) => {
+      if (!control.open) return;
+      event.preventDefault();
+      closeThemeControl(control);
+    });
+
+    control.querySelectorAll<HTMLButtonElement>('[data-theme-option]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const preference = button.dataset.themeOption;
+        if (!isThemePreference(preference)) return;
+        applyTheme(preference, true);
+        closeThemeControl(control, true);
+      });
+    });
+  });
+
+  function closeThemeControl(control: HTMLDetailsElement, restoreFocus = false) {
+    if (!control.open || control.dataset.closing === 'true') return;
+    control.dataset.closing = 'true';
+    const timer = window.setTimeout(() => {
+      control.open = false;
+      delete control.dataset.closing;
+      themeCloseTimers.delete(control);
+      if (restoreFocus) control.querySelector<HTMLElement>('summary')?.focus();
+    }, themeMenuCloseMs);
+    themeCloseTimers.set(control, timer);
+  }
+
+  applyTheme(themePreference, false);
+  const handleSystemThemeChange = () => {
+    if (themePreference === 'system') applyTheme('system', false);
+  };
+  themeMedia.addEventListener('change', handleSystemThemeChange);
+  window.addEventListener('storage', (event) => {
+    if (event.key === THEME_STORAGE_KEY) {
+      applyTheme(readThemePreference(getThemeStorage()), false);
+    }
+  });
+  document.addEventListener('pointerdown', (event) => {
+    themeControls.forEach((control) => {
+      if (control.open && event.target instanceof Node && !control.contains(event.target)) {
+        closeThemeControl(control);
+      }
+    });
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+    themeControls.forEach((control) => {
+      if (!control.open) return;
+      closeThemeControl(control, true);
+    });
+  });
+
   const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
   const wordmarkAnimations = new Map<HTMLElement, Animation[]>();
 
