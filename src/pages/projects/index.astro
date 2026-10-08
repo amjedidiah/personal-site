@@ -4,7 +4,11 @@ import { getCollection } from 'astro:content';
 
 const allProjects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
 const typeLabel: Record<string, string> = { founder: 'own project', client: 'client work', oss: 'OSS contributor' };
-const typeColor: Record<string, string> = { founder: '#58a6ff', client: '#3fb950', oss: '#d2a8ff' };
+const typeColor: Record<string, string> = {
+  founder: 'var(--project-founder)',
+  client: 'var(--project-client)',
+  oss: 'var(--project-oss)',
+};
 ---
 
 <Base title="Projects — Jedidiah Amaraegbu" description="Selected projects: AI agents, fintech, security tools, and open source.">

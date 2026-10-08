@@ -78,6 +78,8 @@
 </style>
 
 <script>
+  import { THEME_CHANGE_EVENT } from '../lib/theme';
+
   const host = document.querySelector<HTMLElement>('[data-hero-scene]');
 
   if (host) {
@@ -173,7 +175,7 @@
         const linePositions = new Float32Array(16 * 6);
         const lineGeometry = new THREE.BufferGeometry();
         lineGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3).setUsage(THREE.DynamicDrawUsage));
-        const lightTheme = window.matchMedia('(prefers-color-scheme: light)').matches && document.documentElement.dataset.theme !== 'dark';
+        let lightTheme = document.documentElement.dataset.theme === 'light';
         const lines = new THREE.LineSegments(lineGeometry, new THREE.LineBasicMaterial({ color: lightTheme ? 0x356c9e : 0x75b6ff, transparent: true, opacity: lightTheme ? .48 : .38 }));
         diagram.add(lines);
 
@@ -192,6 +194,15 @@
         let pointerY = 0;
         const startedAt = performance.now();
         const elapsed = () => (performance.now() - startedAt) / 1000;
+
+        const syncLineTheme = () => {
+          lightTheme = document.documentElement.dataset.theme === 'light';
+          lines.material.color.setHex(lightTheme ? 0x356c9e : palettes[mode][0]);
+          lines.material.opacity = lightTheme ? .48 : .38;
+          if (!inView || motionQuery.matches) renderFrame(elapsed());
+        };
+
+        document.addEventListener(THEME_CHANGE_EVENT, syncLineTheme);
 
         function resize() {
           const { width, height } = host!.getBoundingClientRect();
@@ -277,7 +288,7 @@
             }
           });
           pulses.forEach((pulse, pulseIndex) => pulse.material.color.setHex(palettes[index][pulseIndex % 3]));
-          lines.material.color.setHex(lightTheme ? 0x356c9e : palettes[index][0]);
+          syncLineTheme();
           if (!inView || motionQuery.matches) renderFrame(elapsed());
         });
 
@@ -305,6 +316,7 @@
           resizeObserver.disconnect();
           visibilityObserver.disconnect();
           nodes.forEach((node) => { node.geometry.dispose(); node.material.dispose(); });
+          document.removeEventListener(THEME_CHANGE_EVENT, syncLineTheme);
           coreShell.geometry.dispose();
           coreShell.material.dispose();
           lineGeometry.dispose();
