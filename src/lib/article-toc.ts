@@ -9,7 +9,10 @@ export function initArticleToc() {
   teardownArticleToc = null;
 
   const toc = document.querySelector<HTMLElement>('[data-article-toc]');
-  if (!toc) return;
+  if (!toc) {
+    teardownArticleToc = initArticleScrollOffset();
+    return;
+  }
 
   const disclosure = toc.querySelector('details');
   const summary = toc.querySelector('summary');
@@ -27,6 +30,18 @@ export function initArticleToc() {
     applyArticleScrollOffset();
     target.tabIndex = -1;
     target.focus({ preventScroll: true });
+    if (target.id === ARTICLE_TOC_OVERVIEW_ID) {
+      // The headline is sticky: its current rectangle is not its original
+      // document position. Anchor Overview to the start of the article grid.
+      const layout = target.closest<HTMLElement>('.article-layout');
+      if (!layout) return;
+      event.preventDefault();
+      const nav = Array.from(document.querySelectorAll<HTMLElement>('.desktop-nav, .mobile-topbar'))
+        .find((element) => element.offsetHeight > 0);
+      const top = layout.getBoundingClientRect().top + window.scrollY - (nav?.offsetHeight ?? 56);
+      if (location.hash !== `#${ARTICLE_TOC_OVERVIEW_ID}`) history.pushState(null, '', link!.hash);
+      window.scrollTo({ top: Math.max(0, top), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+    }
   };
   const onKeyDown = (event: KeyboardEvent) => {
     if (event.key !== 'Escape' || !compact.matches || !disclosure?.open) return;

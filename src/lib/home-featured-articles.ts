@@ -28,19 +28,32 @@ const toHashnode = (post: HashnodePost): HomeFeaturedArticle => ({
   focus: post.tags[0],
 });
 
-/** Up to `limit` articles: explicit `featured` first, then newest from local + Hashnode. */
+/** Always surface on the homepage when the post exists (id = filename). */
+const HOME_PINNED_LOCAL_BLOG_IDS = ['hello-world'] as const;
+
+/** Up to `limit` articles: pinned local → explicit `featured` → newest backfill. */
 export function pickHomeFeaturedArticles(
   localPosts: CollectionEntry<'blog'>[],
   hashnodePosts: HashnodePost[],
   limit = 2,
 ): HomeFeaturedArticle[] {
+  const seen = new Set<string>();
+  const out: HomeFeaturedArticle[] = [];
+
+  for (const id of HOME_PINNED_LOCAL_BLOG_IDS) {
+    if (out.length >= limit) break;
+    const post = localPosts.find((p) => p.id === id);
+    if (!post) continue;
+    const article = toLocal(post);
+    seen.add(article.href);
+    out.push(article);
+  }
+
   const featured: HomeFeaturedArticle[] = [
     ...localPosts.filter((p) => p.data.featured).map(toLocal),
     ...hashnodePosts.filter((p) => p.featured).map(toHashnode),
   ].sort((a, b) => b.date.valueOf() - a.date.valueOf());
 
-  const seen = new Set<string>();
-  const out: HomeFeaturedArticle[] = [];
   for (const article of featured) {
     if (seen.has(article.href) || out.length >= limit) continue;
     seen.add(article.href);

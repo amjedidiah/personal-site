@@ -303,10 +303,16 @@ import { ArrowUpRight } from '@lucide/astro';
 
   .stack-groups {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     gap: 1px;
     border: 1px solid var(--border);
     background: var(--border);
+  }
+  @media (min-width: 40rem) {
+    .stack-groups { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (min-width: 68rem) {
+    .stack-groups { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   }
   .stack-groups > div {
     min-height: 8rem;
@@ -385,7 +391,8 @@ import { ArrowUpRight } from '@lucide/astro';
     .proof-rail { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .proof-item:nth-child(-n+2) { border-top: 0; }
     .exp { grid-template-columns: 1fr; gap: .6rem; }
-    .certs, .stack-groups { grid-template-columns: 1fr; }
+    .certs { grid-template-columns: 1fr; }
+    .stack-groups { grid-template-columns: minmax(0, 1fr); }
     .certs li:nth-child(-n+2) { border-top: 1px solid var(--border); }
     .certs li:first-child { border-top: 0; }
     .about-experience, .about-proof, .about-stack, .about-interests { margin-bottom: 4rem; }

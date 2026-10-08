@@ -47,15 +47,17 @@ export function getArticleScrollSpyLine(): number {
 }
 
 export function applyArticleScrollOffset(root: ParentNode = document) {
-  const layout = root.querySelector('.article-layout.has-toc');
+  const layout = root.querySelector('.article-layout:is(.has-toc, .has-rail)');
   const article = layout?.closest<HTMLElement>('article');
   if (!article) return;
 
-  article.style.setProperty('--article-scroll-offset', `${getArticleScrollMargin()}px`);
+  const scrollMargin = getArticleScrollMargin();
+  article.style.setProperty('--article-scroll-offset', `${scrollMargin}px`);
+  article.style.setProperty('--article-sticky-bottom', `${scrollMargin - SCROLL_BUFFER_PX}px`);
 }
 
 export function initArticleScrollOffset(root: ParentNode = document): (() => void) | null {
-  if (!root.querySelector('.article-layout.has-toc')) return null;
+  if (!root.querySelector('.article-layout:is(.has-toc, .has-rail)')) return null;
 
   const refresh = () => applyArticleScrollOffset(root);
   refresh();
