@@ -1,0 +1,73 @@
+---
+/** Presentation partial. Render HeroScene rather than mounting this separately. */
+interface Props { fallbackSrc?: string; }
+const { fallbackSrc } = Astro.props;
+---
+<div class="portrait-stage" data-portrait-stage>
+  <div class="portrait-aura"></div>
+  <svg class="portrait-fallback" viewBox="0 0 640 640" fill="none" aria-hidden="true">
+    <g stroke="currentColor" opacity=".3">
+      <circle cx="320" cy="300" r="170" stroke-dasharray="3 12" />
+      <path d="M160 220 250 140 420 160 480 310 395 455 215 440 160 220M250 140 215 440M420 160 395 455M160 220 480 310" />
+    </g>
+    <g fill="currentColor" opacity=".5">
+      <circle cx="160" cy="220" r="5" /><circle cx="250" cy="140" r="5" />
+      <circle cx="420" cy="160" r="5" /><circle cx="480" cy="310" r="5" />
+      <circle cx="395" cy="455" r="5" /><circle cx="215" cy="440" r="5" />
+    </g>
+  </svg>
+  {fallbackSrc && <img class="portrait-poster" src={fallbackSrc} alt="" decoding="async" width="720" height="720" />}
+  <canvas class="portrait-canvas" data-portrait-canvas></canvas>
+</div>
+<style>
+  .portrait-stage {
+    position: absolute;
+    inline-size: min(var(--portrait-width, 62vw), 720px);
+    aspect-ratio: 1;
+    inset-block-start: var(--portrait-top, 50%);
+    inset-inline-end: var(--portrait-right, max(0px, calc((100vw - var(--max-w)) / 2)));
+    transform: translateY(-50%);
+    color: var(--accent, #58a6ff);
+    /* Fade shoulders and extreme sides, preserving the face and hair. */
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 74%, transparent 99%), linear-gradient(to right, transparent, #000 14%, #000 88%, transparent);
+    -webkit-mask-composite: source-in;
+    mask-image: linear-gradient(to bottom, #000 0%, #000 74%, transparent 99%), linear-gradient(to right, transparent, #000 14%, #000 88%, transparent);
+    mask-composite: intersect;
+  }
+  .portrait-aura, .portrait-canvas, .portrait-fallback, .portrait-poster {
+    position: absolute; inset: 0; inline-size: 100%; block-size: 100%;
+  }
+  .portrait-aura {
+    background: radial-gradient(ellipse at 52% 49%, rgba(56, 195, 230, .11), transparent 58%);
+  }
+  :global(:root[data-theme="light"]) .portrait-aura {
+    background: radial-gradient(ellipse at 52% 49%, rgba(32, 143, 175, .07), transparent 58%);
+  }
+  .portrait-poster { object-fit: contain; transition: opacity .25s ease; }
+  .portrait-canvas { opacity: 0; transition: opacity .25s ease; }
+  :global([data-volumetric-hero][data-canvas-ready="true"]) .portrait-canvas { opacity: 1; }
+  :global([data-volumetric-hero][data-canvas-ready="true"]) .portrait-fallback { opacity: 0; }
+  :global([data-volumetric-hero][data-model-ready="true"]) .portrait-poster { opacity: 0; }
+
+  @media (min-width: 761px) and (max-width: 1159px) {
+    .portrait-stage {
+      inline-size: min(var(--portrait-width, 50vw), 520px);
+    }
+  }
+
+  @media (max-width: 760px) {
+    .portrait-stage {
+      inline-size: min(var(--portrait-mobile-width, 82vw), 360px);
+      inset-inline-start: 50%;
+      inset-inline-end: auto;
+      inset-block-start: var(--portrait-mobile-top, 50%);
+      transform: translate(-50%, -50%);
+    }
+  }
+  @media (max-width: 400px) and (max-height: 650px) {
+    .portrait-stage { inset-block-start: 54%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .portrait-canvas, .portrait-poster { transition: none; }
+  }
+</style>

@@ -242,12 +242,21 @@ let optionIndex = 0;
   // Theme
   const themeRoot = document.documentElement;
   const themeMedia = window.matchMedia('(prefers-color-scheme: dark)');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const themeColors = { dark: '#0a0c10', light: '#ffffff' };
   let themePreference = readThemePreference(getStorage());
+  let themeTransitionTimer = 0;
 
-  const applyTheme = (preference: ThemePreference, persist: boolean) => {
+  const applyTheme = (preference: ThemePreference, persist: boolean, animate = persist) => {
     themePreference = preference;
     if (persist) writeThemePreference(getStorage(), preference);
+    if (animate && !reducedMotion.matches) {
+      themeRoot.classList.add('theme-transitioning');
+      window.clearTimeout(themeTransitionTimer);
+      themeTransitionTimer = window.setTimeout(() => {
+        themeRoot.classList.remove('theme-transitioning');
+      }, 240);
+    }
 
     const resolvedTheme = resolveTheme(preference, themeMedia.matches);
     themeRoot.dataset.theme = resolvedTheme;

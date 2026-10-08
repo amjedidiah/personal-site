@@ -1,340 +1,74 @@
-<div class="hero-visual" data-hero-scene aria-hidden="true">
-  <svg class="scene-fallback" viewBox="0 0 640 640" fill="none" aria-hidden="true">
-    <g stroke="currentColor" stroke-width="1.25" opacity=".42">
-      <path d="M320 320 157 208M320 320 126 374M320 320 228 496M320 320 454 468M320 320 522 345M320 320 455 157M157 208 455 157M126 374 228 496M454 468 522 345" />
-      <circle cx="320" cy="320" r="190" stroke-dasharray="3 9" opacity=".42" />
-      <circle cx="320" cy="320" r="120" stroke-dasharray="2 12" opacity=".32" />
-    </g>
-    <g fill="var(--bg)" stroke="currentColor" stroke-width="2">
-      <circle cx="157" cy="208" r="8" /><circle cx="126" cy="374" r="7" />
-      <circle cx="228" cy="496" r="8" /><circle cx="454" cy="468" r="7" />
-      <circle cx="522" cy="345" r="8" /><circle cx="455" cy="157" r="7" />
-      <circle cx="320" cy="320" r="38" fill="var(--surface)" />
-      <ellipse cx="320" cy="320" rx="17" ry="38" opacity=".5" />
-      <path d="M282 320h76M288 299h64M288 341h64" opacity=".5" />
-    </g>
-    <g fill="currentColor">
-      <circle cx="157" cy="208" r="3" /><circle cx="228" cy="496" r="3" />
-      <circle cx="522" cy="345" r="3" /><circle cx="320" cy="320" r="8" />
-    </g>
-  </svg>
-  <canvas class="scene-canvas"></canvas>
+---
+import PortraitScene from './PortraitScene.astro';
+interface Props {
+  modelSrc?: string;
+  fallbackSrc?: string;
+  /** Degrees around vertical axis; export front-facing toward glTF +Z for 0. */
+  modelYaw?: number;
+  initialMode?: 0 | 1 | 2;
+}
+const {
+  modelSrc = `${import.meta.env.BASE_URL}models/jedidiah-bust.glb`,
+  fallbackSrc = `${import.meta.env.BASE_URL}hero-portrait.webp`,
+  modelYaw = 0,
+  initialMode = 0,
+} = Astro.props;
+---
+<div class="hero-visual" data-hero-scene data-volumetric-hero data-model-src={modelSrc}
+  data-model-yaw={modelYaw} data-mode={initialMode} data-portrait-status="loading" aria-hidden="true">
+  <PortraitScene fallbackSrc={fallbackSrc} />
+  <div class="system-map-labels">
+    <span class="system-map-label production">production</span>
+    <span class="system-map-label payments">payments</span>
+    <span class="system-map-label ai">AI</span>
+    <span class="system-map-label security">security</span>
+  </div>
 </div>
-
 <style>
   .hero-visual {
-    position: absolute;
-    top: 0; bottom: 0; left: 50%;
-    width: 100vw;
+    position: absolute; inset-block: 0; inset-inline-start: 50%; inline-size: 100vw;
     transform: translateX(-50%);
     overflow: hidden;
     pointer-events: none;
     color: var(--accent);
+    z-index: 0;
   }
-
-  .scene-fallback,
-  .scene-canvas {
+  .system-map-labels {
     position: absolute;
-    display: block;
-    width: 100%;
-    height: 100%;
-    transition: opacity .45s ease;
+    inset: 0;
+    color: var(--dim, #8193a7);
+    font: .65rem/1 var(--font-mono, monospace);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    pointer-events: none;
   }
-
-  .scene-fallback {
-    width: min(58vw, 720px);
-    height: auto;
-    aspect-ratio: 1;
-    right: -2%;
-    top: 50%;
-    transform: translateY(-50%);
-    opacity: .72;
+  .system-map-label {
+    position: absolute;
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    white-space: nowrap;
   }
-
-  .scene-canvas { opacity: 0; }
-  .hero-visual[data-ready="true"] .scene-canvas { opacity: 1; }
-  .hero-visual[data-ready="true"] .scene-fallback { opacity: 0; }
-
+  .system-map-label::before {
+    content: '';
+    inline-size: .35rem;
+    block-size: .35rem;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+  }
+  .production { inset-inline-start: 65%; inset-block-start: 37%; color: var(--fg, #dfebfa); }
+  .payments { inset-inline-start: 61%; inset-block-start: 67%; color: var(--accent, #58a6ff); }
+  .ai { inset-inline-start: 85%; inset-block-start: 29%; color: #61d6bb; }
+  .security { inset-inline-start: 86%; inset-block-start: 67%; color: #b494e8; }
+  :global(:root[data-theme="light"]) .ai { color: #237864; }
+  :global(:root[data-theme="light"]) .security { color: #73509f; }
+  @media (max-width: 960px) {
+    .system-map-labels { display: none; }
+  }
   @media (max-width: 760px) {
-    .hero-visual {
-      top: 0;
-      opacity: .38;
-    }
-    .scene-fallback {
-      width: min(88vw, 360px);
-      right: -30%;
-      top: 58%;
-    }
-  }
-
-  @media (max-width: 400px) and (max-height: 650px) {
-    .scene-fallback { right: -40%; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .scene-fallback,
-    .scene-canvas { transition: none; }
+    .hero-visual { opacity: var(--portrait-mobile-opacity, .24); }
   }
 </style>
-
 <script>
-  import { THEME_CHANGE_EVENT } from '../lib/theme';
-
-  const host = document.querySelector<HTMLElement>('[data-hero-scene]');
-
-  if (host) {
-    const canvas = host.querySelector('canvas');
-    const hero = host.closest<HTMLElement>('.hero');
-    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const controls = document.querySelectorAll<HTMLButtonElement>('[data-system-mode]');
-    const caption = document.querySelector<HTMLElement>('[data-system-caption]');
-    const captions = [
-      'Cross-border payments.',
-      'Collaborative AI, live.',
-      'Stripe Connect and MCP security.',
-    ];
-
-    controls.forEach((button, index) => {
-      button.addEventListener('click', () => {
-        controls.forEach((control) => control.setAttribute('aria-pressed', String(control === button)));
-        if (caption) caption.textContent = captions[index];
-        host.dataset.mode = String(index);
-        host.dispatchEvent(new CustomEvent('systemmodechange', { detail: index }));
-      });
-    });
-
-    if (canvas && hero) {
-      let initialized = false;
-      const initialize = async () => {
-        if (initialized || motionQuery.matches) return;
-        initialized = true;
-        try {
-        const THREE = await import('three');
-        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'low-power' });
-        const scene = new THREE.Scene();
-        const camera = new THREE.OrthographicCamera(-4, 4, 4, -4, .1, 50);
-        camera.position.set(0, 0, 16);
-
-        const diagram = new THREE.Group();
-        scene.add(diagram);
-        scene.add(new THREE.AmbientLight(0xffffff, 1.7));
-        const keyLight = new THREE.DirectionalLight(0xffffff, 2.7);
-        keyLight.position.set(-3, 5, 8);
-        scene.add(keyLight);
-
-        const layouts = [
-          [
-            [0, 0, 0], [-2.55, 1.4, -.45], [-2.5, -.65, 1.05], [-1.45, -2.15, -.45],
-            [.25, -2.4, 1.15], [2, -1.65, -.75], [2.6, .2, .9], [1.55, 2.1, -.6],
-            [-.45, 2.5, 1.05], [-1.45, .35, -1.6], [1.15, -.5, 1.8],
-          ],
-          [
-            [0, 0, 0], [-2.7, .95, .25], [-2.7, -.95, -.5], [-1.35, 1.8, -1],
-            [-1.35, -1.85, .85], [1.3, 1.8, .75], [1.3, -1.8, -1], [2.7, 1, -.4],
-            [2.7, -1, .65], [-.75, .05, 1.85], [.75, .05, -1.85],
-          ],
-          [
-            [0, 0, 0], [-2.45, 0, .2], [-1.7, 1.75, -.95], [0, 2.45, .65],
-            [1.75, 1.75, -.95], [2.45, 0, .2], [1.75, -1.75, -.95],
-            [0, -2.45, .65], [-1.7, -1.75, -.95], [-.95, .8, 1.55], [.95, -.8, 1.55],
-          ],
-        ];
-        const edgeSets = [
-          [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10],[1,8],[2,3],[4,5],[6,7]],
-          [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,9],[0,10],[1,3],[2,4],[5,7],[6,8],[7,8]],
-          [[0,1],[0,3],[0,5],[0,7],[0,9],[0,10],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,1]],
-        ];
-        const palettes = [
-          [0x58a6ff, 0x61d6bb, 0xc4a0ff],
-          [0x61d6bb, 0x58a6ff, 0xe8b86d],
-          [0xe8b86d, 0xc4a0ff, 0x58a6ff],
-        ];
-        const initialMode = Number(host.dataset.mode || 0);
-
-        const nodes = layouts[initialMode].map((position, index) => {
-          const geometry = index === 0 ? new THREE.SphereGeometry(.68, 32, 24) : new THREE.OctahedronGeometry(index > 8 ? .18 : .13);
-          const material = new THREE.MeshStandardMaterial({
-            color: index === 0 ? 0x152b43 : palettes[initialMode][index % 3],
-            emissive: index === 0 ? 0x12365d : palettes[initialMode][index % 3],
-            emissiveIntensity: index === 0 ? .7 : .35,
-            roughness: .4,
-            metalness: .35,
-          });
-          const mesh = new THREE.Mesh(geometry, material);
-          mesh.position.set(position[0], position[1], position[2]);
-          diagram.add(mesh);
-          return mesh;
-        });
-
-        const coreShell = new THREE.Mesh(
-          new THREE.SphereGeometry(.705, 16, 10),
-          new THREE.MeshBasicMaterial({ color: 0x9bcaff, wireframe: true, transparent: true, opacity: .46 }),
-        );
-        nodes[0].add(coreShell);
-
-        const linePositions = new Float32Array(16 * 6);
-        const lineGeometry = new THREE.BufferGeometry();
-        lineGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3).setUsage(THREE.DynamicDrawUsage));
-        let lightTheme = document.documentElement.dataset.theme === 'light';
-        const lines = new THREE.LineSegments(lineGeometry, new THREE.LineBasicMaterial({ color: lightTheme ? 0x356c9e : 0x75b6ff, transparent: true, opacity: lightTheme ? .48 : .38 }));
-        diagram.add(lines);
-
-        const pulseGeometry = new THREE.SphereGeometry(.045, 8, 8);
-        const pulses = Array.from({ length: 7 }, (_, index) => {
-          const pulse = new THREE.Mesh(pulseGeometry, new THREE.MeshBasicMaterial({ color: palettes[initialMode][index % 3] }));
-          diagram.add(pulse);
-          return pulse;
-        });
-
-        let mode = initialMode;
-        let frame = 0;
-        let lastFrame = 0;
-        let inView = false;
-        let pointerX = 0;
-        let pointerY = 0;
-        const startedAt = performance.now();
-        const elapsed = () => (performance.now() - startedAt) / 1000;
-
-        const syncLineTheme = () => {
-          lightTheme = document.documentElement.dataset.theme === 'light';
-          lines.material.color.setHex(lightTheme ? 0x356c9e : palettes[mode][0]);
-          lines.material.opacity = lightTheme ? .48 : .38;
-          if (!inView || motionQuery.matches) renderFrame(elapsed());
-        };
-
-        document.addEventListener(THEME_CHANGE_EVENT, syncLineTheme);
-
-        function resize() {
-          const { width, height } = host!.getBoundingClientRect();
-          if (!width || !height) return;
-          const aspect = width / height;
-          camera.left = -4 * aspect;
-          camera.right = 4 * aspect;
-          camera.top = 4;
-          camera.bottom = -4;
-          camera.updateProjectionMatrix();
-          const viewportWidth = window.innerWidth;
-          const compact = viewportWidth <= 400 && window.innerHeight <= 650;
-          const narrowDesktop = viewportWidth > 760 && viewportWidth <= 960;
-          const desktopInset = narrowDesktop ? 135 : Math.min(320, Math.max(210, width * .16));
-          const desktopX = (width / 2 - desktopInset) * 8 / height;
-          diagram.position.set(width > 760 ? desktopX : 1.55, width > 760 ? 0 : compact ? -.7 : -.6, 0);
-          diagram.scale.setScalar(viewportWidth > 1280 ? 1 : narrowDesktop ? .78 : viewportWidth > 760 ? .9 : .62);
-          renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.6));
-          renderer.setSize(width, height, false);
-          renderFrame(elapsed());
-        }
-
-        function renderFrame(time: number) {
-          const targets = layouts[mode];
-          nodes.forEach((node, index) => {
-            const [x, y, z] = targets[index];
-            node.position.x += (x - node.position.x) * .105;
-            node.position.y += (y - node.position.y) * .105;
-            node.position.z += (z - node.position.z) * .105;
-            node.rotation.y += index === 0 ? .004 : .007;
-            node.rotation.x += index === 0 ? .002 : .003;
-          });
-
-          const edges = edgeSets[mode];
-          edges.forEach(([from, to], index) => {
-            const a = nodes[from].position;
-            const b = nodes[to].position;
-            const offset = index * 6;
-            linePositions[offset] = a.x;
-            linePositions[offset + 1] = a.y;
-            linePositions[offset + 2] = a.z;
-            linePositions[offset + 3] = b.x;
-            linePositions[offset + 4] = b.y;
-            linePositions[offset + 5] = b.z;
-          });
-          lineGeometry.setDrawRange(0, edges.length * 2);
-          lineGeometry.attributes.position.needsUpdate = true;
-
-          pulses.forEach((pulse, index) => {
-            const [from, to] = edges[(index * 2) % edges.length];
-            const progress = (time * .18 + index / pulses.length) % 1;
-            pulse.position.lerpVectors(nodes[from].position, nodes[to].position, progress);
-          });
-
-          diagram.rotation.y += ((pointerX * .18 + Math.sin(time * .2) * .08) - diagram.rotation.y) * .035;
-          diagram.rotation.x += ((pointerY * -.13 + Math.cos(time * .17) * .05) - diagram.rotation.x) * .035;
-          renderer.render(scene, camera);
-        }
-
-        function tick(time: number) {
-          if (!inView || document.hidden || motionQuery.matches) return;
-          frame = requestAnimationFrame(tick);
-          if (time - lastFrame < 32) return;
-          lastFrame = time;
-          renderFrame(elapsed());
-        }
-
-        function syncMotion() {
-          const shouldRun = inView && !document.hidden && !motionQuery.matches;
-          host!.dataset.ready = motionQuery.matches ? 'false' : 'true';
-          cancelAnimationFrame(frame);
-          if (shouldRun) frame = requestAnimationFrame(tick);
-        }
-
-        host.addEventListener('systemmodechange', (event) => {
-          const index = (event as CustomEvent<number>).detail;
-          mode = index;
-          nodes.forEach((node, nodeIndex) => {
-            const color = palettes[index][nodeIndex % 3];
-            if (nodeIndex > 0) {
-              node.material.color.setHex(color);
-              node.material.emissive.setHex(color);
-            }
-          });
-          pulses.forEach((pulse, pulseIndex) => pulse.material.color.setHex(palettes[index][pulseIndex % 3]));
-          syncLineTheme();
-          if (!inView || motionQuery.matches) renderFrame(elapsed());
-        });
-
-        hero.addEventListener('pointermove', (event) => {
-          const bounds = hero.getBoundingClientRect();
-          pointerX = (event.clientX - bounds.left) / bounds.width * 2 - 1;
-          pointerY = (event.clientY - bounds.top) / bounds.height * 2 - 1;
-        }, { passive: true });
-        hero.addEventListener('pointerleave', () => { pointerX = 0; pointerY = 0; });
-
-        const resizeObserver = new ResizeObserver(resize);
-        resizeObserver.observe(host);
-        const visibilityObserver = new IntersectionObserver(([entry]) => {
-          inView = entry.isIntersecting;
-          syncMotion();
-        }, { threshold: .05 });
-        visibilityObserver.observe(hero);
-        document.addEventListener('visibilitychange', syncMotion);
-        motionQuery.addEventListener('change', syncMotion);
-        resize();
-        host.dataset.ready = 'true';
-
-        window.addEventListener('pagehide', () => {
-          cancelAnimationFrame(frame);
-          resizeObserver.disconnect();
-          visibilityObserver.disconnect();
-          nodes.forEach((node) => { node.geometry.dispose(); node.material.dispose(); });
-          document.removeEventListener(THEME_CHANGE_EVENT, syncLineTheme);
-          coreShell.geometry.dispose();
-          coreShell.material.dispose();
-          lineGeometry.dispose();
-          lines.material.dispose();
-          pulseGeometry.dispose();
-          pulses.forEach((pulse) => pulse.material.dispose());
-          renderer.dispose();
-        }, { once: true });
-        } catch {
-          host.dataset.ready = 'false';
-        }
-      };
-
-      if ('requestIdleCallback' in window) window.requestIdleCallback(initialize, { timeout: 1200 });
-      else window.setTimeout(initialize, 200);
-      motionQuery.addEventListener('change', () => {
-        if (!motionQuery.matches) initialize();
-      });
-    }
-  }
+  import '../lib/portrait/bootstrap';
 </script>

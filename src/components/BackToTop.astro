@@ -1,0 +1,123 @@
+---
+import { ArrowUp } from '@lucide/astro';
+---
+
+<a class="back-to-top" href="#page-top" aria-label="Back to top">
+  <ArrowUp size={16} stroke-width={2} aria-hidden="true" />
+  <span>top</span>
+</a>
+
+<style>
+  .back-to-top {
+    position: fixed;
+    right: max(var(--gutter), calc((100vw - var(--max-w)) / 2 - 5rem));
+    bottom: max(24px, env(safe-area-inset-bottom));
+    z-index: 130;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    min-width: 72px;
+    min-height: 44px;
+    padding: .6rem .75rem;
+    border: 1px solid color-mix(in srgb, var(--border) 55%, var(--fg));
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--bg) 92%, var(--surface));
+    box-shadow: 0 6px 18px color-mix(in srgb, #000 14%, transparent);
+    color: var(--fg);
+    font: 600 .75rem/1 var(--font-mono);
+    cursor: pointer;
+    touch-action: manipulation;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: none;
+    transition: opacity .2s ease, transform .2s ease, visibility 0s .2s, border-color .2s ease, color .2s ease, background-color .2s ease, bottom .2s ease;
+  }
+  :global(.has-js) .back-to-top {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(8px);
+  }
+  :global(.has-js) .back-to-top.is-visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: none;
+    transition-delay: 0s;
+  }
+  .back-to-top:hover { border-color: var(--accent); color: var(--accent); }
+  .back-to-top:active { background: var(--surface); color: var(--accent); }
+  .back-to-top:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .back-to-top :global(svg) { transition: transform .2s ease; }
+  .back-to-top:hover :global(svg) { transform: translateY(-2px); }
+  .back-to-top:active :global(svg) { transform: scale(.92); }
+
+  @media (max-width: 639px) {
+    .back-to-top {
+      bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom) + 12px + var(--notice-offset, 0px));
+      width: 44px;
+      min-width: 44px;
+      padding: 0;
+    }
+    .back-to-top span { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .back-to-top, .back-to-top :global(svg) { transition: none; }
+    :global(.has-js) .back-to-top { transform: none; }
+    .back-to-top:hover :global(svg), .back-to-top:active :global(svg) { transform: none; }
+  }
+</style>
+
+<script>
+  const button = document.querySelector<HTMLAnchorElement>('.back-to-top');
+  if (button) {
+    button.inert = true;
+    button.setAttribute('aria-hidden', 'true');
+    const notice = document.querySelector<HTMLElement>('[data-cached-notice]');
+    const mobile = window.matchMedia('(max-width: 639px)');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let frame = 0;
+
+    const updateVisibility = () => {
+      frame = 0;
+      const scrollRoot = document.scrollingElement ?? document.documentElement;
+      const threshold = Math.max(400, window.innerHeight * .8);
+      const hasRoom = scrollRoot.scrollHeight - window.innerHeight > threshold + 80;
+      const noticeCoversButton = mobile.matches && notice && !notice.hidden;
+      const focused = document.activeElement === button;
+      const visible = ((hasRoom && scrollRoot.scrollTop > threshold) || focused) && (!noticeCoversButton || focused);
+
+      // A focused control stays reachable above the notice until focus moves away.
+      button.style.setProperty('--notice-offset', `${noticeCoversButton && focused ? (notice?.offsetHeight ?? 0) + 12 : 0}px`);
+      button.classList.toggle('is-visible', Boolean(visible));
+      button.inert = !visible;
+      button.setAttribute('aria-hidden', String(!visible));
+    };
+
+    const requestUpdate = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(updateVisibility);
+    };
+
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      const start = document.querySelector<HTMLElement>('main h1') ?? document.querySelector<HTMLElement>('#main-content');
+      if (start) {
+        start.tabIndex = -1;
+        start.focus({ preventScroll: true });
+      }
+      window.scrollTo({ top: 0, behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+      requestUpdate();
+    });
+    button.addEventListener('blur', requestUpdate);
+    window.addEventListener('scroll', requestUpdate, { passive: true });
+    window.addEventListener('resize', requestUpdate, { passive: true });
+    window.addEventListener('load', requestUpdate, { once: true });
+    window.addEventListener('pageshow', requestUpdate);
+    if (notice) new MutationObserver(requestUpdate).observe(notice, { attributes: true, attributeFilter: ['hidden'] });
+    updateVisibility();
+  }
+</script>
