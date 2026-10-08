@@ -1,8 +1,10 @@
 ---
+const year = new Date().getFullYear();
 ---
 
 <footer>
   <div class="footer-inner">
+    <span class="copyright">&copy; {year} Jedidiah Amaraegbu</span>
     <div class="footer-meta">
       <span>Lagos, Nigeria</span>
       <span>&middot;</span>
@@ -23,11 +25,18 @@
     margin: 0 auto;
     padding: 0 var(--gutter);
     color: var(--dim); font-size: .7rem;
-    display: flex; flex-wrap: wrap; gap: .3em .8em;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: .75rem 1.5rem;
   }
   .footer-meta {
+    order: 1;
     display: flex;
     flex-wrap: wrap;
+    justify-content: flex-start;
     gap: .3em .8em;
+  }
+  .copyright {
+    order: 2;
+    margin-inline-start: auto;
   }
 </style>

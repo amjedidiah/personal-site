@@ -4,6 +4,9 @@ import serviceWorker from './integrations/service-worker/index.mjs';
 
 export default defineConfig({
   build: { format: 'directory' },
+  server: {
+    allowedHosts: ['prepituitary-chasidy-phonesthemic.ngrok-free.dev'],
+  },
   devToolbar: { enabled: false },
   fonts: [{
     provider: fontProviders.google(),

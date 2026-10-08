@@ -14,12 +14,20 @@ const typeColor: Record<string, string> = {
 <Base title="Projects — Jedidiah Amaraegbu" description="Selected projects: AI agents, fintech, security tools, and open source.">
   <header class="sr">
     <h1>Projects</h1>
-    <p class="sub">Things I've built, shipped, or contributed to.</p>
+    <p class="sub">Systems I’ve built, shipped, and helped scale.</p>
   </header>
 
+  <nav class="project-filters sr" aria-label="Filter projects by type">
+    <button type="button" data-project-filter="all" aria-pressed="true">all</button>
+    <button type="button" data-project-filter="founder" aria-pressed="false">founder</button>
+    <button type="button" data-project-filter="client" aria-pressed="false">client</button>
+    <button type="button" data-project-filter="oss" aria-pressed="false">OSS</button>
+    <span class="project-count" data-project-count>{allProjects.length} projects</span>
+  </nav>
+
   <div class="grid sr-stagger">
-    {allProjects.map((p) => (
-      <a href={`/projects/${p.id}`} class="card" style={`--card-accent: ${typeColor[p.data.type]}`}>
+    {allProjects.map((p, index) => (
+      <a href={`/projects/${p.id}`} class:list={['card', { 'card--lead': index === 0 }]} data-project-type={p.data.type} style={`--card-accent: ${typeColor[p.data.type]}`}>
         <div class="card-head">
           <span class="card-type" style={`color: ${typeColor[p.data.type]}`}>{typeLabel[p.data.type]}</span>
           {p.data.featured && <span class="card-feat">featured</span>}
@@ -43,21 +51,59 @@ const typeColor: Record<string, string> = {
 <style>
   header { margin-bottom: 2.5rem; }
   .sub { color: var(--dim); font-size: .85rem; margin-top: .3em; }
+  .project-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .4rem .55rem;
+    margin: -1rem 0 1.5rem;
+  }
+  .project-filters button {
+    min-height: 32px;
+    padding: .35rem .65rem;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: transparent;
+    color: var(--dim);
+    font: .7rem/1 var(--font-mono);
+    cursor: pointer;
+  }
+  .project-filters button:hover,
+  .project-filters button[aria-pressed="true"] {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .project-filters button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .project-count {
+    margin-inline-start: auto;
+    color: var(--dim);
+    font: .68rem/1.3 var(--font-mono);
+  }
 
   .grid {
-    display: grid; gap: 1px; background: var(--border);
-    border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+    display: grid;
+    gap: 1rem;
   }
+  .card[hidden] { display: none; }
   .card {
-    background: var(--bg); padding: 1.6rem 1.8rem;
+    background: var(--bg); padding: 1.25rem 1.4rem;
     display: flex; flex-direction: column;
     color: inherit; transition: background .2s;
-    border-left: 3px solid transparent;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--border);
   }
   .card:hover {
     background: var(--surface); opacity: 1;
     border-left-color: var(--card-accent);
   }
+  .card--lead {
+    padding: 1.75rem 2rem;
+    border-top: 2px solid var(--card-accent);
+  }
+  .card--lead .card-name { font-size: 1.5rem; }
   .card-head {
     display: flex; align-items: center; gap: .5em;
     margin-bottom: .5rem;
@@ -95,8 +141,37 @@ const typeColor: Record<string, string> = {
   .card:hover .card-arrow { opacity: 1; transform: translateX(0); }
 
   @media (min-width: 640px) {
-    .grid { grid-template-columns: 1fr 1fr; }
-    .grid .card:last-child:nth-child(odd) { grid-column: 1 / -1; }
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (min-width: 1100px) {
+    .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  @media (max-width: 639px) {
+    .card--lead { padding: 1.25rem 1rem; }
+    .card--lead .card-name { font-size: 1rem; }
   }
   @media (max-width: 400px) { .card { padding: 1.2rem 1rem; } }
 </style>
+
+<script>
+  const projectCards = Array.from(document.querySelectorAll<HTMLElement>('[data-project-type]'));
+  const projectFilters = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-project-filter]'));
+  const projectCount = document.querySelector<HTMLElement>('[data-project-count]');
+
+  const setProjectFilter = (type: string) => {
+    let visible = 0;
+    projectCards.forEach((card) => {
+      const matches = type === 'all' || card.dataset.projectType === type;
+      card.hidden = !matches;
+      if (matches) visible += 1;
+    });
+    projectFilters.forEach((button) => {
+      button.setAttribute('aria-pressed', String(button.dataset.projectFilter === type));
+    });
+    if (projectCount) projectCount.textContent = `${visible} ${visible === 1 ? 'project' : 'projects'}`;
+  };
+
+  projectFilters.forEach((button) => {
+    button.addEventListener('click', () => setProjectFilter(button.dataset.projectFilter ?? 'all'));
+  });
+</script>

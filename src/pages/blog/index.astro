@@ -1,7 +1,24 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
+import { ArrowUpRight } from '@lucide/astro';
 import { hashnodePosts } from '../../data/hashnode';
+import BlogExplore from '../../components/BlogExplore.astro';
+
+const categoryOptions = [
+  { id: 'web-mobile', label: 'web & mobile', tags: ['react', 'nextjs', 'javascript', 'html', 'web3', 'wordpress'] },
+  { id: 'backend-payments', label: 'backend & payments', tags: ['stripe', 'payments', 'postgres', 'database', 'node', 'devops', 'docker'] },
+  { id: 'ai', label: 'AI & assisted development', tags: ['ai', 'productivity', 'tools'] },
+  { id: 'quality', label: 'quality & delivery', tags: ['git', 'workflow', 'engineering', 'debugging', 'patterns', 'state-management', 'redux', 'career', 'mentorship', 'interviews', 'learning', 'testing', 'streaming'] },
+] as const;
+
+const categoriesForTags = (tags: string[] = []) => {
+  const normalized = tags.map((tag) => tag.toLowerCase());
+  const categories = categoryOptions
+    .filter((category) => category.tags.some((tag) => normalized.includes(tag)))
+    .map((category) => category.id);
+  return categories.length ? categories : ['quality'];
+};
 
 const localPosts = (await getCollection('blog')).map((p) => ({
   title: p.data.title,
@@ -9,6 +26,7 @@ const localPosts = (await getCollection('blog')).map((p) => ({
   date: p.data.date,
   href: `/blog/${p.id}`,
   external: false,
+  categories: categoriesForTags(p.data.tags),
 }));
 
 const externalPosts = hashnodePosts.map((p) => ({
@@ -17,57 +35,738 @@ const externalPosts = hashnodePosts.map((p) => ({
   date: new Date(p.date),
   href: p.url,
   external: true,
+  categories: categoriesForTags(p.tags),
 }));
 
 const allPosts = [...localPosts, ...externalPosts].sort(
   (a, b) => b.date.valueOf() - a.date.valueOf()
 );
+
+const postsByYear = new Map<number, typeof allPosts>();
+for (const post of allPosts) {
+  const year = post.date.getFullYear();
+  if (!postsByYear.has(year)) postsByYear.set(year, []);
+  postsByYear.get(year)!.push(post);
+}
 ---
 
 <Base title="Blog — Jedidiah Amaraegbu" description="Writing about payments, security, AI agents, and building in public.">
-  <header class="sr">
-    <h1>Blog</h1>
-    <p class="sub">Payments, security, AI agents, and building in public.</p>
-  </header>
+  <div class:list={['blog-view', { 'is-empty': allPosts.length === 0 }]} data-view="timeline">
+    <header class="page-header sr">
+      <div class="header-intro">
+        <h1>Blog</h1>
+        <p>Payments, security, AI agents, and building in public.</p>
+      </div>
+    </header>
+    <div class="header-controls">
+      <div class="header-bottom">
+        <nav class="year-nav" aria-label="Jump to year">
+          {Array.from(postsByYear.keys(), (year) => <a href={`#year-${year}`}>{year}</a>)}
+        </nav>
+        <div class="view-switch" role="group" aria-label="Blog view" hidden>
+          <button type="button" data-view-choice="timeline" aria-controls="blog-archive" aria-pressed="true">Timeline</button>
+          <button type="button" data-view-choice="list" aria-controls="blog-archive" aria-pressed="false">List</button>
+          <button type="button" data-view-choice="explore" aria-controls="blog-explore" aria-pressed="false">Explore</button>
+        </div>
+      </div>
+      <nav class="category-nav" aria-label="Filter articles by category" hidden>
+        <button type="button" data-category-choice="all" aria-pressed="true">all</button>
+        {categoryOptions.map((category) => (
+          <button type="button" data-category-choice={category.id} aria-pressed="false">{category.label}</button>
+        ))}
+        <span class="category-count" data-category-count aria-live="polite">{allPosts.length} articles</span>
+      </nav>
+    </div>
+    <script is:inline>
+      (() => {
+        const root = document.currentScript?.parentElement;
+        if (!root) return;
+        const mobile = window.matchMedia('(max-width: 639px)').matches;
+        let saved;
+        try {
+          saved = window.localStorage.getItem(mobile ? 'amjed-blog-view-mobile' : 'amjed-blog-view-desktop');
+        } catch {
+          // Browsing still works when storage is unavailable.
+        }
+        const view = saved === 'timeline' || saved === 'list' || saved === 'explore' ? saved : mobile ? 'list' : 'timeline';
+        root.dataset.view = view;
+        root.querySelectorAll('[data-view-choice]').forEach((button) => {
+          button.setAttribute('aria-pressed', String(button.dataset.viewChoice === view));
+        });
+        const category = new URLSearchParams(window.location.search).get('category');
+        const categoryIds = new Set(['all', ...Array.from(root.querySelectorAll('[data-category-choice]'), (button) => button.dataset.categoryChoice)]);
+        const selectedCategory = category && categoryIds.has(category) ? category : 'all';
+        root.dataset.category = selectedCategory;
+        root.querySelectorAll('[data-category-choice]').forEach((button) => {
+          button.setAttribute('aria-pressed', String(button.dataset.categoryChoice === selectedCategory));
+        });
+        root.querySelector('.view-switch').hidden = false;
+        root.querySelector('.category-nav').hidden = false;
+      })();
+    </script>
 
-  <div class="posts sr-stagger">
-    {allPosts.map((post) => (
-      <a href={post.href} class="post" target={post.external ? "_blank" : undefined} rel={post.external ? "noopener" : undefined}>
-        <time datetime={post.date.toISOString()}>
-          {post.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-        </time>
-        <span class="post-title">
-          {post.title}
-          {post.external && <span class="ext">&nearr;</span>}
-        </span>
-        {post.description && <span class="post-desc">{post.description}</span>}
-      </a>
-    ))}
+    {allPosts.length === 0 && (
+      <div class="archive-empty" role="status">
+        <p>Nothing published here yet.</p>
+        <span>New writing will appear here as soon as it is ready.</span>
+      </div>
+    )}
+    {allPosts.length > 0 && (
+      <div class="filter-empty" role="status" hidden>
+        <p>No articles in this category yet.</p>
+        <button type="button" data-clear-category>Show all writing</button>
+      </div>
+    )}
+    <div class="timeline" id="blog-archive">
+      {Array.from(postsByYear, ([year, posts]) => (
+        <section class="year-group" aria-labelledby={`year-${year}`}>
+          <h2 id={`year-${year}`} class="year-label">{year}</h2>
+          <ol class="year-posts sr-stagger">
+            {posts.map((post) => (
+              <li class="post-item" data-blog-post data-categories={post.categories.join(' ')}>
+                <a href={post.href} class="post" target={post.external ? '_blank' : undefined} rel={post.external ? 'noopener noreferrer' : undefined}>
+                  <time datetime={post.date.toISOString()}>
+                    {post.date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
+                  </time>
+                  <span class="post-copy">
+                    <span class="post-title">{post.title}</span>
+                    {post.description && <span class="post-desc">{post.description}</span>}
+                  </span>
+                  {post.external && <span class="post-source">Hashnode <ArrowUpRight size={13} strokeWidth={1.7} aria-hidden="true" /><span class="visually-hidden"> (opens in a new tab)</span></span>}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ))}
+    </div>
+    <div class="explore-panel" id="blog-explore">
+      <BlogExplore groups={Array.from(postsByYear)} />
+    </div>
   </div>
 </Base>
 
 <style>
-  header { margin-bottom: 2rem; }
-  .sub { color: var(--dim); font-size: .85rem; margin-top: .3em; }
-
-  .posts { display: flex; flex-direction: column; }
-  .post {
-    display: grid; grid-template-columns: 7em 1fr; gap: .2em .8em;
-    padding: .8em 0; border-bottom: 1px solid var(--border);
-    color: inherit; transition: background .15s;
-    align-items: baseline;
+  :global(#main-content) { width: 100%; }
+  .blog-view {
+    width: 100%;
+    --year-sticky-top: 17.5rem;
+    --blog-muted: color-mix(in srgb, var(--dim) 65%, var(--fg));
   }
-  .post:first-child { border-top: 1px solid var(--border); }
+  .blog-view.is-empty .header-controls,
+  .blog-view.is-empty .timeline,
+  .blog-view.is-empty .explore-panel,
+  .blog-view.is-empty[data-view="explore"] .explore-panel { display: none; }
+  .page-header { margin-bottom: 0; }
+  .page-header p { max-width: 42rem; margin-top: .35rem; color: var(--blog-muted); font-size: .9rem; }
+  .header-intro { min-width: 0; }
+  .header-controls {
+    position: sticky;
+    top: 3.5rem;
+    z-index: 20;
+    margin-bottom: 2rem;
+    padding: 1.5rem 0 1.1rem;
+    background: color-mix(in srgb, var(--bg) 94%, transparent);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .header-bottom {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .75rem 1.5rem;
+  }
+  .archive-empty, .filter-empty {
+    max-width: 38rem;
+    padding: 2rem 0 3rem;
+    border-top: 1px solid var(--border);
+  }
+  .archive-empty p, .filter-empty p { margin-bottom: .3rem; color: var(--fg); font: 600 1.1rem/1.4 var(--font-sans); }
+  .archive-empty span { color: var(--blog-muted); font-size: .85rem; }
+  .filter-empty[hidden] { display: none; }
+  .filter-empty button {
+    min-height: 44px;
+    margin-top: 1rem;
+    padding: .5rem 0;
+    border: 0;
+    background: transparent;
+    color: var(--accent);
+    font: 600 .85rem/1.4 var(--font-sans);
+    cursor: pointer;
+  }
+  .filter-empty button:hover { text-decoration: underline; text-underline-offset: .2em; }
+  .filter-empty button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .category-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem .55rem;
+    margin-top: 1rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .category-nav::-webkit-scrollbar { display: none; }
+  .category-nav[hidden] { display: none; }
+  .category-nav button {
+    flex: none;
+    min-height: 38px;
+    padding: .35rem .65rem;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: transparent;
+    color: var(--blog-muted);
+    font: .7rem/1 var(--font-mono);
+    cursor: pointer;
+    transition: border-color .15s, color .15s, background-color .15s;
+  }
+  .category-nav button:hover,
+  .category-nav button[aria-pressed="true"] {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .category-nav button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .category-count {
+    align-self: center;
+    margin-inline-start: auto;
+    color: var(--blog-muted);
+    font: .68rem/1.3 var(--font-mono);
+    white-space: nowrap;
+  }
+  .year-nav {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    flex-wrap: wrap;
+    gap: .35rem 1rem;
+    position: relative;
+  }
+  .year-nav::after {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-start: var(--year-highlight-y, 0px);
+    inline-size: var(--year-highlight-width, 0px);
+    block-size: 2px;
+    background: var(--accent);
+    transform: translateX(var(--year-highlight-x, 0px));
+    transition: transform .3s cubic-bezier(.18, .82, .23, 1), inset-block-start .3s ease, inline-size .3s ease;
+    pointer-events: none;
+  }
+  .year-nav a {
+    padding: .35rem 0;
+    border-bottom: 1px solid var(--border);
+    color: var(--fg);
+    opacity: .75;
+    font: .72rem/1.5 var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    transition: border-color .2s, color .2s;
+  }
+  .year-nav a:hover { opacity: 1; border-color: var(--accent); color: var(--accent); }
+  .year-nav a.is-active {
+    opacity: 1;
+    border-color: transparent;
+    color: var(--accent);
+  }
+  .year-nav a.is-disabled {
+    opacity: .3;
+    border-bottom-style: dotted;
+    color: var(--blog-muted);
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .view-switch {
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    flex: none;
+    gap: 2px;
+    padding: 3px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+  }
+  .view-switch::before {
+    content: '';
+    position: absolute;
+    inset-block: 3px;
+    inset-inline-start: 3px;
+    inline-size: var(--view-highlight-width, 6rem);
+    border-radius: 5px;
+    background: var(--bg);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .16);
+    transform: translateX(var(--view-highlight-offset, 0px));
+    transition: transform .3s cubic-bezier(.18, .82, .23, 1);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .view-switch[hidden] { display: none; }
+  .view-switch button {
+    position: relative;
+    z-index: 1;
+    min-width: 6rem;
+    min-height: 38px;
+    padding: .4rem .85rem;
+    border: 0;
+    border-radius: 5px;
+    background: transparent;
+    color: var(--blog-muted);
+    font: 600 .75rem/1 var(--font-sans);
+    cursor: pointer;
+  }
+  .view-switch button[aria-pressed="true"] {
+    color: var(--fg);
+  }
+  .view-switch button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .explore-panel { display: none; }
+  .blog-view[data-view="explore"] .timeline { display: none; }
+  .blog-view[data-view="explore"] .explore-panel { display: block; }
+
+  .year-group {
+    display: grid;
+    grid-template-columns: 8.5rem minmax(0, 1fr);
+    gap: 1.75rem;
+    margin: 0;
+  }
+  .blog-view .year-group[hidden] { display: none !important; }
+  .year-label {
+    position: sticky;
+    top: var(--year-sticky-top);
+    z-index: 2;
+    align-self: start;
+    background: transparent;
+    border: 0;
+    margin: 0;
+    padding: .1rem 0 0;
+    color: var(--blog-muted);
+    font: 500 1.35rem/1 var(--font-sans);
+    letter-spacing: -.035em;
+    scroll-margin-top: var(--year-sticky-top);
+    transition: color .2s ease;
+  }
+  .year-label.is-active {
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .year-posts {
+    list-style: none;
+    margin: 0;
+    padding: 1.8rem 0 2rem 2rem;
+    border-left: 1px solid var(--border);
+  }
+  .year-group:last-child .year-posts { padding-bottom: 0; }
+  .post-item { position: relative; }
+  .post-item::before {
+    content: '';
+    position: absolute;
+    top: 1.18rem;
+    left: calc(-2rem - 4px);
+    width: 7px;
+    height: 7px;
+    border: 1px solid var(--dim);
+    border-radius: 50%;
+    background: var(--bg);
+    z-index: 1;
+    transition: border-color .2s, background .2s;
+  }
+  .post-item:hover::before,
+  .post-item:focus-within::before { border-color: var(--accent); background: var(--accent); }
+  .post {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    position: relative;
+    align-items: start;
+    gap: 1rem;
+    padding: .85rem .7rem 1.2rem 0;
+    color: inherit;
+    border-bottom: 1px solid var(--border);
+  }
+  .post-item:last-child .post { border-bottom: 0; }
   .post:hover { opacity: 1; }
-  .post:hover .post-title { color: var(--accent); }
+  .post time {
+    position: absolute;
+    left: calc(-8.5rem - 1.75rem - 2rem);
+    width: 8.5rem;
+    padding-top: .17rem;
+    color: var(--fg);
+    opacity: .7;
+    font: .7rem/1.5 var(--font-mono);
+    text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .post-copy { display: grid; grid-column: 1; gap: .25rem; min-width: 0; max-width: 72ch; }
+  .post-title {
+    color: var(--fg);
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: -.018em;
+    text-wrap: pretty;
+    transition: color .2s;
+  }
+  .post:hover .post-title,
+  .post:focus-visible .post-title { color: var(--accent); }
+  .post-desc { max-width: 64ch; color: var(--fg); opacity: .75; font-size: .8rem; line-height: 1.6; }
+  .post-source {
+    display: inline-flex;
+    grid-column: 2;
+    align-items: center;
+    gap: .2rem;
+    padding-top: .2rem;
+    color: var(--fg);
+    opacity: .7;
+    font: .68rem/1.5 var(--font-mono);
+    white-space: nowrap;
+  }
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
 
-  time { font-size: .7rem; color: var(--dim); opacity: .6; white-space: nowrap; }
-  .post-title { font-size: .85rem; font-weight: 600; color: var(--fg); transition: color .15s; }
-  .ext { font-size: .7rem; color: var(--dim); opacity: .5; margin-left: .3em; }
-  .post-desc { grid-column: 2; font-size: .75rem; color: var(--dim); line-height: 1.5; }
+  .blog-view[data-view="list"] .timeline { max-width: 780px; }
+  .blog-view[data-view="list"] .year-group {
+    display: block;
+    margin-bottom: 1.8rem;
+  }
+  .blog-view[data-view="list"] .year-label {
+    position: static;
+    top: auto;
+    z-index: auto;
+    font-size: .9rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    background: var(--bg);
+  }
+  .blog-view[data-view="list"] .year-posts {
+    padding: 0;
+    border: 0;
+  }
+  .blog-view[data-view="list"] .post-item::before { display: none; }
+  .blog-view[data-view="list"] .post,
+  .blog-view[data-view="list"] .post-item:last-child .post {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: .3rem .75rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .blog-view[data-view="list"] .post time {
+    position: static;
+    grid-column: 1;
+    grid-row: 1;
+    width: auto;
+    padding: 0;
+    text-align: left;
+  }
+  .blog-view[data-view="list"] .post-source {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    padding: 0;
+  }
+  .blog-view[data-view="list"] .post-copy { grid-column: 1 / -1; grid-row: 2; }
+  .blog-view[data-view="list"] .post-desc {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+  }
 
-  @media (max-width: 500px) {
-    .post { grid-template-columns: 1fr; gap: .1em; }
-    .post-desc { grid-column: 1; }
+  @media (max-width: 760px) {
+    .year-group { grid-template-columns: 5.5rem minmax(0, 1fr); gap: 1rem; }
+    .year-label { padding-top: .85rem; }
+    .year-posts { padding: 0 0 2rem 1.5rem; }
+    .post-item::before { left: calc(-1.5rem - 4px); }
+    .post { grid-template-columns: minmax(0, 1fr) auto; gap: .2rem .75rem; }
+    .post time { position: static; width: auto; text-align: left; grid-column: 1; grid-row: 1; }
+    .post-copy { grid-column: 1 / -1; grid-row: 2; }
+    .post-source { grid-column: 2; grid-row: 1; justify-self: end; }
+  }
+
+  @media (max-width: 639px) {
+    .header-controls {
+      top: calc(52px + env(safe-area-inset-top));
+      margin-bottom: 0;
+      padding: .75rem 0 .8rem;
+    }
+    .header-bottom {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+    .header-bottom { flex-direction: column; align-items: stretch; gap: .7rem; }
+    .view-switch { width: fit-content; }
+    .view-switch button {
+      flex: 0 0 auto;
+      min-width: 4.5rem;
+      min-height: 38px;
+      padding: .3rem .6rem;
+    }
+    .category-nav {
+      flex-wrap: nowrap;
+      padding-bottom: .2rem;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .year-group { display: block; }
+    .year-group:not(:last-child) { margin-bottom: .625rem; }
+    .year-label {
+      margin-inline: calc(0px - var(--gutter));
+      padding: 0 var(--gutter) .65rem;
+      padding-top: .625rem;
+      margin-bottom: .625rem;
+      font-size: 1.15rem;
+      background: var(--bg);
+    }
+    .year-label.is-stuck {
+      box-shadow: 0 1px 0 var(--border), 0 10px 16px -14px rgba(0, 0, 0, .55);
+    }
+    .year-posts { margin-left: .2rem; padding: 0 0 0 1.3rem; }
+    .post-item::before { top: 1.06rem; left: calc(-1.3rem - 4px); }
+    .post { padding: .8rem 0 1.05rem; }
+    .post-title { font-size: .98rem; }
+    .post-desc { font-size: .78rem; }
+    .post-source { align-self: start; padding-top: .05rem; font-size: .62rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .view-switch::before { transition: none; }
+    .year-nav::after { transition: none; }
+    .year-label { transition: none; }
   }
 </style>
+
+<script>
+  const yearGroups = Array.from(document.querySelectorAll<HTMLElement>('.year-group'));
+  const yearLabels = yearGroups.map((group) => group.querySelector<HTMLElement>('.year-label'));
+  const yearLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>('.year-nav a'));
+  const viewRoot = document.querySelector<HTMLElement>('.blog-view');
+  const viewButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-view-choice]'));
+  const categoryButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-category-choice]'));
+  const categoryCount = document.querySelector<HTMLElement>('[data-category-count]');
+  const filterEmpty = document.querySelector<HTMLElement>('.filter-empty');
+  const mobileView = window.matchMedia('(max-width: 639px)');
+  let activeFrame = 0;
+
+  const syncViewHighlight = () => {
+    const active = viewButtons.find((button) => button.getAttribute('aria-pressed') === 'true');
+    const switcher = active?.parentElement;
+    if (!active || !switcher) return;
+    switcher.style.setProperty('--view-highlight-width', `${active.offsetWidth}px`);
+    switcher.style.setProperty('--view-highlight-offset', `${active.offsetLeft - 3}px`);
+  };
+
+  const syncYearHighlight = () => {
+    const active = yearLinks.find((link) => link.classList.contains('is-active'));
+    const nav = active?.parentElement;
+    if (!active || !nav) return;
+    nav.style.setProperty('--year-highlight-width', `${active.offsetWidth}px`);
+    nav.style.setProperty('--year-highlight-x', `${active.offsetLeft}px`);
+    nav.style.setProperty('--year-highlight-y', `${active.offsetTop + active.offsetHeight - 1}px`);
+  };
+
+  const activateLatestVisibleYear = () => {
+    const latestVisibleGroup = yearGroups.find((group) => !group.hidden);
+    const activeYear = latestVisibleGroup?.querySelector<HTMLElement>('.year-label')?.textContent?.trim();
+    if (!activeYear) return;
+    yearLinks.forEach((link) => {
+      link.classList.toggle('is-active', link.hash === `#year-${activeYear}`);
+    });
+    syncYearHighlight();
+  };
+
+  const readView = () => {
+    let saved: string | null = null;
+    try {
+      saved = window.localStorage.getItem(mobileView.matches ? 'amjed-blog-view-mobile' : 'amjed-blog-view-desktop');
+    } catch {
+      // Keep the responsive default if storage is unavailable.
+    }
+    return saved === 'timeline' || saved === 'list' || saved === 'explore'
+      ? saved
+      : mobileView.matches ? 'list' : 'timeline';
+  };
+
+  const setCategory = (category: string, remember = false) => {
+    if (!viewRoot) return;
+    const valid = category === 'all' || categoryButtons.some((button) => button.dataset.categoryChoice === category);
+    const selected = valid ? category : 'all';
+    viewRoot.dataset.category = selected;
+    categoryButtons.forEach((button) => {
+      button.setAttribute('aria-pressed', String(button.dataset.categoryChoice === selected));
+    });
+    document.querySelectorAll<HTMLElement>('[data-blog-post]').forEach((post) => {
+      const categories = post.dataset.categories?.split(' ') ?? [];
+      post.hidden = selected !== 'all' && !categories.includes(selected);
+    });
+    yearGroups.forEach((group) => {
+      group.hidden = !Array.from(group.querySelectorAll<HTMLElement>('[data-blog-post]'))
+        .some((post) => !post.hidden);
+    });
+    yearLinks.forEach((link) => {
+      const yearGroup = document.querySelector<HTMLElement>(link.hash)?.closest<HTMLElement>('.year-group');
+      const disabled = Boolean(yearGroup?.hidden);
+      link.classList.toggle('is-disabled', disabled);
+      link.setAttribute('aria-disabled', String(disabled));
+      link.tabIndex = disabled ? -1 : 0;
+    });
+    const visiblePostCount = Array.from(document.querySelectorAll<HTMLElement>('.timeline [data-blog-post]'))
+      .filter((post) => !post.hidden).length;
+    if (categoryCount) categoryCount.textContent = `${visiblePostCount} ${visiblePostCount === 1 ? 'article' : 'articles'}`;
+    if (filterEmpty) filterEmpty.hidden = selected === 'all' || visiblePostCount > 0;
+    if (viewRoot.dataset.view === 'explore') activateLatestVisibleYear();
+    viewRoot.dispatchEvent(new CustomEvent('blogcategorychange', { detail: selected }));
+    if (remember) {
+      const url = new URL(window.location.href);
+      if (selected === 'all') url.searchParams.delete('category');
+      else url.searchParams.set('category', selected);
+      window.history.pushState({}, '', url);
+    }
+    requestActiveYearUpdate();
+  };
+
+  const setView = (view: 'timeline' | 'list' | 'explore', remember = false, preservePosition = false) => {
+    if (!viewRoot) return;
+    const changingExplore = view === 'explore' || viewRoot.dataset.view === 'explore';
+    const anchor = !changingExplore && preservePosition && window.scrollY > 200
+      ? Array.from(document.querySelectorAll<HTMLElement>('.post-item')).find(
+          (item) => item.getBoundingClientRect().bottom > 80,
+        )
+      : undefined;
+    const anchorTop = anchor?.getBoundingClientRect().top;
+
+    viewRoot.dataset.view = view;
+    if (view === 'explore') activateLatestVisibleYear();
+    if (changingExplore) window.scrollTo(0, 0);
+    if (view === 'explore') viewRoot.dispatchEvent(new Event('blogexploreenter'));
+    viewButtons.forEach((button) => {
+      button.setAttribute('aria-pressed', String(button.dataset.viewChoice === view));
+    });
+    syncViewHighlight();
+
+    if (remember) {
+      try {
+        window.localStorage.setItem(
+          mobileView.matches ? 'amjed-blog-view-mobile' : 'amjed-blog-view-desktop',
+          view,
+        );
+      } catch {
+        // The current choice still works without storage.
+      }
+    }
+
+    if (anchor && anchorTop !== undefined) {
+      window.requestAnimationFrame(() => {
+        window.scrollBy(0, anchor.getBoundingClientRect().top - anchorTop);
+        requestActiveYearUpdate();
+      });
+    } else {
+      requestActiveYearUpdate();
+    }
+  };
+
+  viewButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const view = button.dataset.viewChoice;
+      if (view === 'timeline' || view === 'list' || view === 'explore') setView(view, true);
+    });
+  });
+  mobileView.addEventListener('change', () => setView(readView(), false, true));
+  categoryButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      setCategory(button.dataset.categoryChoice ?? 'all', true);
+    });
+  });
+  document.querySelector<HTMLButtonElement>('[data-clear-category]')?.addEventListener('click', () => setCategory('all', true));
+  yearLinks.forEach((link) => {
+    link.addEventListener('click', (event) => {
+      if (viewRoot?.dataset.view !== 'explore') return;
+      event.preventDefault();
+      const year = link.hash.replace('#year-', '');
+      viewRoot.dispatchEvent(new CustomEvent('blogexploreyear', { detail: year }));
+      yearLinks.forEach((item) => item.classList.toggle('is-active', item === link));
+      syncYearHighlight();
+      window.history.replaceState({}, '', link.hash);
+    });
+  });
+  viewRoot?.addEventListener('blogexploreselectyear', (event) => {
+    if (viewRoot.dataset.view !== 'explore') return;
+    const year = String((event as CustomEvent<string>).detail);
+    yearLinks.forEach((link) => link.classList.toggle('is-active', link.hash === '#year-' + year));
+    syncYearHighlight();
+  });
+  window.addEventListener('popstate', () => {
+    setCategory(new URLSearchParams(window.location.search).get('category') ?? 'all');
+  });
+  syncViewHighlight();
+  window.addEventListener('resize', syncViewHighlight, { passive: true });
+
+  const updateActiveYear = () => {
+    activeFrame = 0;
+    if (!yearGroups.length || viewRoot?.dataset.view === 'explore') return;
+    const visibleYearGroups = yearGroups.filter((group) => !group.hidden);
+    if (!visibleYearGroups.length) return;
+
+    const stickyHeader = document.querySelector<HTMLElement>('.header-controls');
+    const headerTop = stickyHeader ? parseFloat(getComputedStyle(stickyHeader).top) || 0 : 0;
+    const stickyTop = headerTop + (stickyHeader?.offsetHeight ?? 0) + (mobileView.matches ? 0 : 8);
+    if (viewRoot && viewRoot.style.getPropertyValue('--year-sticky-top') !== `${stickyTop}px`) {
+      viewRoot.style.setProperty('--year-sticky-top', `${stickyTop}px`);
+    }
+    const marker = Math.max(stickyHeader?.getBoundingClientRect().bottom ?? 0, stickyTop) + 12;
+    const activeIndex = visibleYearGroups.findIndex((group) => {
+      const bounds = group.getBoundingClientRect();
+      return bounds.top <= marker && bounds.bottom > marker;
+    });
+    const fallbackIndex = visibleYearGroups.findIndex((group) => group.getBoundingClientRect().top > marker);
+    const index = activeIndex >= 0 ? activeIndex : fallbackIndex >= 0 ? fallbackIndex : visibleYearGroups.length - 1;
+    const activeGroup = visibleYearGroups[index];
+    const activeLabel = activeGroup.querySelector<HTMLElement>('.year-label');
+    const activeYear = activeLabel?.textContent?.trim();
+
+    const mobileYears = window.matchMedia('(max-width: 520px)').matches;
+    yearLabels.forEach((label) => {
+      if (!label) return;
+      const group = label.closest<HTMLElement>('.year-group');
+      label.classList.toggle('is-active', group === activeGroup);
+      const labelTop = label.getBoundingClientRect().top;
+      const groupTop = group?.getBoundingClientRect().top ?? 0;
+      label.classList.toggle(
+        'is-stuck',
+        mobileYears && viewRoot?.dataset.view === 'timeline' && groupTop < stickyTop && Math.abs(labelTop - stickyTop) < 1 && group === activeGroup,
+      );
+    });
+    yearLinks.forEach((link) => {
+      link.classList.toggle('is-active', link.hash === `#year-${activeYear}`);
+    });
+    syncYearHighlight();
+  };
+
+  const requestActiveYearUpdate = () => {
+    if (activeFrame) return;
+    activeFrame = window.requestAnimationFrame(updateActiveYear);
+  };
+
+  updateActiveYear();
+  syncYearHighlight();
+  window.addEventListener('scroll', requestActiveYearUpdate, { passive: true });
+  window.addEventListener('resize', requestActiveYearUpdate, { passive: true });
+  setCategory(viewRoot?.dataset.category ?? new URLSearchParams(window.location.search).get('category') ?? 'all');
+</script>

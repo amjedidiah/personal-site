@@ -2,6 +2,7 @@
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import OfflineNotice from '../components/OfflineNotice.astro';
+import BackToTop from '../components/BackToTop.astro';
 import { Font } from 'astro:assets';
 import '../styles/global.css';
 
@@ -28,6 +29,7 @@ const socialImageURL = Astro.site ? new URL('/og.svg', Astro.site) : '/og.svg';
   <script is:inline>
     (() => {
       const root = document.documentElement;
+      root.classList.add('has-js');
       const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       let preference = 'system';
 
@@ -73,7 +75,7 @@ const socialImageURL = Astro.site ? new URL('/og.svg', Astro.site) : '/og.svg';
   <meta name="twitter:description" content={description} />
   <meta name="twitter:image" content={socialImageURL} />
 </head>
-<body>
+<body id="page-top">
   <a class="skip-link" href="#main-content">Skip to content</a>
   <div class="page-progress" data-page-progress aria-hidden="true">
     <span></span>
@@ -90,6 +92,7 @@ const socialImageURL = Astro.site ? new URL('/og.svg', Astro.site) : '/og.svg';
   )}
   <Footer />
   <OfflineNotice />
+  <BackToTop />
   <script is:inline>
     const pageProgress = document.querySelector('[data-page-progress]');
     let progressFrame = 0;
