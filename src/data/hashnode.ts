@@ -5,6 +5,7 @@ export interface HashnodePost {
   brief: string;
   date: string;
   tags: string[];
+  featured?: boolean;
 }
 
 const BASE = "https://amjedidiah.hashnode.dev";
@@ -17,6 +18,7 @@ export const hashnodePosts: HashnodePost[] = [
     brief: "Break large pull requests into smaller, manageable stacked PRs to improve code review quality.",
     date: "2026-09-26",
     tags: ["git", "workflow"],
+    featured: true,
   },
   {
     title: "Systematising Intuition: How to Code \"Seniority\" into an AI",
@@ -25,6 +27,7 @@ export const hashnodePosts: HashnodePost[] = [
     brief: "How to give AI models system instructions that replicate senior developer judgment patterns.",
     date: "2026-01-03",
     tags: ["ai", "engineering"],
+    featured: true,
   },
   {
     title: "How to Master AI Coding: The \"Junior Developer\" Mental Model",

@@ -1,0 +1,162 @@
+---
+import { Check } from '@lucide/astro';
+
+interface Props {
+  project?: { id: string; title: string };
+}
+
+const { project } = Astro.props;
+const source = project ? `project:${project.id}` : 'site';
+const directEmail = `mailto:imunacode@gmail.com?subject=${encodeURIComponent(project ? `Project feedback: ${project.title}` : 'Site feedback')}`;
+const directWhatsAppMessage = project
+  ? `Hi Jedidiah, I have feedback on ${project.title}: `
+  : 'Hi Jedidiah, I have feedback on your site: ';
+const directWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComponent(directWhatsAppMessage)}`;
+---
+
+<div class="feedback-page">
+  <a class="back-link" href={project ? `/projects/${project.id}` : '/'}><span aria-hidden="true">&larr;</span> {project ? 'back to project' : 'back home'}</a>
+  <div class="feedback-layout">
+    <header>
+      <h1>Share your feedback</h1>
+      <p class="intro">What worked well? What could be clearer? A short note is plenty.</p>
+      {project && <p class="context">About <strong>{project.title}</strong></p>}
+    </header>
+    <div class="form-column">
+      <form action="/api/feedback" method="post" data-feedback-form>
+        <input type="hidden" name="source" value={source} />
+        <div class="trap" aria-hidden="true"><label for="feedback-website">Website</label><input id="feedback-website" name="website" type="text" tabindex="-1" autocomplete="off" /></div>
+        <div class="field">
+          <label for="feedback-message">Your feedback <span>required</span></label>
+          <textarea id="feedback-message" name="message" rows="7" minlength="5" maxlength="3000" required aria-describedby="message-hint"></textarea>
+          <p class="hint" id="message-hint">Thoughts, bugs, questions, or a detail you noticed.</p>
+        </div>
+        <div class="field">
+          <label for="feedback-email">Email <span>optional</span></label>
+          <input id="feedback-email" name="email" type="email" autocomplete="email" maxlength="254" aria-describedby="email-hint" />
+          <p class="hint" id="email-hint">Only if you’d like a reply. Your note goes privately to my inbox.</p>
+        </div>
+        <div class="actions">
+          <button type="submit" data-submit>Send feedback <span aria-hidden="true">&nearr;</span></button>
+        </div>
+        <div class="feedback-error" data-feedback-error hidden>
+          <strong>Feedback not sent</strong>
+          <p data-feedback-error-text></p>
+          <p>Your message is still here. Try again, or use the contact option below.</p>
+        </div>
+        <p class="direct-contact direct-email">Prefer email? <a href={directEmail}>Write to me directly</a>.</p>
+        <p class="direct-contact direct-whatsapp">Prefer WhatsApp? <a href={directWhatsApp} target="_blank" rel="noopener noreferrer">Message me directly<span class="visually-hidden"> (opens in a new tab)</span></a>.</p>
+      </form>
+      <p class="visually-hidden" data-feedback-pending role="status"></p>
+      <p class="visually-hidden" data-feedback-error-live role="alert"></p>
+      <div class="success" data-success hidden tabindex="-1">
+        <span class="success-mark" aria-hidden="true"><Check size={16} strokeWidth={2} /></span>
+        <h2>Thanks for the thoughtful note.</h2>
+        <p>It’s been sent to my inbox. I appreciate you taking the time.</p>
+        <a href={project ? `/projects/${project.id}` : '/'}>{project ? 'Return to project' : 'Return home'} <span aria-hidden="true">&rarr;</span></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-feedback-form]');
+  const errorPanel = form?.querySelector<HTMLElement>('[data-feedback-error]');
+  const errorText = form?.querySelector<HTMLElement>('[data-feedback-error-text]');
+  const pendingStatus = document.querySelector<HTMLElement>('[data-feedback-pending]');
+  const errorLive = document.querySelector<HTMLElement>('[data-feedback-error-live]');
+  const success = document.querySelector<HTMLElement>('[data-success]');
+  const submit = form?.querySelector<HTMLButtonElement>('[data-submit]');
+
+  const showError = (message: string) => {
+    if (!errorPanel || !errorText) return;
+    errorPanel.hidden = false;
+    errorText.textContent = message;
+    if (errorLive) errorLive.textContent = `Feedback not sent. ${message} Your message is still here.`;
+    errorPanel.scrollIntoView({ block: 'nearest' });
+  };
+
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!form.reportValidity() || !errorPanel || !errorText || !success || !submit) return;
+
+    const originalLabel = submit.innerHTML;
+    errorPanel.hidden = true;
+    if (errorLive) errorLive.textContent = '';
+    submit.disabled = true;
+    form.setAttribute('aria-busy', 'true');
+    submit.textContent = 'Sending…';
+    if (pendingStatus) pendingStatus.textContent = 'Sending your feedback…';
+
+    try {
+      const body = new URLSearchParams();
+      for (const [key, value] of new FormData(form)) {
+        if (typeof value === 'string') body.append(key, value);
+      }
+      const response = await fetch(form.action, {
+        method: 'POST',
+        body,
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
+      });
+      const result = await response.json().catch(() => ({})) as { message?: string };
+      if (!response.ok) {
+        showError(result.message || 'Your message could not be sent. Please try again.');
+        return;
+      }
+
+      form.hidden = true;
+      success.hidden = false;
+      success.focus();
+    } catch {
+      showError('Connection lost. Check your connection.');
+    } finally {
+      if (pendingStatus) pendingStatus.textContent = '';
+      submit.disabled = false;
+      form.removeAttribute('aria-busy');
+      submit.innerHTML = originalLabel;
+    }
+  });
+</script>
+
+<style>
+  .feedback-page { max-width: 980px; margin: 0 auto; overflow-x: clip; }
+  .back-link { display: inline-flex; align-items: center; gap: .4rem; min-height: 44px; margin-bottom: clamp(2rem, 6vw, 4.5rem); color: var(--dim); font: .74rem/1.4 var(--font-mono); }
+  .back-link:hover { color: var(--accent); opacity: 1; }
+  .feedback-layout { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(2rem, 7vw, 6rem); align-items: start; }
+  header { max-width: 36rem; }
+  h1 { font-size: clamp(2.35rem, 5.5vw, 4.25rem); line-height: 1.08; letter-spacing: -.035em; text-wrap: balance; }
+  .intro { margin-top: 1.1rem; color: var(--dim); font-size: 1rem; line-height: 1.7; }
+  .context { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--dim); font: .76rem/1.6 var(--font-mono); }
+  .context strong { display: block; margin-top: .3rem; color: var(--fg); font: 600 .93rem/1.5 var(--font-sans); overflow-wrap: anywhere; }
+  .form-column { min-width: 0; padding-top: .2rem; }
+  .field + .field { margin-top: 1.6rem; }
+  label { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: .55rem; color: var(--fg); font: 600 .9rem/1.5 var(--font-sans); }
+  label span { color: var(--dim); font: .7rem/1.4 var(--font-mono); }
+  textarea, input[type="email"] { width: 100%; min-width: 0; border: 1px solid var(--border); border-radius: 6px; padding: .85rem .9rem; background: var(--surface); color: var(--fg); font: 1rem/1.6 var(--font-sans); outline: none; transition: border-color .18s ease, box-shadow .18s ease; }
+  textarea { display: block; min-height: 11rem; resize: vertical; }
+  textarea:hover, input[type="email"]:hover { border-color: var(--dim); }
+  textarea:focus-visible, input[type="email"]:focus-visible { border-color: var(--accent); box-shadow: 0 0 0 3px var(--glow); }
+  .hint { margin-top: .45rem; color: var(--dim); font-size: .75rem; line-height: 1.6; }
+  .actions { margin-top: 2rem; }
+  button { display: inline-flex; align-items: center; justify-content: center; gap: .8rem; min-height: 46px; min-width: 10.5rem; border: 1px solid var(--accent); border-radius: 5px; padding: .65rem 1rem; background: var(--accent); color: var(--bg); cursor: pointer; font: 600 .82rem/1.4 var(--font-sans); transition: transform .2s ease, opacity .2s ease; }
+  button:hover { transform: translateY(-2px); opacity: .9; }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  button:disabled { cursor: wait; opacity: .6; transform: none; }
+  .direct-contact { margin-top: .8rem; color: var(--dim); font-size: .93rem; }
+  .direct-contact a { text-decoration: underline; text-underline-offset: .2em; }
+  .direct-whatsapp { display: none; }
+  .feedback-error { margin-top: 1rem; padding: .85rem 1rem; border: 1px solid color-mix(in srgb, #da6d66 48%, var(--border)); border-radius: 6px; background: color-mix(in srgb, #da6d66 5%, var(--surface)); color: var(--fg); font: .94rem/1.55 var(--font-sans); }
+  .feedback-error strong { display: block; margin-bottom: .2rem; font-weight: 600; }
+  .feedback-error p + p { margin-top: .35rem; }
+  .success { padding-top: .25rem; }
+  .success:focus { outline: none; }
+  .success-mark { display: inline-grid; place-items: center; width: 2rem; height: 2rem; border: 1px solid var(--accent); border-radius: 50%; color: var(--accent); }
+  .success h2 { margin: 1rem 0 .5rem; padding: 0; border: 0; color: var(--fg); font: 600 1.4rem/1.3 var(--font-sans); letter-spacing: -.02em; text-transform: none; }
+  .success p { color: var(--dim); }
+  .success a { display: inline-block; margin-top: 1.5rem; font-size: .82rem; }
+  .trap { position: absolute; width: 1px; height: 1px; overflow: hidden; left: -100vw; }
+  [hidden] { display: none !important; }
+  @media (max-width: 720px) { .feedback-layout { grid-template-columns: 1fr; gap: 2rem; } .back-link { margin-bottom: 2rem; } .intro { max-width: 40ch; } .context { margin-top: 1.35rem; } }
+  @media (max-width: 520px) { button { width: 100%; } .direct-email { display: none; } .direct-whatsapp { display: block; text-align: center; } }
+  @media (prefers-reduced-motion: reduce) { button, textarea, input[type="email"] { transition: none; } }
+</style>

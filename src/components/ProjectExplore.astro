@@ -1,0 +1,66 @@
+---
+import ListingExplore, { type ListingExplorePaper } from './ListingExplore.astro';
+import type { ListingExploreWire } from '../lib/listing-explore';
+
+interface ProjectItem {
+  id: string;
+  title: string;
+  description: string;
+  type: string;
+  typeLabel: string;
+  scope: string;
+  href: string;
+  platforms: string;
+  yearStart: number;
+}
+
+interface Props {
+  projects: ProjectItem[];
+}
+
+const { projects } = Astro.props;
+
+const papers: ListingExplorePaper[] = projects.map((project) => ({
+  title: project.title,
+  description: project.description,
+  href: project.href,
+  cardMetaA: project.typeLabel,
+  cardMetaB: project.scope,
+  detailMetaA: project.scope,
+  detailMetaB: project.typeLabel,
+  exploreJump: String(project.yearStart),
+  filterAttrs: {
+    'data-project-type': project.type,
+    'data-project-platforms': project.platforms,
+    'data-project-href': project.href,
+    'data-type': project.type,
+  },
+}));
+
+const wire: ListingExploreWire = {
+  listingRoot: '.projects-page',
+  eventEnter: 'projectexploreenter',
+  eventFilter: 'projectfilterchange',
+  eventJump: 'projectexploreyear',
+  eventSelectJump: 'projectexploreselectyear',
+  itemNoun: 'project',
+  readLabel: 'View project',
+  fallbackHref: '#projects-archive-timeline',
+  emptyTitle: 'No projects match these filters',
+  emptyDescription: 'Adjust type or platform filters to keep exploring.',
+  previewNote: 'Click the module to select it',
+};
+---
+
+<ListingExplore
+  surface="module"
+  exploreId="projects-explore-globe"
+  ariaLabel="Explore projects"
+  stageAriaLabel="Project globe. Use left and right arrows to browse modules, up and down to tilt. Tab reaches Reset globe, then View project."
+  hintDesktop="drag to turn · click to select"
+  hintMobile="swipe to turn · tap a card"
+  keyboardHint="With the globe focused, use left and right arrows to browse projects. Tab reaches Reset globe, then View project."
+  selectedAsideLabel="selected-project"
+  papers={papers}
+  wire={wire}
+/>

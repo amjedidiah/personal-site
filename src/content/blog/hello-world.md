@@ -2,6 +2,7 @@
 title: "Building in Public"
 description: "Why I'm writing about what I build, break, and learn."
 date: 2026-10-07
+featured: true
 tags: ["meta", "building-in-public"]
 ---
 

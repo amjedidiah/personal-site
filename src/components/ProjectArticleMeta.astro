@@ -1,0 +1,50 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { ArrowUpRight } from '@lucide/astro';
+import { formatProjectScope } from '../data/project-scope';
+
+interface Props { project: CollectionEntry<'projects'>; }
+const { project } = Astro.props;
+const typeLabel = { founder: 'independent build', client: 'client work', oss: 'OSS contributor' };
+---
+
+<div class="project-details">
+  <div class="meta">
+    <span class="badge">{typeLabel[project.data.type]}</span>
+    {project.data.url && (
+      <a href={project.data.url} target="_blank" rel="noopener noreferrer" class="ext external-link">
+        {project.data.urlLabel ?? 'view source'}
+        <ArrowUpRight size={13} strokeWidth={1.8} aria-hidden="true" />
+        <span class="visually-hidden"> (opens in a new tab)</span>
+      </a>
+    )}
+    {project.data.urlSecondary && (
+      <a href={project.data.urlSecondary} target="_blank" rel="noopener noreferrer" class="ext external-link">
+        {project.data.urlSecondaryLabel ?? 'view project'}
+        <ArrowUpRight size={13} strokeWidth={1.8} aria-hidden="true" />
+        <span class="visually-hidden"> (opens in a new tab)</span>
+      </a>
+    )}
+  </div>
+  <p class="project-scope">{formatProjectScope(project.data)}</p>
+  {project.data.role && <p class="project-role"><strong>My role</strong> {project.data.role}</p>}
+  {project.data.evidence && <p class="project-evidence">{project.data.evidence}</p>}
+  <p class="tech">{project.data.tech.join(' · ')}</p>
+</div>
+
+<style>
+  .project-details { margin-block: 1rem 2rem; }
+  .meta { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .8rem; }
+  .badge { font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; color: var(--project-muted); border: 1px solid var(--border); padding: .3em .65em; border-radius: 4px; }
+  .ext { display: inline-flex; align-items: center; gap: .3rem; min-height: 44px; font-size: .75rem; color: var(--accent); }
+  .ext :global(svg) { flex-shrink: 0; transition: transform .2s ease; }
+  .ext:hover { opacity: 1; text-decoration: underline; text-underline-offset: .2em; }
+  .ext:hover :global(svg) { transform: translate(2px, -2px); }
+  .project-details p { margin-bottom: 0; }
+  .project-scope { margin-top: .8rem; color: var(--project-muted); font: .7rem/1.5 var(--font-mono); letter-spacing: .05em; text-transform: uppercase; }
+  .project-role { margin-top: 1.25rem; color: var(--fg); font-size: .85rem; line-height: 1.6; }
+  .project-role strong { color: var(--project-muted); margin-right: .5rem; text-transform: uppercase; font-size: .67rem; letter-spacing: .04em; }
+  .project-evidence { margin-top: .5rem; color: var(--accent); font-size: .8rem; line-height: 1.6; }
+  .tech { margin-top: .75rem; color: var(--project-muted); font-size: .75rem; line-height: 1.6; }
+  @media (prefers-reduced-motion: reduce) { .ext :global(svg) { transition: none; } }
+</style>

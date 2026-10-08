@@ -48,9 +48,6 @@ export function mountPortrait(host: HTMLElement): () => void {
   catch (error) { disposeObjects(scene); renderer.dispose(); renderer.forceContextLoss(); throw error; }
   scene.environment = environment.texture;
   const network = createNetwork(scene);
-  const controls = Array.from(hero.querySelectorAll<HTMLButtonElement>('[data-system-mode]'));
-  const caption = hero.querySelector<HTMLElement>('[data-system-caption]');
-  const captions = ['Cross-border payments.','Collaborative AI, live.','Stripe Connect and MCP security.'];
   const replays = Array.from(hero.querySelectorAll<HTMLButtonElement>('[data-portrait-replay]'));
   let mode = 0;
   let disposed = false;
@@ -86,7 +83,10 @@ export function mountPortrait(host: HTMLElement): () => void {
       portrait.position.y = reduced || assemblyTime < ASSEMBLY_SECONDS ? 0 : Math.sin(activeTime * .75) * .025;
       rim.intensity = (lightTheme ? 1.6 : 2.3) + (reduced ? 0 : Math.sin(activeTime * .9) * .08);
     }
-    network.update(activeTime,dt,reduced,smoothX,smoothY);
+    // The fallback portrait has its own readable diagram; keep WebGL lines
+    // behind model geometry rather than drawing them across the static face.
+    network.group.visible = fragments.length > 0;
+    if (network.group.visible) network.update(activeTime,dt,reduced,smoothX,smoothY);
     renderer.render(scene,camera);
     host.dataset.canvasReady = 'true';
     if (fragments.length) host.dataset.modelReady = 'true';
@@ -137,25 +137,13 @@ export function mountPortrait(host: HTMLElement): () => void {
     network.theme(lightTheme);
     if (inView && !document.hidden) render();
   }
-  function controlMode(button: HTMLButtonElement, index: number) {
-    const raw = button.dataset.systemMode ?? '';
-    const explicit = Number(raw);
-    return raw.trim() !== '' && Number.isInteger(explicit) && explicit >= 0 && explicit <= 2 ? explicit : index;
-  }
   function setMode(value: number) {
     if (!Number.isFinite(value)) return;
-    mode = clamp(Math.round(value),0,2);
+    mode = clamp(Math.round(value),0,1);
     host.dataset.mode = String(mode);
-    controls.forEach((b,i) => b.setAttribute('aria-pressed',String(controlMode(b,i) === mode)));
-    if (caption) caption.textContent = captions[mode];
     network.setMode(mode,motion.matches);
     if (inView && !document.hidden) render();
   }
-  controls.forEach((b,i) => b.addEventListener('click',() => {
-    const selected = controlMode(b,i);
-    setMode(selected);
-    host.dispatchEvent(new CustomEvent('systemmodechange',{detail:selected}));
-  },{signal:listeners.signal}));
   host.addEventListener('systemmodechange',(e) => setMode((e as CustomEvent<number>).detail),{signal:listeners.signal});
   setMode(Number(host.dataset.mode ?? 0));
   function replay() {

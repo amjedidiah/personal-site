@@ -1,8 +1,10 @@
 // @ts-check
 import { defineConfig, fontProviders } from 'astro/config';
 import serviceWorker from './integrations/service-worker/index.mjs';
+import vercel from '@astrojs/vercel';
 
 export default defineConfig({
+  adapter: vercel(),
   build: { format: 'directory' },
   server: {
     allowedHosts: ['prepituitary-chasidy-phonesthemic.ngrok-free.dev'],

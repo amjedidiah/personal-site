@@ -1,0 +1,34 @@
+---
+import '../styles/listing-page-header.css';
+---
+
+<div class="header-controls-sentinel" data-listing-header-sentinel aria-hidden="true"></div>
+<div class="header-controls" data-listing-header>
+  <div class="header-bottom">
+    <div class="header-controls-compact-meta">
+      <p class="header-controls-summary" data-listing-summary></p>
+      <button
+        type="button"
+        class="header-controls-expand"
+        data-listing-expand
+        aria-expanded="false"
+        aria-controls="listing-header-expandable"
+      >
+        Filters
+      </button>
+    </div>
+  </div>
+  <div class="header-controls-expandable" id="listing-header-expandable">
+    <div class="header-toolbar-row">
+      <div class="header-toolbar">
+        <slot name="toolbar" />
+      </div>
+      <div class="header-actions">
+        <slot name="actions" />
+      </div>
+    </div>
+    <div class="header-filters">
+      <slot name="filters" />
+    </div>
+  </div>
+</div>

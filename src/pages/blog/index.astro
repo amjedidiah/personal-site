@@ -4,6 +4,9 @@ import { getCollection } from 'astro:content';
 import { ArrowUpRight } from '@lucide/astro';
 import { hashnodePosts } from '../../data/hashnode';
 import BlogExplore from '../../components/BlogExplore.astro';
+import ListingTimelineYear from '../../components/ListingTimelineYear.astro';
+import ListingPageControls from '../../components/ListingPageControls.astro';
+import ListingPageIntro from '../../components/ListingPageIntro.astro';
 
 const categoryOptions = [
   { id: 'web-mobile', label: 'web & mobile', tags: ['react', 'nextjs', 'javascript', 'html', 'web3', 'wordpress'] },
@@ -48,35 +51,50 @@ for (const post of allPosts) {
   if (!postsByYear.has(year)) postsByYear.set(year, []);
   postsByYear.get(year)!.push(post);
 }
+
+const letterForTitle = (title: string) => {
+  const match = title.match(/[A-Za-z0-9]/);
+  return match ? match[0].toUpperCase() : '#';
+};
+
+const postsByLetter = new Map<string, typeof allPosts>();
+for (const post of [...allPosts].sort((a, b) => a.title.localeCompare(b.title, undefined, { sensitivity: 'base' }))) {
+  const letter = letterForTitle(post.title);
+  if (!postsByLetter.has(letter)) postsByLetter.set(letter, []);
+  postsByLetter.get(letter)!.push(post);
+}
+const letterKeys = Array.from(postsByLetter.keys()).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
 ---
 
 <Base title="Blog — Jedidiah Amaraegbu" description="Writing about payments, security, AI agents, and building in public.">
   <div class:list={['blog-view', { 'is-empty': allPosts.length === 0 }]} data-view="timeline">
-    <header class="page-header sr">
-      <div class="header-intro">
-        <h1>Blog</h1>
-        <p>Payments, security, AI agents, and building in public.</p>
-      </div>
-    </header>
-    <div class="header-controls">
-      <div class="header-bottom">
-        <nav class="year-nav" aria-label="Jump to year">
-          {Array.from(postsByYear.keys(), (year) => <a href={`#year-${year}`}>{year}</a>)}
-        </nav>
-        <div class="view-switch" role="group" aria-label="Blog view" hidden>
-          <button type="button" data-view-choice="timeline" aria-controls="blog-archive" aria-pressed="true">Timeline</button>
-          <button type="button" data-view-choice="list" aria-controls="blog-archive" aria-pressed="false">List</button>
-          <button type="button" data-view-choice="explore" aria-controls="blog-explore" aria-pressed="false">Explore</button>
-        </div>
-      </div>
-      <nav class="category-nav" aria-label="Filter articles by category" hidden>
-        <button type="button" data-category-choice="all" aria-pressed="true">all</button>
-        {categoryOptions.map((category) => (
-          <button type="button" data-category-choice={category.id} aria-pressed="false">{category.label}</button>
-        ))}
-        <span class="category-count" data-category-count aria-live="polite">{allPosts.length} articles</span>
+    <ListingPageIntro title="Blog" description="Payments, security, AI agents, and building in public." />
+    <ListingPageControls>
+      <nav slot="toolbar" class="year-nav" aria-label="Jump to year">
+        {Array.from(postsByYear.keys(), (year) => <a href={`#year-${year}`}>{year}</a>)}
       </nav>
-    </div>
+      <nav slot="toolbar" class="list-sort-nav" aria-label="Sort articles">
+        <span class="sort-label" aria-hidden="true">Sort</span>
+        <div class="sort-options" role="group" aria-label="Sort direction">
+          <button type="button" data-list-sort="asc" aria-pressed="true">A–Z</button>
+          <button type="button" data-list-sort="desc" aria-pressed="false">Z–A</button>
+        </div>
+      </nav>
+      <div slot="actions" class="view-switch" role="group" aria-label="Blog view" hidden>
+        <button type="button" data-view-choice="timeline" aria-controls="blog-archive-timeline blog-archive-list" aria-pressed="true">Timeline</button>
+        <button type="button" data-view-choice="list" aria-controls="blog-archive-timeline blog-archive-list" aria-pressed="false">List</button>
+        <button type="button" data-view-choice="explore" aria-controls="blog-explore" aria-pressed="false">Explore</button>
+      </div>
+      <div slot="filters" class="category-filters">
+        <nav class="category-nav listing-filter-nav" aria-label="Filter articles by category" hidden>
+          <button type="button" data-category-choice="all" aria-pressed="true">all</button>
+          {categoryOptions.map((category) => (
+            <button type="button" data-category-choice={category.id} aria-pressed="false">{category.label}</button>
+          ))}
+        </nav>
+        <span class="category-count listing-filter-count" data-category-count aria-live="polite" aria-atomic="true">{allPosts.length} articles</span>
+      </div>
+    </ListingPageControls>
     <script is:inline>
       (() => {
         const root = document.currentScript?.parentElement;
@@ -88,7 +106,9 @@ for (const post of allPosts) {
         } catch {
           // Browsing still works when storage is unavailable.
         }
-        const view = saved === 'timeline' || saved === 'list' || saved === 'explore' ? saved : mobile ? 'list' : 'timeline';
+        const view = /^#year-\d+$/.test(window.location.hash)
+          ? 'timeline'
+          : saved === 'timeline' || saved === 'list' || saved === 'explore' ? saved : mobile ? 'list' : 'timeline';
         root.dataset.view = view;
         root.querySelectorAll('[data-view-choice]').forEach((button) => {
           button.setAttribute('aria-pressed', String(button.dataset.viewChoice === view));
@@ -105,6 +125,7 @@ for (const post of allPosts) {
       })();
     </script>
 
+    <div class="listing-results" data-listing-results>
     {allPosts.length === 0 && (
       <div class="archive-empty" role="status">
         <p>Nothing published here yet.</p>
@@ -114,19 +135,40 @@ for (const post of allPosts) {
     {allPosts.length > 0 && (
       <div class="filter-empty" role="status" hidden>
         <p>No articles in this category yet.</p>
+        <span>Choose another category, or browse all writing.</span>
         <button type="button" data-clear-category>Show all writing</button>
       </div>
     )}
-    <div class="timeline" id="blog-archive">
+    <div class="timeline year-timeline" id="blog-archive-timeline">
       {Array.from(postsByYear, ([year, posts]) => (
-        <section class="year-group" aria-labelledby={`year-${year}`}>
-          <h2 id={`year-${year}`} class="year-label">{year}</h2>
-          <ol class="year-posts sr-stagger">
-            {posts.map((post) => (
-              <li class="post-item" data-blog-post data-categories={post.categories.join(' ')}>
+        <ListingTimelineYear year={year} entriesClass="year-posts">
+          {posts.map((post) => (
+            <li class="timeline-item post-item" data-blog-post data-post-href={post.href} data-categories={post.categories.join(' ')}>
+                <a href={post.href} class="post timeline-entry" target={post.external ? '_blank' : undefined} rel={post.external ? 'noopener noreferrer' : undefined}>
+                  <time class="timeline-entry-aside" datetime={post.date.toISOString()}>
+                    {post.date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
+                  </time>
+                  <span class="timeline-entry-copy post-copy">
+                    <span class="timeline-entry-title post-title">{post.title}</span>
+                    {post.description && <span class="timeline-entry-desc post-desc">{post.description}</span>}
+                  </span>
+                  {post.external && <span class="timeline-entry-action post-source">Hashnode <ArrowUpRight size={13} strokeWidth={1.7} aria-hidden="true" /><span class="visually-hidden"> (opens in a new tab)</span></span>}
+                </a>
+            </li>
+          ))}
+        </ListingTimelineYear>
+      ))}
+    </div>
+    <div class="list-archive" id="blog-archive-list">
+      {letterKeys.map((letter) => (
+        <section class="letter-group" aria-labelledby={`letter-${letter}`}>
+          <h2 id={`letter-${letter}`} class="letter-label">{letter}</h2>
+          <ol class="letter-posts">
+            {postsByLetter.get(letter)!.map((post) => (
+              <li class="post-item" data-blog-post data-post-href={post.href} data-sort-title={post.title} data-categories={post.categories.join(' ')}>
                 <a href={post.href} class="post" target={post.external ? '_blank' : undefined} rel={post.external ? 'noopener noreferrer' : undefined}>
                   <time datetime={post.date.toISOString()}>
-                    {post.date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
+                    {post.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </time>
                   <span class="post-copy">
                     <span class="post-title">{post.title}</span>
@@ -143,6 +185,7 @@ for (const post of allPosts) {
     <div class="explore-panel" id="blog-explore">
       <BlogExplore groups={Array.from(postsByYear)} />
     </div>
+    </div>
   </div>
 </Base>
 
@@ -152,32 +195,18 @@ for (const post of allPosts) {
     width: 100%;
     --year-sticky-top: 17.5rem;
     --blog-muted: color-mix(in srgb, var(--dim) 65%, var(--fg));
+    --listing-muted: var(--blog-muted);
   }
   .blog-view.is-empty .header-controls,
   .blog-view.is-empty .timeline,
+  .blog-view.is-empty .list-archive,
   .blog-view.is-empty .explore-panel,
   .blog-view.is-empty[data-view="explore"] .explore-panel { display: none; }
-  .page-header { margin-bottom: 0; }
-  .page-header p { max-width: 42rem; margin-top: .35rem; color: var(--blog-muted); font-size: .9rem; }
-  .header-intro { min-width: 0; }
-  .header-controls {
-    position: sticky;
-    top: 3.5rem;
-    z-index: 20;
-    margin-bottom: 2rem;
-    padding: 1.5rem 0 1.1rem;
-    background: color-mix(in srgb, var(--bg) 94%, transparent);
-    border-bottom: 1px solid var(--border);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-  }
-  .header-bottom {
-    display: flex;
-    align-items: end;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: .75rem 1.5rem;
-  }
+  .list-archive { display: none; }
+  .blog-view[data-view="list"] .timeline { display: none; }
+  .blog-view[data-view="list"] .list-archive { display: block; }
+  .blog-view[data-view="list"] .list-sort-nav { display: flex; }
+  .blog-view[data-view="list"] .year-nav { display: none; }
   .archive-empty, .filter-empty {
     max-width: 38rem;
     padding: 2rem 0 3rem;
@@ -185,6 +214,7 @@ for (const post of allPosts) {
   }
   .archive-empty p, .filter-empty p { margin-bottom: .3rem; color: var(--fg); font: 600 1.1rem/1.4 var(--font-sans); }
   .archive-empty span { color: var(--blog-muted); font-size: .85rem; }
+  .filter-empty span { color: var(--blog-muted); font-size: .85rem; }
   .filter-empty[hidden] { display: none; }
   .filter-empty button {
     min-height: 44px;
@@ -198,232 +228,14 @@ for (const post of allPosts) {
   }
   .filter-empty button:hover { text-decoration: underline; text-underline-offset: .2em; }
   .filter-empty button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-  .category-nav {
-    display: flex;
-    flex-wrap: wrap;
-    gap: .4rem .55rem;
-    margin-top: 1rem;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .category-nav::-webkit-scrollbar { display: none; }
-  .category-nav[hidden] { display: none; }
-  .category-nav button {
-    flex: none;
-    min-height: 38px;
-    padding: .35rem .65rem;
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    background: transparent;
-    color: var(--blog-muted);
-    font: .7rem/1 var(--font-mono);
-    cursor: pointer;
-    transition: border-color .15s, color .15s, background-color .15s;
-  }
-  .category-nav button:hover,
-  .category-nav button[aria-pressed="true"] {
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-  .category-nav button:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-  .category-count {
-    align-self: center;
-    margin-inline-start: auto;
-    color: var(--blog-muted);
-    font: .68rem/1.3 var(--font-mono);
-    white-space: nowrap;
-  }
-  .year-nav {
-    display: flex;
-    flex: 1 1 auto;
-    min-width: 0;
-    flex-wrap: wrap;
-    gap: .35rem 1rem;
-    position: relative;
-  }
-  .year-nav::after {
-    content: '';
-    position: absolute;
-    inset-inline-start: 0;
-    inset-block-start: var(--year-highlight-y, 0px);
-    inline-size: var(--year-highlight-width, 0px);
-    block-size: 2px;
-    background: var(--accent);
-    transform: translateX(var(--year-highlight-x, 0px));
-    transition: transform .3s cubic-bezier(.18, .82, .23, 1), inset-block-start .3s ease, inline-size .3s ease;
-    pointer-events: none;
-  }
-  .year-nav a {
-    padding: .35rem 0;
-    border-bottom: 1px solid var(--border);
-    color: var(--fg);
-    opacity: .75;
-    font: .72rem/1.5 var(--font-mono);
-    font-variant-numeric: tabular-nums;
-    transition: border-color .2s, color .2s;
-  }
-  .year-nav a:hover { opacity: 1; border-color: var(--accent); color: var(--accent); }
-  .year-nav a.is-active {
-    opacity: 1;
-    border-color: transparent;
-    color: var(--accent);
-  }
-  .year-nav a.is-disabled {
-    opacity: .3;
-    border-bottom-style: dotted;
-    color: var(--blog-muted);
-    cursor: not-allowed;
-    pointer-events: none;
-  }
-
-  .view-switch {
-    position: relative;
-    isolation: isolate;
-    display: inline-flex;
-    flex: none;
-    gap: 2px;
-    padding: 3px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--surface);
-  }
-  .view-switch::before {
-    content: '';
-    position: absolute;
-    inset-block: 3px;
-    inset-inline-start: 3px;
-    inline-size: var(--view-highlight-width, 6rem);
-    border-radius: 5px;
-    background: var(--bg);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, .16);
-    transform: translateX(var(--view-highlight-offset, 0px));
-    transition: transform .3s cubic-bezier(.18, .82, .23, 1);
-    pointer-events: none;
-    z-index: 0;
-  }
-  .view-switch[hidden] { display: none; }
-  .view-switch button {
-    position: relative;
-    z-index: 1;
-    min-width: 6rem;
-    min-height: 38px;
-    padding: .4rem .85rem;
-    border: 0;
-    border-radius: 5px;
-    background: transparent;
-    color: var(--blog-muted);
-    font: 600 .75rem/1 var(--font-sans);
-    cursor: pointer;
-  }
-  .view-switch button[aria-pressed="true"] {
-    color: var(--fg);
-  }
-  .view-switch button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-
   .explore-panel { display: none; }
   .blog-view[data-view="explore"] .timeline { display: none; }
-  .blog-view[data-view="explore"] .explore-panel { display: block; }
+  .blog-view[data-view="explore"] .list-archive { display: none; }
+  .blog-view[data-view="explore"] .list-sort-nav { display: none; }
+  .blog-view[data-view="explore"]:not(.is-filter-empty) .explore-panel { display: block; }
+  .blog-view.is-filter-empty .explore-panel { display: none; }
 
-  .year-group {
-    display: grid;
-    grid-template-columns: 8.5rem minmax(0, 1fr);
-    gap: 1.75rem;
-    margin: 0;
-  }
-  .blog-view .year-group[hidden] { display: none !important; }
-  .year-label {
-    position: sticky;
-    top: var(--year-sticky-top);
-    z-index: 2;
-    align-self: start;
-    background: transparent;
-    border: 0;
-    margin: 0;
-    padding: .1rem 0 0;
-    color: var(--blog-muted);
-    font: 500 1.35rem/1 var(--font-sans);
-    letter-spacing: -.035em;
-    scroll-margin-top: var(--year-sticky-top);
-    transition: color .2s ease;
-  }
-  .year-label.is-active {
-    color: var(--accent);
-    font-weight: 600;
-  }
-  .year-posts {
-    list-style: none;
-    margin: 0;
-    padding: 1.8rem 0 2rem 2rem;
-    border-left: 1px solid var(--border);
-  }
-  .year-group:last-child .year-posts { padding-bottom: 0; }
-  .post-item { position: relative; }
-  .post-item::before {
-    content: '';
-    position: absolute;
-    top: 1.18rem;
-    left: calc(-2rem - 4px);
-    width: 7px;
-    height: 7px;
-    border: 1px solid var(--dim);
-    border-radius: 50%;
-    background: var(--bg);
-    z-index: 1;
-    transition: border-color .2s, background .2s;
-  }
-  .post-item:hover::before,
-  .post-item:focus-within::before { border-color: var(--accent); background: var(--accent); }
-  .post {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    position: relative;
-    align-items: start;
-    gap: 1rem;
-    padding: .85rem .7rem 1.2rem 0;
-    color: inherit;
-    border-bottom: 1px solid var(--border);
-  }
-  .post-item:last-child .post { border-bottom: 0; }
-  .post:hover { opacity: 1; }
-  .post time {
-    position: absolute;
-    left: calc(-8.5rem - 1.75rem - 2rem);
-    width: 8.5rem;
-    padding-top: .17rem;
-    color: var(--fg);
-    opacity: .7;
-    font: .7rem/1.5 var(--font-mono);
-    text-align: right;
-    white-space: nowrap;
-    font-variant-numeric: tabular-nums;
-  }
-  .post-copy { display: grid; grid-column: 1; gap: .25rem; min-width: 0; max-width: 72ch; }
-  .post-title {
-    color: var(--fg);
-    font-size: 1.05rem;
-    font-weight: 600;
-    line-height: 1.4;
-    letter-spacing: -.018em;
-    text-wrap: pretty;
-    transition: color .2s;
-  }
-  .post:hover .post-title,
-  .post:focus-visible .post-title { color: var(--accent); }
-  .post-desc { max-width: 64ch; color: var(--fg); opacity: .75; font-size: .8rem; line-height: 1.6; }
-  .post-source {
-    display: inline-flex;
-    grid-column: 2;
-    align-items: center;
-    gap: .2rem;
-    padding-top: .2rem;
-    color: var(--fg);
-    opacity: .7;
-    font: .68rem/1.5 var(--font-mono);
-    white-space: nowrap;
-  }
+  .blog-view[data-view="list"] .timeline-item::before { display: none; }
   .visually-hidden {
     position: absolute;
     width: 1px;
@@ -436,49 +248,59 @@ for (const post of allPosts) {
     border: 0;
   }
 
-  .blog-view[data-view="list"] .timeline { max-width: 780px; }
-  .blog-view[data-view="list"] .year-group {
+  .blog-view[data-view="list"] .list-archive { max-width: 780px; }
+  .blog-view[data-view="list"] .post-item::before { display: none; }
+  .blog-view .letter-group[hidden] { display: none !important; }
+  .blog-view[data-view="list"] .letter-group {
     display: block;
     margin-bottom: 1.8rem;
   }
-  .blog-view[data-view="list"] .year-label {
-    position: static;
-    top: auto;
-    z-index: auto;
+  .blog-view[data-view="list"] .letter-label {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    color: var(--blog-muted);
     font-size: .9rem;
     font-weight: 600;
     letter-spacing: .04em;
     text-transform: uppercase;
     background: var(--bg);
   }
-  .blog-view[data-view="list"] .year-posts {
+  .blog-view[data-view="list"] .letter-posts {
+    list-style: none;
+    margin: 0;
     padding: 0;
     border: 0;
   }
-  .blog-view[data-view="list"] .post-item::before { display: none; }
-  .blog-view[data-view="list"] .post,
-  .blog-view[data-view="list"] .post-item:last-child .post {
+  .blog-view[data-view="list"] .list-archive .post,
+  .blog-view[data-view="list"] .list-archive .post-item:last-child .post {
+    display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     gap: .3rem .75rem;
     padding: 1rem 0;
     border-bottom: 1px solid var(--border);
+    color: inherit;
   }
-  .blog-view[data-view="list"] .post time {
+  .blog-view[data-view="list"] .list-archive .post-item:last-child .post {
+    border-bottom: 0;
+  }
+  .blog-view[data-view="list"] .list-archive .post time {
     position: static;
     grid-column: 1;
     grid-row: 1;
     width: auto;
     padding: 0;
     text-align: left;
+    opacity: .7;
   }
-  .blog-view[data-view="list"] .post-source {
+  .blog-view[data-view="list"] .list-archive .post-source {
     grid-column: 2;
     grid-row: 1;
     justify-self: end;
     padding: 0;
   }
-  .blog-view[data-view="list"] .post-copy { grid-column: 1 / -1; grid-row: 2; }
-  .blog-view[data-view="list"] .post-desc {
+  .blog-view[data-view="list"] .list-archive .post-copy { grid-column: 1 / -1; grid-row: 2; }
+  .blog-view[data-view="list"] .list-archive .post-desc {
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
@@ -487,76 +309,50 @@ for (const post of allPosts) {
   }
 
   @media (max-width: 760px) {
-    .year-group { grid-template-columns: 5.5rem minmax(0, 1fr); gap: 1rem; }
-    .year-label { padding-top: .85rem; }
-    .year-posts { padding: 0 0 2rem 1.5rem; }
-    .post-item::before { left: calc(-1.5rem - 4px); }
-    .post { grid-template-columns: minmax(0, 1fr) auto; gap: .2rem .75rem; }
-    .post time { position: static; width: auto; text-align: left; grid-column: 1; grid-row: 1; }
-    .post-copy { grid-column: 1 / -1; grid-row: 2; }
-    .post-source { grid-column: 2; grid-row: 1; justify-self: end; }
-  }
-
-  @media (max-width: 639px) {
-    .header-controls {
-      top: calc(52px + env(safe-area-inset-top));
-      margin-bottom: 0;
-      padding: .75rem 0 .8rem;
+    .blog-view[data-view="list"] .list-archive .post {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: .2rem .75rem;
     }
-    .header-bottom {
-      padding: 0;
-      border: 0;
-      background: transparent;
-      backdrop-filter: none;
-      -webkit-backdrop-filter: none;
+    .blog-view[data-view="list"] .list-archive .post time {
+      position: static;
+      width: auto;
+      text-align: left;
+      grid-column: 1;
+      grid-row: 1;
     }
-    .header-bottom { flex-direction: column; align-items: stretch; gap: .7rem; }
-    .view-switch { width: fit-content; }
-    .view-switch button {
-      flex: 0 0 auto;
-      min-width: 4.5rem;
-      min-height: 38px;
-      padding: .3rem .6rem;
-    }
-    .category-nav {
-      flex-wrap: nowrap;
-      padding-bottom: .2rem;
+    .blog-view[data-view="list"] .list-archive .post-copy { grid-column: 1 / -1; grid-row: 2; }
+    .blog-view[data-view="list"] .list-archive .post-source {
+      grid-column: 2;
+      grid-row: 1;
+      justify-self: end;
     }
   }
 
   @media (max-width: 520px) {
-    .year-group { display: block; }
-    .year-group:not(:last-child) { margin-bottom: .625rem; }
-    .year-label {
-      margin-inline: calc(0px - var(--gutter));
-      padding: 0 var(--gutter) .65rem;
-      padding-top: .625rem;
-      margin-bottom: .625rem;
-      font-size: 1.15rem;
-      background: var(--bg);
+    .blog-view[data-view="list"] .list-archive .post { padding: .8rem 0 1.05rem; }
+    .blog-view[data-view="list"] .list-archive .post-title { font-size: .98rem; }
+    .blog-view[data-view="list"] .list-archive .post-desc { font-size: .78rem; }
+    .blog-view[data-view="list"] .list-archive .post-source {
+      align-self: start;
+      padding-top: .05rem;
+      font-size: .62rem;
     }
-    .year-label.is-stuck {
-      box-shadow: 0 1px 0 var(--border), 0 10px 16px -14px rgba(0, 0, 0, .55);
-    }
-    .year-posts { margin-left: .2rem; padding: 0 0 0 1.3rem; }
-    .post-item::before { top: 1.06rem; left: calc(-1.3rem - 4px); }
-    .post { padding: .8rem 0 1.05rem; }
-    .post-title { font-size: .98rem; }
-    .post-desc { font-size: .78rem; }
-    .post-source { align-self: start; padding-top: .05rem; font-size: .62rem; }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .view-switch::before { transition: none; }
-    .year-nav::after { transition: none; }
-    .year-label { transition: none; }
-  }
 </style>
 
 <script>
+  import { dispatchListingViewChange, initListingHeaderCollapse } from '../../lib/listing-header-collapse';
+  import { setListingYearStickyTop } from '../../lib/listing-sticky-top';
+  import { focusListingRecovery, transitionListing } from '../../lib/listing-transition';
+
   const yearGroups = Array.from(document.querySelectorAll<HTMLElement>('.year-group'));
+  const letterGroups = Array.from(document.querySelectorAll<HTMLElement>('.letter-group'));
   const yearLabels = yearGroups.map((group) => group.querySelector<HTMLElement>('.year-label'));
   const yearLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>('.year-nav a'));
+  const listArchive = document.getElementById('blog-archive-list');
+  const sortButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-list-sort]'));
   const viewRoot = document.querySelector<HTMLElement>('.blog-view');
   const viewButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-view-choice]'));
   const categoryButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-category-choice]'));
@@ -564,6 +360,93 @@ for (const post of allPosts) {
   const filterEmpty = document.querySelector<HTMLElement>('.filter-empty');
   const mobileView = window.matchMedia('(max-width: 639px)');
   let activeFrame = 0;
+  let lastActiveYear: string | undefined;
+
+  const buildBlogSummary = () => {
+    const parts: string[] = [];
+    const view = viewRoot?.dataset.view ?? 'timeline';
+    if (view === 'list') {
+      const sort = sortButtons.find((button) => button.getAttribute('aria-pressed') === 'true');
+      parts.push(sort?.textContent?.trim() ?? 'A–Z');
+    } else {
+      const year = document.querySelector<HTMLAnchorElement>('.blog-view .year-nav a.is-active')?.textContent?.trim();
+      if (year) parts.push(year);
+    }
+    const categoryBtn = categoryButtons.find((button) => button.getAttribute('aria-pressed') === 'true');
+    if (categoryBtn && categoryBtn.dataset.categoryChoice !== 'all') {
+      parts.push(categoryBtn.textContent?.trim() ?? '');
+    }
+    const count = categoryCount?.textContent?.trim();
+    if (count) parts.push(count);
+    return parts.filter(Boolean).join(' · ');
+  };
+
+  let headerCollapse: ReturnType<typeof initListingHeaderCollapse>;
+
+  const countVisiblePosts = () => new Set(
+    Array.from(document.querySelectorAll<HTMLElement>('[data-blog-post]'))
+      .filter((post) => !post.hidden)
+      .map((post) => post.dataset.postHref ?? post.querySelector<HTMLAnchorElement>('a.post')?.href ?? '')
+      .filter(Boolean),
+  ).size;
+
+  const readListSort = () => {
+    try {
+      const saved = window.localStorage.getItem('amjed-blog-list-sort');
+      if (saved === 'asc' || saved === 'desc') return saved;
+    } catch {
+      // Keep the default sort when storage is unavailable.
+    }
+    return 'asc';
+  };
+
+  const applyListSort = (direction: 'asc' | 'desc') => {
+    if (!listArchive) return;
+    const groups = Array.from(listArchive.querySelectorAll<HTMLElement>('.letter-group'));
+    groups.sort((a, b) => {
+      const left = a.querySelector<HTMLElement>('.letter-label')?.textContent?.trim() ?? '';
+      const right = b.querySelector<HTMLElement>('.letter-label')?.textContent?.trim() ?? '';
+      return direction === 'asc'
+        ? left.localeCompare(right, undefined, { sensitivity: 'base' })
+        : right.localeCompare(left, undefined, { sensitivity: 'base' });
+    });
+    groups.forEach((group) => {
+      const list = group.querySelector<HTMLElement>('.letter-posts');
+      const items = Array.from(group.querySelectorAll<HTMLElement>('.post-item'));
+      items.sort((a, b) => {
+        const left = a.dataset.sortTitle ?? '';
+        const right = b.dataset.sortTitle ?? '';
+        return direction === 'asc'
+          ? left.localeCompare(right, undefined, { sensitivity: 'base' })
+          : right.localeCompare(left, undefined, { sensitivity: 'base' });
+      });
+      items.forEach((item) => list?.appendChild(item));
+      listArchive.appendChild(group);
+    });
+  };
+
+  const syncSortHighlight = () => {
+    const active = sortButtons.find((button) => button.getAttribute('aria-pressed') === 'true');
+    const switcher = active?.parentElement;
+    if (!active || !switcher) return;
+    switcher.style.setProperty('--sort-highlight-width', `${active.offsetWidth}px`);
+    switcher.style.setProperty('--sort-highlight-offset', `${active.offsetLeft - 3}px`);
+  };
+
+  const setListSort = (direction: 'asc' | 'desc', remember = false) => {
+    sortButtons.forEach((button) => {
+      button.setAttribute('aria-pressed', String(button.dataset.listSort === direction));
+    });
+    syncSortHighlight();
+    applyListSort(direction);
+    if (remember) {
+      try {
+        window.localStorage.setItem('amjed-blog-list-sort', direction);
+      } catch {
+        // The current sort still works without storage.
+      }
+    }
+  };
 
   const syncViewHighlight = () => {
     const active = viewButtons.find((button) => button.getAttribute('aria-pressed') === 'true');
@@ -616,10 +499,14 @@ for (const post of allPosts) {
       const categories = post.dataset.categories?.split(' ') ?? [];
       post.hidden = selected !== 'all' && !categories.includes(selected);
     });
-    yearGroups.forEach((group) => {
-      group.hidden = !Array.from(group.querySelectorAll<HTMLElement>('[data-blog-post]'))
-        .some((post) => !post.hidden);
-    });
+    const syncGroupVisibility = (groups: HTMLElement[]) => {
+      groups.forEach((group) => {
+        group.hidden = !Array.from(group.querySelectorAll<HTMLElement>('[data-blog-post]'))
+          .some((post) => !post.hidden);
+      });
+    };
+    syncGroupVisibility(yearGroups);
+    syncGroupVisibility(letterGroups);
     yearLinks.forEach((link) => {
       const yearGroup = document.querySelector<HTMLElement>(link.hash)?.closest<HTMLElement>('.year-group');
       const disabled = Boolean(yearGroup?.hidden);
@@ -627,11 +514,12 @@ for (const post of allPosts) {
       link.setAttribute('aria-disabled', String(disabled));
       link.tabIndex = disabled ? -1 : 0;
     });
-    const visiblePostCount = Array.from(document.querySelectorAll<HTMLElement>('.timeline [data-blog-post]'))
-      .filter((post) => !post.hidden).length;
+    const visiblePostCount = countVisiblePosts();
+    viewRoot.classList.toggle('is-filter-empty', visiblePostCount === 0);
     if (categoryCount) categoryCount.textContent = `${visiblePostCount} ${visiblePostCount === 1 ? 'article' : 'articles'}`;
     if (filterEmpty) filterEmpty.hidden = selected === 'all' || visiblePostCount > 0;
     if (viewRoot.dataset.view === 'explore') activateLatestVisibleYear();
+    if (viewRoot.dataset.view === 'list') setListSort(readListSort());
     viewRoot.dispatchEvent(new CustomEvent('blogcategorychange', { detail: selected }));
     if (remember) {
       const url = new URL(window.location.href);
@@ -640,6 +528,7 @@ for (const post of allPosts) {
       window.history.pushState({}, '', url);
     }
     requestActiveYearUpdate();
+    headerCollapse?.refreshSummary();
   };
 
   const setView = (view: 'timeline' | 'list' | 'explore', remember = false, preservePosition = false) => {
@@ -653,6 +542,7 @@ for (const post of allPosts) {
     const anchorTop = anchor?.getBoundingClientRect().top;
 
     viewRoot.dataset.view = view;
+    if (view === 'list') setListSort(readListSort());
     if (view === 'explore') activateLatestVisibleYear();
     if (changingExplore) window.scrollTo(0, 0);
     if (view === 'explore') viewRoot.dispatchEvent(new Event('blogexploreenter'));
@@ -680,21 +570,39 @@ for (const post of allPosts) {
     } else {
       requestActiveYearUpdate();
     }
+    if (viewRoot) dispatchListingViewChange(viewRoot);
+    headerCollapse?.refreshSummary();
   };
 
   viewButtons.forEach((button) => {
     button.addEventListener('click', () => {
       const view = button.dataset.viewChoice;
-      if (view === 'timeline' || view === 'list' || view === 'explore') setView(view, true);
+      if ((view === 'timeline' || view === 'list' || view === 'explore') && view !== viewRoot?.dataset.view) {
+        transitionListing(viewRoot, () => setView(view, true));
+      }
     });
   });
   mobileView.addEventListener('change', () => setView(readView(), false, true));
   categoryButtons.forEach((button) => {
     button.addEventListener('click', () => {
-      setCategory(button.dataset.categoryChoice ?? 'all', true);
+      transitionListing(viewRoot, () => setCategory(button.dataset.categoryChoice ?? 'all', true));
     });
   });
-  document.querySelector<HTMLButtonElement>('[data-clear-category]')?.addEventListener('click', () => setCategory('all', true));
+  document.querySelector<HTMLButtonElement>('[data-clear-category]')?.addEventListener('click', () => {
+    focusListingRecovery(viewRoot, '[data-category-choice="all"]');
+    transitionListing(viewRoot, () => setCategory('all', true));
+  });
+  sortButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const direction = button.dataset.listSort;
+      if (direction === 'asc' || direction === 'desc') {
+        transitionListing(viewRoot, () => {
+          setListSort(direction, true);
+          headerCollapse?.refreshSummary();
+        });
+      }
+    });
+  });
   yearLinks.forEach((link) => {
     link.addEventListener('click', (event) => {
       if (viewRoot?.dataset.view !== 'explore') return;
@@ -711,26 +619,31 @@ for (const post of allPosts) {
     const year = String((event as CustomEvent<string>).detail);
     yearLinks.forEach((link) => link.classList.toggle('is-active', link.hash === '#year-' + year));
     syncYearHighlight();
+    headerCollapse?.refreshSummary();
   });
+  viewRoot?.addEventListener('listingyearchange', () => headerCollapse?.refreshSummary());
   window.addEventListener('popstate', () => {
     setCategory(new URLSearchParams(window.location.search).get('category') ?? 'all');
   });
   syncViewHighlight();
-  window.addEventListener('resize', syncViewHighlight, { passive: true });
+  syncSortHighlight();
+  window.addEventListener('resize', () => {
+    syncViewHighlight();
+    syncSortHighlight();
+  }, { passive: true });
 
   const updateActiveYear = () => {
     activeFrame = 0;
-    if (!yearGroups.length || viewRoot?.dataset.view === 'explore') return;
+    if (!yearGroups.length || viewRoot?.dataset.view === 'explore' || viewRoot?.dataset.view === 'list') return;
     const visibleYearGroups = yearGroups.filter((group) => !group.hidden);
     if (!visibleYearGroups.length) return;
 
-    const stickyHeader = document.querySelector<HTMLElement>('.header-controls');
-    const headerTop = stickyHeader ? parseFloat(getComputedStyle(stickyHeader).top) || 0 : 0;
-    const stickyTop = headerTop + (stickyHeader?.offsetHeight ?? 0) + (mobileView.matches ? 0 : 8);
-    if (viewRoot && viewRoot.style.getPropertyValue('--year-sticky-top') !== `${stickyTop}px`) {
-      viewRoot.style.setProperty('--year-sticky-top', `${stickyTop}px`);
-    }
-    const marker = Math.max(stickyHeader?.getBoundingClientRect().bottom ?? 0, stickyTop) + 12;
+    if (!viewRoot) return;
+    const stickyHeader = viewRoot.querySelector<HTMLElement>('[data-listing-header]')
+      ?? document.querySelector<HTMLElement>('.header-controls');
+    if (!stickyHeader) return;
+    const stickyTop = setListingYearStickyTop(viewRoot, stickyHeader, mobileView.matches);
+    const marker = Math.max(stickyHeader.getBoundingClientRect().bottom, stickyTop) + 12;
     const activeIndex = visibleYearGroups.findIndex((group) => {
       const bounds = group.getBoundingClientRect();
       return bounds.top <= marker && bounds.bottom > marker;
@@ -757,6 +670,10 @@ for (const post of allPosts) {
       link.classList.toggle('is-active', link.hash === `#year-${activeYear}`);
     });
     syncYearHighlight();
+    if (activeYear !== lastActiveYear) {
+      lastActiveYear = activeYear;
+      viewRoot.dispatchEvent(new Event('listingyearchange'));
+    }
   };
 
   const requestActiveYearUpdate = () => {
@@ -768,5 +685,12 @@ for (const post of allPosts) {
   syncYearHighlight();
   window.addEventListener('scroll', requestActiveYearUpdate, { passive: true });
   window.addEventListener('resize', requestActiveYearUpdate, { passive: true });
+
+  headerCollapse = initListingHeaderCollapse({
+    listingRoot: '.blog-view',
+    getSummary: buildBlogSummary,
+  });
+
+  setListSort(readListSort());
   setCategory(viewRoot?.dataset.category ?? new URLSearchParams(window.location.search).get('category') ?? 'all');
 </script>

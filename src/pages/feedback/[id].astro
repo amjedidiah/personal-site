@@ -1,0 +1,16 @@
+---
+import Base from '../../layouts/Base.astro';
+import FeedbackForm from '../../components/FeedbackForm.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  return projects.map((project) => ({ params: { id: project.id }, props: { project } }));
+}
+
+const { project } = Astro.props;
+---
+
+<Base title={`Feedback on ${project.data.title} — Jedidiah Amaraegbu`} description={`Share private feedback about ${project.data.title}.`} noindex>
+  <FeedbackForm project={{ id: project.id, title: project.data.title }} />
+</Base>

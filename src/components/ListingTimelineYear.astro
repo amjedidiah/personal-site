@@ -1,0 +1,18 @@
+---
+import '../styles/listing-timeline.css';
+
+interface Props {
+  year: number;
+  entriesClass?: string;
+}
+
+const { year, entriesClass = 'year-posts' } = Astro.props;
+const labelId = `year-${year}`;
+---
+
+<section class="year-group" aria-labelledby={labelId}>
+  <h2 id={labelId} class="year-label">{year}</h2>
+  <ol class={entriesClass}>
+    <slot />
+  </ol>
+</section>

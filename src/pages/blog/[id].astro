@@ -1,7 +1,9 @@
 ---
+import ArticleToc from '../../components/ArticleToc.astro';
 import Base from '../../layouts/Base.astro';
 import { getCollection, render } from 'astro:content';
 import { hashnodePosts } from '../../data/hashnode';
+import '../../styles/reading.css';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
@@ -53,8 +55,8 @@ const tocHeadings = headings.filter((heading) => heading.depth === 2);
 
 <Base title={`${post.data.title} — Jedidiah Amaraegbu`} description={post.data.description}>
   <article class="article-shell">
-    <a href="/blog" class="back back-top"><span aria-hidden="true">&larr;</span> all writing</a>
-    <header class="article-header sr">
+    {!tocHeadings.length && <a href="/blog" class="back back-top"><span aria-hidden="true">&larr;</span> all writing</a>}
+    <header class:list={['article-header', { 'article-details': tocHeadings.length > 0 }]} id={tocHeadings.length > 0 ? undefined : 'overview'}>
       <div class="article-meta">
         <span>journal</span>
         <time datetime={post.data.date.toISOString()}>{articleDate}</time>
@@ -63,23 +65,34 @@ const tocHeadings = headings.filter((heading) => heading.depth === 2);
           <span class="article-tags">{post.data.tags.map((tag) => <span class="article-tag">{tag}</span>)}</span>
         )}
       </div>
-      <h1>{post.data.title}</h1>
-      {post.data.description && <p class="lead">{post.data.description}</p>}
+      {tocHeadings.length === 0 && (
+        <>
+          <h1>{post.data.title}</h1>
+          {post.data.description && <p class="lead">{post.data.description}</p>}
+        </>
+      )}
     </header>
-    <div class="article-rule"></div>
+    {tocHeadings.length === 0 && <div class="article-rule"></div>}
     <div class:list={['article-layout', { 'has-toc': tocHeadings.length > 0 }]}>
       {tocHeadings.length > 0 && (
-        <aside class="article-toc" aria-label="On this page">
-          <p>On this page</p>
-          <nav>
-            {tocHeadings.map((heading) => (
-              <a href={`#${heading.slug}`}>{heading.text}</a>
-            ))}
-          </nav>
-        </aside>
+        <div class="article-chrome">
+          <div id="overview" class="article-headline">
+            <h1>{post.data.title}</h1>
+            {post.data.description && <p class="lead">{post.data.description}</p>}
+          </div>
+          <div class="article-rail">
+            <a href="/blog" class="back back-rail"><span aria-hidden="true">&larr;</span> all writing</a>
+            <ArticleToc headings={tocHeadings} />
+          </div>
+        </div>
       )}
       <div class="prose">
-        <Content />
+        {post.body?.trim() ? <Content /> : (
+          <div class="article-empty" role="status">
+            <p>This article is not available yet.</p>
+            <a href="/blog">Browse all writing</a>
+          </div>
+        )}
       </div>
     </div>
     {(previous || next) && (
@@ -125,7 +138,7 @@ const tocHeadings = headings.filter((heading) => heading.depth === 2);
 </Base>
 
 <style>
-  .article-shell { max-width: 980px; --article-muted: color-mix(in srgb, var(--dim) 65%, var(--fg)); }
+  .article-shell { max-width: 980px; --article-scroll-offset: 30rem; --article-muted: color-mix(in srgb, var(--dim) 65%, var(--fg)); }
   .back {
     display: inline-flex;
     align-items: center;
@@ -181,8 +194,37 @@ const tocHeadings = headings.filter((heading) => heading.depth === 2);
   .article-layout.has-toc {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 12rem;
-    gap: clamp(2rem, 7vw, 6rem);
+    grid-template-rows: auto 1fr;
+    gap: 0 clamp(2rem, 7vw, 6rem);
     align-items: start;
+  }
+  .article-chrome { display: contents; }
+  .article-headline {
+    grid-column: 1;
+    grid-row: 1;
+    position: sticky;
+    top: 3.5rem;
+    padding-top: 1.25rem;
+    z-index: 18;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    background: color-mix(in srgb, var(--bg) 94%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  .article-headline h1 {
+    margin-bottom: .5rem;
+    color: var(--fg);
+    font: 700 clamp(1.45rem, 2.8vw, 2.35rem)/1.08 var(--font-sans);
+    letter-spacing: -.035em;
+    text-wrap: balance;
+  }
+  .article-headline .lead {
+    margin: 0;
+    max-width: 60ch;
+    color: var(--article-muted);
+    font: 1rem/1.65 var(--font-sans);
   }
   .prose {
     max-width: 68ch;
@@ -198,7 +240,6 @@ const tocHeadings = headings.filter((heading) => heading.depth === 2);
     color: var(--fg);
     font: 600 1.25rem/1.3 var(--font-sans);
     letter-spacing: -.02em;
-    scroll-margin-top: 7rem;
   }
   .prose :global(h3) {
     margin: 1.7em 0 .45em;
@@ -239,30 +280,19 @@ const tocHeadings = headings.filter((heading) => heading.depth === 2);
   .prose :global(img) { max-width: 100%; margin: 1.5rem 0; border-radius: 4px; }
   .prose :global(hr) { margin: 2.5rem 0; border: 0; border-top: 1px solid var(--border); }
 
-  .article-toc {
+  .article-rail {
+    grid-column: 2;
+    grid-row: 1 / -1;
     position: sticky;
     top: 5rem;
-    grid-column: 2;
-    grid-row: 1;
-    padding-top: .2rem;
+    z-index: 20;
+    align-self: start;
+    max-height: calc(100dvh - 6rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
-  .article-toc > p {
-    margin-bottom: .75rem;
-    color: var(--article-muted);
-    font: .68rem/1.4 var(--font-mono);
-    letter-spacing: .1em;
-    text-transform: uppercase;
-  }
-  .article-toc nav { display: grid; gap: .5rem; }
-  .article-toc a {
-    display: inline-block;
-    min-height: 32px;
-    padding: .3rem 0;
-    color: var(--article-muted);
-    font: .72rem/1.4 var(--font-sans);
-  }
-  .article-toc a:hover { color: var(--accent); opacity: 1; }
-  .article-layout.has-toc .prose { grid-column: 1; grid-row: 1; }
+  .back-rail { margin-bottom: 1rem; }
+  .article-layout.has-toc .prose { grid-column: 1; grid-row: 2; min-width: 0; }
 
   .article-nav {
     display: grid;
@@ -314,10 +344,9 @@ const tocHeadings = headings.filter((heading) => heading.depth === 2);
   .related-link small { color: var(--article-muted); font: .72rem/1.5 var(--font-sans); }
 
   @media (max-width: 800px) {
-    .article-layout.has-toc { display: flex; flex-direction: column; gap: 2rem; }
-    .article-toc { position: static; width: 100%; padding: 1rem 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-    .article-toc nav { display: flex; flex-wrap: wrap; gap: .3rem 1rem; }
+    .article-layout.has-toc { display: flex; flex-direction: column; gap: 0; }
   }
+
   @media (max-width: 560px) {
     .article-header h1 { font-size: 2.3rem; }
     .article-meta { gap: .3rem .6rem; }
@@ -328,3 +357,15 @@ const tocHeadings = headings.filter((heading) => heading.depth === 2);
     .back span, .article-nav-link, .article-nav-link strong { transition: none; }
   }
 </style>
+
+<script>
+  import { decorateExternalProseLinks } from '../../lib/decorate-external-prose-links';
+  import { enhanceArticleContent } from '../../lib/article-content';
+
+  const run = () => {
+    decorateExternalProseLinks();
+    enhanceArticleContent();
+  };
+  document.addEventListener('astro:page-load', run);
+  run();
+</script>

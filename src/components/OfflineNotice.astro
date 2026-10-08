@@ -11,15 +11,17 @@ import { RotateCw, X } from '@lucide/astro';
   aria-label="Connection status"
   hidden
 >
-  <span class="cached-notice-dot" aria-hidden="true"></span>
-  <p class="cached-notice-text" data-cached-notice-text>Showing a saved copy</p>
-  <button class="cached-notice-action" type="button" data-cached-notice-reload hidden>
-    <RotateCw size={13} aria-hidden="true" />
-    <span>load latest</span>
-  </button>
-  <button class="cached-notice-dismiss" type="button" data-cached-notice-dismiss aria-label="Dismiss notice">
-    <X size={14} aria-hidden="true" />
-  </button>
+  <div class="cached-notice-inner">
+    <span class="cached-notice-dot" aria-hidden="true"></span>
+    <p class="cached-notice-text" data-cached-notice-text>Showing a saved copy</p>
+    <button class="cached-notice-action" type="button" data-cached-notice-reload hidden>
+      <RotateCw size={13} aria-hidden="true" />
+      <span>load latest</span>
+    </button>
+    <button class="cached-notice-dismiss" type="button" data-cached-notice-dismiss aria-label="Dismiss connection notice">
+      <X size={14} aria-hidden="true" />
+    </button>
+  </div>
 </div>
 <p class="cached-notice-live" role="status" data-cached-notice-live></p>
 
@@ -97,8 +99,13 @@ import { RotateCw, X } from '@lucide/astro';
 
     const dismissNotice = () => {
       if (notice.hidden) return;
+      const hadFocus = notice.contains(document.activeElement);
       notice.hidden = true;
       setDismissed(true);
+      if (hadFocus) {
+        const nextLink = document.querySelector<HTMLAnchorElement>(window.matchMedia('(max-width: 639px)').matches ? '.mobile-brand' : '.nav-name');
+        nextLink?.focus({ preventScroll: true });
+      }
     };
 
     // `online` only fires when the device reconnects, not when a down server comes
@@ -148,35 +155,25 @@ import { RotateCw, X } from '@lucide/astro';
 
 <style>
   .cached-notice {
-    position: fixed;
-    z-index: 140;
-    left: var(--gutter);
-    bottom: calc(24px + env(safe-area-inset-bottom));
+    width: 100%;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--fg);
+    font: 500 .9rem/1.4 var(--font-sans);
+  }
+
+  .cached-notice-inner {
+    width: min(100%, var(--max-w));
+    min-height: 46px;
+    margin-inline: auto;
+    padding: .25rem var(--gutter);
     display: flex;
     align-items: center;
     gap: .6rem;
-    max-width: min(440px, calc(100vw - 2 * var(--gutter)));
-    padding: .4rem .4rem .4rem .9rem;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--bg);
-    box-shadow: 0 8px 24px color-mix(in srgb, #000 22%, transparent);
-    color: var(--fg);
-    font: 500 .75rem/1.3 var(--font-mono);
-    transition: opacity .2s ease-out, transform .2s ease-out, display .2s allow-discrete;
   }
 
   .cached-notice[hidden] {
     display: none;
-    opacity: 0;
-    transform: translateY(8px);
-  }
-
-  @starting-style {
-    .cached-notice {
-      opacity: 0;
-      transform: translateY(8px);
-    }
   }
 
   .cached-notice-dot {
@@ -193,7 +190,7 @@ import { RotateCw, X } from '@lucide/astro';
   }
 
   .cached-notice-text {
-    flex: 1;
+    flex: 1 1 auto;
     min-width: 0;
     margin: 0;
   }
@@ -213,7 +210,7 @@ import { RotateCw, X } from '@lucide/astro';
   .cached-notice-action {
     gap: .4rem;
     padding: 0 .75rem;
-    border: 1px solid var(--border);
+    border: 1px solid color-mix(in srgb, var(--border) 65%, var(--fg));
     background: transparent;
     color: var(--fg);
   }
@@ -249,12 +246,11 @@ import { RotateCw, X } from '@lucide/astro';
     outline-offset: 2px;
   }
 
-  /* Phones: span the gutter and sit just above the fixed bottom tab bar, within thumb reach. */
   @media (max-width: 639px) {
-    .cached-notice {
-      right: var(--gutter);
-      bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom) + 10px);
-      max-width: none;
+    .cached-notice-inner {
+      gap: .5rem;
+      min-height: 52px;
+      padding-block: .3rem;
     }
 
     .cached-notice button {
@@ -276,9 +272,4 @@ import { RotateCw, X } from '@lucide/astro';
     white-space: nowrap;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .cached-notice {
-      transition: none;
-    }
-  }
 </style>

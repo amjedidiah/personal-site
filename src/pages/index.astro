@@ -4,74 +4,80 @@ import HeroScene from '../components/HeroScene.astro';
 import ProgressiveImage from '../components/ProgressiveImage.astro';
 import { getCollection } from 'astro:content';
 import { current } from '../data/current';
+import { hashnodePosts } from '../data/hashnode';
 import { imagePlaceholders } from '../data/image-placeholders';
+import { pickHomeFeaturedArticles } from '../lib/home-featured-articles';
+import { experienceClients } from '../data/experience-clients';
 
 const projects = (await getCollection('projects'))
   .filter((p) => p.data.featured)
   .sort((a, b) => a.data.order - b.data.order);
-const caseStudies = projects.filter((p) => p.id === 'ajoflow' || p.id === 'gwela');
-const otherFeatured = projects.filter((p) => p.id !== 'ajoflow' && p.id !== 'gwela');
+const caseStudyIds = ['cocktail-book-club', 'gwela'];
+const caseStudies = caseStudyIds
+  .map((id) => projects.find((p) => p.id === id))
+  .filter((p): p is (typeof projects)[number] => p !== undefined);
+const otherFeatured = projects.filter((p) => !caseStudyIds.includes(p.id));
 
-const caseFocus: Record<string, string> = { ajoflow: 'Payments + AI', gwela: 'Collaborative AI' };
+const blogPosts = await getCollection('blog');
+const featuredArticles = pickHomeFeaturedArticles(blogPosts, hashnodePosts, 2);
+
+const caseFocus: Record<string, string> = {
+  'cocktail-book-club': 'Mobile · community',
+  gwela: 'Collaborative AI',
+};
+/** TODO: set true when featured case study images are ready to ship */
+const showCaseStudyImages = false;
 
 const paymentInquirySubject = 'Payment project inquiry';
 const paymentInquiryMessage = "Hi Jedidiah, I'd like to discuss a payment project.";
 const paymentInquiryEmail = `mailto:imunacode@gmail.com?subject=${encodeURIComponent(paymentInquirySubject)}&body=${encodeURIComponent(paymentInquiryMessage)}`;
 const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComponent(paymentInquiryMessage)}`;
 
-const clients = [
-  { name: 'Fiverr Pro', note: '100+ contractors' },
-  { name: 'Remotebase', note: 'cross-border payments' },
-  { name: 'GoMyCode', note: '4 cohorts trained' },
-  { name: 'Google DevFest', note: 'speaker' },
-  { name: 'Andela', note: 'mentor' },
-  { name: 'HackerOne', note: 'Stripe program' },
-];
 ---
 
 <Base title="Jedidiah Amaraegbu | Payments and AI Engineer" description="I help fintech and platform teams ship payments and AI that hold up in production. Explore working products and get in touch." fullBleed>
   <!-- HERO -->
   <section class="hero hero-frame">
-    <HeroScene />
     <div class="hero-frame-inner">
-      <p class="hero-name sr">Jedidiah Amaraegbu</p>
-      <p class="hero-tag sr">full-stack engineer · Stripe architect · security researcher</p>
-      <h1 class="sr">Payments and AI that hold up in production.</h1>
-      <p class="hero-lede sr">From Stripe Connect integrations and cross-border payouts to collaborative AI agents — I take complex systems from prototype to production.</p>
-      <div class="hero-actions sr">
-        <a class="btn-primary hero-contact" href={paymentInquiryEmail} data-email-href={paymentInquiryEmail} data-whatsapp-href={paymentInquiryWhatsApp}>discuss a payment project</a>
-        <a class="btn-ghost" href="/projects/gwela">explore Gwela (AI)</a>
+      <p class="hero-name">Jedidiah Amaraegbu</p>
+      <p class="hero-tag">full-stack engineer · Stripe architect · security researcher</p>
+      <h1><span>Apps and payments</span>{' '}<span>that hold up in</span>{' '}<span class="hero-title-emphasis">production.</span></h1>
+    </div>
+    <HeroScene />
+    <div class="hero-copy">
+      <p class="hero-lede">Stripe and payments architecture, full-stack web, mobile, and AI engineering — from requirements gathering through general availability.</p>
+      <div class="hero-actions">
+        <a
+          class="btn-primary hero-contact"
+          href={paymentInquiryEmail}
+          data-contact-primary
+          data-email-href={paymentInquiryEmail}
+          data-whatsapp-href={paymentInquiryWhatsApp}
+        >
+          Discuss a payment project
+        </a>
+        <a class="btn-ghost" href="/projects/gwela">Explore Gwela (AI)</a>
       </div>
-      <div class="hero-system-controls sr" role="group" aria-label="System focus">
-        <span class="hero-system-label">focus</span>
-        <button type="button" data-system-mode="0" aria-pressed="true">payments</button>
-        <button type="button" data-system-mode="1" aria-pressed="false">AI</button>
-        <button type="button" data-system-mode="2" aria-pressed="false">security</button>
-      </div>
-      <p class="hero-system-caption" data-system-caption aria-live="polite">Cross-border payments.</p>
     </div>
   </section>
 
   <!-- 01 — NOW -->
   <section class="now-section" data-nav-surface="surface">
     <div class="constrained">
-      <div class="section-label sr">
+      <div class="section-label section-label--plain sr">
         <h2>now</h2>
       </div>
-      <div class="now-grid sr">
-        <p class="now">Building <a href="/projects/gwela">Gwela</a>, a shared AI session product, and researching Stripe Connect and MCP security.</p>
+      <div class="now-panel sr">
+        <div class="now-primary">
+          <p class="now-eyebrow">Current focus</p>
+          <p class="now-lede">Building <a href="/projects/gwela">Gwela</a>, a shared AI session product, and researching application security using HackerOne Bug bounty program.</p>
+        </div>
         <div class="current-signals" data-current-signals>
-          <div class="current-signal">
+          <article class="current-signal signal-card">
             <span class="signal-label">Availability</span>
             <strong class="availability" data-current-availability data-available="true"><span class="availability-dot" aria-hidden="true"></span><span data-current-availability-label>{current.availability}</span></strong>
             <span class="signal-detail" data-current-availability-detail>{current.availabilityDetail}</span>
-          </div>
-          <div class="current-signal">
-            <span class="signal-label">Latest Gwela update</span>
-            <a href={current.latest.href} class="signal-title" data-current-latest-link><span data-current-latest-title>{current.latest.title}</span> <span aria-hidden="true">&rarr;</span></a>
-            <span class="signal-detail" data-current-latest-detail>{current.latest.detail}</span>
-            <time datetime={current.latest.date} data-current-latest-date>{new Date(`${current.latest.date}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })}</time>
-          </div>
+          </article>
         </div>
       </div>
       <p class="current-reviewed" data-current-status role="status">Status last reviewed <time datetime={current.reviewedAt}>{new Date(`${current.reviewedAt}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })}</time></p>
@@ -79,31 +85,45 @@ const clients = [
   </section>
 
   <!-- 02 — FEATURED WORK -->
-  <section class="work-section">
+  <section class="work-section home-band">
     <div class="constrained">
-      <div class="section-label sr">
+      <div class="section-label section-label--plain sr">
         <h2>featured work</h2>
       </div>
-      <div class="case-list sr-stagger">
+      <div class="featured-work sr-stagger">
         {caseStudies.map((p, index) => (
-          <article class:list={['case-study', { 'case-study--lead': index === 0 }]}>
-            <a href={`/projects/${p.id}`} class="case-image-link" aria-label={`Read ${p.data.title} case study`}>
-              <div class="case-image">
-                {p.data.image && <ProgressiveImage src={p.data.image} alt={p.data.imageAlt ?? p.data.title} placeholder={imagePlaceholders[p.id]} sizes="(max-width: 900px) calc(100vw - 2rem), 45vw" />}
-              </div>
-              <span class="case-caption">{p.data.imageCaption}</span>
-            </a>
-            <div class="case-copy">
-              <p class="case-focus">{caseFocus[p.id]}</p>
-              <h3><a href={`/projects/${p.id}`}>{p.data.title}</a></h3>
-              <p class="case-description">{p.data.description}</p>
-              <dl class="case-facts">
-                <div><dt>My role</dt><dd>{p.data.role}</dd></div>
-                <div><dt>Proof</dt><dd>{p.data.evidence}</dd></div>
+          <article class="featured-card">
+            {showCaseStudyImages && p.data.image && (
+              <a href={`/projects/${p.id}`} class="featured-card-media" aria-label={`Read ${p.data.title} case study`}>
+                <div class="case-image">
+                  <ProgressiveImage src={p.data.image} alt={p.data.imageAlt ?? p.data.title} placeholder={imagePlaceholders[p.id]} sizes="(max-width: 900px) calc(100vw - 2rem), 50vw" />
+                </div>
+                {p.data.imageCaption && <span class="case-caption">{p.data.imageCaption}</span>}
+              </a>
+            )}
+            <div class="featured-card-body">
+              <header class="featured-card-head">
+                <span class="featured-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                <p class="featured-focus">{caseFocus[p.id]}</p>
+              </header>
+              <h3 class="featured-title"><a href={`/projects/${p.id}`}>{p.data.title}</a></h3>
+              <p class="featured-description">{p.data.description}</p>
+              <dl class="featured-facts">
+                {p.data.role && <div><dt>Role</dt><dd>{p.data.role}</dd></div>}
+                {p.data.evidence && <div><dt>Proof</dt><dd>{p.data.evidence}</dd></div>}
               </dl>
-              <div class="case-actions">
-                <a href={`/projects/${p.id}`}>Read case study <span aria-hidden="true">&rarr;</span></a>
-                {p.data.url && <a href={p.data.url} target="_blank" rel="noopener noreferrer">{p.data.urlLabel ?? 'View project'} <span aria-hidden="true">&nearr;</span></a>}
+              <div class="featured-actions">
+                <a href={`/projects/${p.id}`}>Case study <span aria-hidden="true">&rarr;</span></a>
+                {p.data.url && (
+                  <a href={p.data.url} target="_blank" rel="noopener noreferrer">
+                    {p.data.urlLabel ?? 'View project'} <span aria-hidden="true">&nearr;</span>
+                  </a>
+                )}
+                {p.data.urlSecondary && (
+                  <a href={p.data.urlSecondary} target="_blank" rel="noopener noreferrer">
+                    {p.data.urlSecondaryLabel ?? 'View project'} <span aria-hidden="true">&nearr;</span>
+                  </a>
+                )}
               </div>
             </div>
           </article>
@@ -114,30 +134,125 @@ const clients = [
     </div>
   </section>
 
+  <!-- FEATURED ARTICLES (after featured work) -->
+  {featuredArticles.length > 0 && (
+    <section class="writing-section home-band">
+      <div class="constrained">
+        <div class="section-label section-label--plain sr">
+          <h2>featured articles</h2>
+        </div>
+        <div class="featured-writing sr-stagger">
+          {featuredArticles.map((article) => (
+            <article class="writing-card">
+              <div class="writing-card-body">
+                <header class="writing-card-head">
+                  <time datetime={article.date.toISOString().slice(0, 10)} class="writing-date">
+                    {article.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })}
+                  </time>
+                  <p class="writing-focus">
+                    {article.external ? 'Hashnode' : (article.focus ?? 'on-site')}
+                  </p>
+                </header>
+                <h3 class="writing-title">
+                  <a
+                    href={article.href}
+                    {...(article.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                  >
+                    {article.title}
+                  </a>
+                </h3>
+                {article.description && <p class="writing-description">{article.description}</p>}
+                <div class="writing-actions">
+                  <a
+                    href={article.href}
+                    {...(article.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                  >
+                    Read article
+                    <span aria-hidden="true">{article.external ? '\u2197' : '\u2192'}</span>
+                  </a>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+        <a href="/blog" class="see-all">all posts &rarr;</a>
+      </div>
+    </section>
+  )}
+
   <!-- 03 — EXPERIENCE -->
-  <section class="clients-section" data-nav-surface="surface">
+  <section class="clients-section home-band" data-nav-surface="surface">
     <div class="constrained">
-      <div class="section-label sr">
+      <div class="section-label section-label--plain sr">
         <h2>experience</h2>
       </div>
-      <p class="experience-summary sr">Work spanning payment infrastructure, developer education, and security research.</p>
-      <div class="proof-list sr-stagger">
-        {clients.map((c) => (
-          <span class="proof-item">
-            <strong>{c.name}</strong>
-            <span>{c.note}</span>
-          </span>
+      <p class="experience-summary sr">Payments platforms, AI products, and the teams that ship them — in production, not slide decks.</p>
+      <ul class="experience-grid sr-stagger">
+        {experienceClients.map((c) => (
+          <li>
+            <a
+              class="experience-card"
+              href={c.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${c.name} — ${c.note} (opens in a new tab)`}
+            >
+              <img
+                class:list={[
+                  'experience-logo',
+                  c.logoShape === 'wordmark' && 'experience-logo--wordmark',
+                  c.logoShape === 'mark' && 'experience-logo--mark',
+                  c.logoShape === 'gdg' && 'experience-logo--gdg',
+                ]}
+                src={c.logo}
+                alt=""
+                width="112"
+                height="28"
+                loading="lazy"
+                decoding="async"
+              />
+              <strong>{c.name}</strong>
+              <span>{c.note}</span>
+            </a>
+          </li>
         ))}
-      </div>
+      </ul>
     </div>
   </section>
 
   <!-- CTA -->
-  <section class="cta-section">
-    <div class="constrained sr">
-      <p class="cta-text">Planning a payment integration or a production AI feature?</p>
-      <a class="btn-primary" href="mailto:imunacode@gmail.com?subject=Project%20inquiry">Tell me what you're building</a>
-      <a class="cta-email" href="mailto:imunacode@gmail.com">imunacode@gmail.com</a>
+  <section class="cta-section home-band" data-nav-surface="surface">
+    <div class="constrained">
+      <div class="section-label section-label--plain sr">
+        <h2>work together</h2>
+      </div>
+      <div class="cta-band sr">
+        <div class="cta-copy">
+          <p class="cta-proof">
+            <span>Payments</span>
+            <span class="cta-proof-sep" aria-hidden="true">·</span>
+            <span>Production AI</span>
+            <span class="cta-proof-sep" aria-hidden="true">·</span>
+            <span>Full-stack</span>
+          </p>
+          <h3 class="cta-headline">Ship payments tooling, collaborative AI, or full-stack product work — without the three-month detour.</h3>
+          <p class="cta-lede">Email a short note on what you’re building and when you need it — I usually reply within a few days.</p>
+        </div>
+        <div class="cta-actions">
+          <a
+            class="btn-primary cta-contact"
+            href={paymentInquiryEmail}
+            data-contact-primary
+            data-email-href={paymentInquiryEmail}
+            data-whatsapp-href={paymentInquiryWhatsApp}
+            data-email-label="Email me"
+            data-whatsapp-label="WhatsApp"
+          >
+            Email me
+          </a>
+          <a class="cta-light" href="/feedback">lighter ask: share feedback</a>
+        </div>
+      </div>
     </div>
   </section>
 </Base>
@@ -145,16 +260,30 @@ const clients = [
 <style>
   /* hero */
   .hero {
-    overflow: visible;
+    --hero-muted: color-mix(in srgb, var(--dim) 65%, var(--fg));
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    column-gap: clamp(1.5rem, 3vw, 3rem);
+    row-gap: 0;
+    overflow: clip;
     min-height: min(82svh, 760px);
+    padding-block: clamp(2rem, 4vw, 3rem);
   }
   .hero-frame-inner {
-    max-width: 55rem;
-    margin-inline-start: 0;
+    grid-column: 1;
+    grid-row: 1;
+    align-self: end;
+    min-width: 0;
+    max-width: none;
+    margin: 0;
   }
+  .hero-copy { grid-column: 1; grid-row: 2; align-self: start; min-width: 0; }
   .hero-tag {
-    color: var(--dim); font: .8rem/1.5 var(--font-mono);
-    margin-bottom: 1.2rem; letter-spacing: .02em;
+    color: var(--hero-muted); font: .78rem/1.6 var(--font-sans);
+    max-width: 42ch;
+    margin-bottom: 1.2rem;
+    letter-spacing: .06em;
+    text-transform: uppercase;
   }
   .hero-name {
     color: var(--fg); font-family: var(--font-sans);
@@ -162,58 +291,21 @@ const clients = [
     margin-bottom: .35rem;
   }
   .hero h1 {
-    font-size: clamp(2rem, 6vw, 5.6rem);
-    line-height: .96;
-    letter-spacing: -.04em;
-    margin-bottom: 1.25rem;
-    max-width: 13ch;
+    font-size: clamp(2rem, 4.65vw, 4.5rem);
+    line-height: 1.02;
+    letter-spacing: -.035em;
+    margin-bottom: 1.5rem;
+    max-width: none;
   }
+  .hero h1 > span { display: block; }
+  .hero-title-emphasis { color: var(--accent); }
   .hero-lede {
     font-family: var(--font-sans);
-    color: var(--dim); font-size: 1rem;
+    color: var(--hero-muted); font-size: 1rem;
     line-height: 1.7; max-width: 40ch;
     margin-bottom: 1.5rem; font-weight: 400;
   }
   .hero-actions { display: flex; flex-wrap: wrap; gap: .8rem; }
-  .hero-system-controls {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: .3rem;
-    margin-top: 1.15rem;
-  }
-  .hero-system-label {
-    margin-right: .35rem;
-    color: var(--dim);
-    font: .68rem/1 var(--font-mono);
-    letter-spacing: .08em;
-    text-transform: uppercase;
-  }
-  .hero-system-controls button {
-    min-height: 32px;
-    padding: .35rem .65rem;
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    background: transparent;
-    color: var(--dim);
-    font: .7rem/1 var(--font-mono);
-    cursor: pointer;
-    transition: border-color .15s, color .15s, background-color .15s;
-  }
-  .hero-system-controls button:hover,
-  .hero-system-controls button[aria-pressed="true"] {
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-  .hero-system-controls button:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-  .hero-system-caption {
-    margin-top: .55rem;
-    color: var(--dim);
-    font: .72rem/1.4 var(--font-mono);
-  }
   /* buttons */
   .btn-primary {
     display: inline-flex; align-items: center; justify-content: center;
@@ -244,72 +336,228 @@ const clients = [
 
   /* now */
   .now-section {
-    padding: 1.4rem 0 1.6rem;
-    background: transparent;
+    margin-bottom: 0;
+    padding: clamp(2rem, 4.5vw, 2.85rem) 0;
+    background: var(--bg);
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
   }
-  .section-label h2 { font-size: .82rem; }
-  .now-grid {
-    display: grid;
-    grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
-    gap: 3.5rem;
+  .now-section .section-label--plain {
+    margin-bottom: 1rem;
   }
-  .now {
-    font-family: var(--font-sans);
-    font-size: 1rem; color: var(--fg); line-height: 1.65;
-    max-width: 40ch;
+  .now-section .section-label--plain::after {
+    display: none;
+  }
+  .now-section .section-label--plain h2 {
+    flex: none;
+  }
+  .section-label h2 { font-size: .82rem; }
+  .now-panel {
+    display: grid;
+    grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr);
+    gap: clamp(1rem, 2.5vw, 1.75rem);
+    align-items: stretch;
+    padding: clamp(1.1rem, 2.2vw, 1.45rem);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--surface) 38%, var(--bg));
+  }
+  .now-primary {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: .55rem;
+    min-width: 0;
+  }
+  .now-eyebrow {
+    margin: 0;
+    color: var(--dim);
+    font: 600 .68rem/1.35 var(--font-mono);
+    letter-spacing: .07em;
+    text-transform: uppercase;
+  }
+  .now-lede {
+    margin: 0;
+    max-width: 36ch;
+    color: var(--fg);
+    font: 500 clamp(1.08rem, 1.9vw, 1.32rem)/1.5 var(--font-sans);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  .now-lede a {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--fg) 28%, transparent);
+    text-underline-offset: .18em;
+    transition: text-decoration-color .15s ease;
+  }
+  .now-lede a:hover {
+    text-decoration-color: color-mix(in srgb, var(--fg) 55%, transparent);
   }
   .current-signals {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: minmax(0, 1fr);
+    gap: .65rem;
+    align-content: center;
   }
   .current-signal {
-    display: flex; flex-direction: column; align-items: flex-start;
-    gap: .4rem;
-    padding-top: .75rem;
-    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .45rem;
+    min-width: 0;
+  }
+  .signal-card {
+    padding: .9rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    background: color-mix(in srgb, var(--bg) 72%, var(--surface));
+    transition: border-color .2s ease, background .2s ease, transform .2s ease;
+  }
+  .signal-card:hover {
+    border-color: color-mix(in srgb, var(--fg) 12%, var(--border));
+    background: color-mix(in srgb, var(--bg) 58%, var(--surface));
   }
   .signal-label {
-    font-size: .75rem; color: var(--dim);
-    text-transform: uppercase; letter-spacing: .06em;
+    font-size: .72rem;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: .06em;
   }
-  .current-signal strong, .signal-title {
-    font: 600 .9rem/1.4 var(--font-sans);
+  .current-signal strong,
+  .signal-title {
+    font: 600 clamp(.88rem, 1.4vw, .95rem)/1.4 var(--font-sans);
     color: var(--fg);
   }
+  .signal-title {
+    display: inline-flex;
+    align-items: baseline;
+    gap: .35rem;
+    max-width: 100%;
+  }
   .signal-title:hover { color: var(--accent); }
+  .signal-title-arrow {
+    flex: none;
+    color: var(--accent);
+    transition: transform .2s ease;
+  }
+  .signal-title:hover .signal-title-arrow { transform: translateX(3px); }
   .availability { display: inline-flex; align-items: center; gap: .55rem; }
   .availability-dot {
-    width: .42rem; height: .42rem; flex: none;
-    border-radius: 50%; background: #2f9f69;
+    width: .48rem;
+    height: .48rem;
+    flex: none;
+    border-radius: 50%;
+    background: #2f9f69;
+    box-shadow: 0 0 0 0 color-mix(in srgb, #2f9f69 35%, transparent);
   }
-  .availability:not([data-available="true"]) .availability-dot { background: var(--dim); }
-  .signal-detail { color: var(--dim); font-size: .78rem; line-height: 1.55; }
-  .current-signal time, .current-reviewed {
-    color: var(--dim); font-size: .75rem;
+  .availability:not([data-available="false"]) .availability-dot {
+    background: #2f9f69;
+    animation: now-availability-pulse 2.8s ease-in-out infinite;
   }
-  .current-reviewed { margin-top: 1.5rem; min-height: 1rem; }
+  .availability[data-available="false"] .availability-dot {
+    background: var(--dim);
+    animation: none;
+  }
+  @keyframes now-availability-pulse {
+    0%, 100% {
+      box-shadow: 0 0 0 0 color-mix(in srgb, #2f9f69 45%, transparent);
+    }
+    55% {
+      box-shadow: 0 0 0 5px color-mix(in srgb, #2f9f69 0%, transparent);
+    }
+  }
+  .signal-detail {
+    color: var(--dim);
+    font-size: .78rem;
+    line-height: 1.55;
+  }
+  .current-signal time,
+  .current-reviewed {
+    color: var(--dim);
+    font-size: .75rem;
+  }
+  .current-reviewed {
+    margin-top: 1rem;
+    min-height: 1rem;
+  }
+
+  /* homepage bands — shared vertical rhythm (work had 6rem/4rem + section margin; trimmed) */
+  .home-band {
+    margin-bottom: 0;
+    padding: clamp(2.75rem, 5vw, 3.75rem) 0;
+  }
+  .home-band .section-label--plain {
+    margin-bottom: 1.25rem;
+  }
+  .home-band .section-label--plain::after {
+    display: none;
+  }
+  .home-band .section-label--plain h2 {
+    flex: none;
+  }
 
   /* work */
-  .work-section { padding: 6rem 0 4rem; }
-  .case-list { border-bottom: 1px solid var(--border); }
-  .case-study {
+  .featured-work {
     display: grid;
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
-    gap: clamp(2rem, 5vw, 4.5rem);
-    align-items: center;
-    padding: 2.25rem 0;
-    border-top: 1px solid var(--border);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .75rem;
+    margin-top: .25rem;
   }
-  .case-study--lead {
-    grid-template-columns: minmax(0, 1.35fr) minmax(0, .65fr);
-    padding-top: 0;
+  .featured-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--surface) 30%, var(--bg));
+    transition: border-color 0.2s ease, background 0.2s ease;
   }
-  .case-image-link { display: block; min-width: 0; }
+  .featured-card:hover {
+    border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+    background: color-mix(in srgb, var(--surface) 45%, var(--bg));
+  }
+  .featured-card-media {
+    display: block;
+    min-width: 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .featured-card-media .case-image {
+    border: 0;
+    border-radius: 6px 6px 0 0;
+  }
+  .featured-card-media .case-caption {
+    padding: 0 1.1rem .75rem;
+  }
+  .featured-card-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 1.25rem 1.2rem 1.35rem;
+  }
+  .featured-card-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  .featured-index {
+    font: 600 clamp(2rem, 4vw, 2.75rem)/1 var(--font-sans);
+    letter-spacing: -0.05em;
+    color: color-mix(in srgb, var(--dim) 55%, var(--border));
+  }
+  .featured-focus {
+    margin: 0;
+    text-align: right;
+    color: var(--accent);
+    font: 600 .68rem/1.35 var(--font-mono);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
   .case-image {
-    display: grid; place-items: center;
+    display: grid;
+    place-items: center;
     aspect-ratio: 16 / 10;
     overflow: hidden;
     border: 1px solid var(--border);
@@ -324,48 +572,70 @@ const clients = [
     transition: transform .45s cubic-bezier(.2, .7, .2, 1);
   }
   .case-image :global(.progressive-image img) { object-fit: cover; }
-  .case-image-link:is(:hover, :focus-visible) .case-image :global(.progressive-image) {
+  .featured-card-media:is(:hover, :focus-visible) .case-image :global(.progressive-image) {
     transform: scale(1.025);
   }
   .case-caption {
-    display: block; margin-top: .5rem;
-    color: var(--dim); font-size: .75rem; line-height: 1.45;
+    display: block;
+    margin-top: .5rem;
+    color: var(--dim);
+    font-size: .75rem;
+    line-height: 1.45;
     font-family: var(--font-mono);
   }
-  .case-copy { min-width: 0; }
-  .case-focus {
-    color: var(--accent); font: .75rem/1.4 var(--font-mono);
-    text-transform: uppercase; letter-spacing: .05em;
-    margin-bottom: .6rem;
+  .featured-title {
+    margin: 0 0 .65rem;
+    font: 600 clamp(1.25rem, 2.2vw, 1.65rem)/1.15 var(--font-sans);
+    letter-spacing: -0.03em;
+    text-wrap: balance;
   }
-  .case-copy h3 {
-    color: var(--fg); font-family: var(--font-sans);
-    font-size: 1.45rem;
-    line-height: 1.2; margin-bottom: .7rem;
+  .featured-title a { color: inherit; }
+  .featured-title a:hover { color: var(--accent); }
+  .featured-description {
+    margin: 0;
+    flex: 1;
+    color: var(--dim);
+    font: 400 .9rem/1.65 var(--font-sans);
   }
-  .case-copy h3 a { color: inherit; }
-  .case-copy h3 a:hover { color: var(--accent); }
-  .case-description {
-    color: var(--dim); font-family: var(--font-sans);
-    font-size: .92rem; line-height: 1.65;
-    max-width: 45ch;
-  }
-  .case-facts {
-    display: grid; gap: .75rem;
-    margin: 1.2rem 0;
+  .featured-facts {
+    display: grid;
+    gap: .65rem;
+    margin: 1.15rem 0 0;
     padding-top: 1rem;
     border-top: 1px solid var(--border);
   }
-  .case-facts div { display: grid; grid-template-columns: 4.2rem 1fr; gap: .6rem; }
-  .case-facts dt {
-    color: var(--dim); font-size: .75rem;
-    text-transform: uppercase; letter-spacing: .04em;
-    font-family: var(--font-mono);
+  .featured-facts div {
+    display: grid;
+    grid-template-columns: 3.5rem 1fr;
+    gap: .5rem;
   }
-  .case-facts dd { color: var(--fg); font-size: .8rem; line-height: 1.5; }
-  .case-actions { display: flex; flex-wrap: wrap; gap: .25rem 1.4rem; }
-  .case-actions a { display: inline-flex; align-items: center; min-height: 40px; color: var(--accent); font: .8rem/1.4 var(--font-mono); }
-  .case-actions a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .featured-facts dt {
+    color: var(--dim);
+    font: 600 .68rem/1.4 var(--font-mono);
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  .featured-facts dd {
+    margin: 0;
+    color: var(--fg);
+    font-size: .8rem;
+    line-height: 1.5;
+  }
+  .featured-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem 1.25rem;
+    margin-top: 1.1rem;
+  }
+  .featured-actions a {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    min-height: 40px;
+    color: var(--accent);
+    font: .8rem/1.4 var(--font-mono);
+  }
+  .featured-actions a:hover { text-decoration: underline; text-underline-offset: 3px; }
   .other-work {
     margin-top: 1.4rem;
     color: var(--dim); font-size: .75rem;
@@ -378,99 +648,312 @@ const clients = [
   }
   .see-all:hover { color: var(--accent); }
 
+  /* writing */
+  .writing-section {
+    border-top: 1px solid var(--border);
+  }
+  .featured-writing {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .75rem;
+    margin-top: .25rem;
+  }
+  .writing-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--surface) 30%, var(--bg));
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .writing-card:hover {
+    border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+    background: color-mix(in srgb, var(--surface) 45%, var(--bg));
+  }
+  .writing-card-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 1.15rem 1.2rem 1.25rem;
+  }
+  .writing-card-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: .85rem;
+  }
+  .writing-date {
+    font: 600 .68rem/1.35 var(--font-mono);
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+  .writing-focus {
+    margin: 0;
+    text-align: right;
+    color: var(--accent);
+    font: 600 .68rem/1.35 var(--font-mono);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .writing-title {
+    margin: 0 0 .55rem;
+    font: 600 clamp(1.1rem, 2vw, 1.4rem)/1.2 var(--font-sans);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  .writing-title a { color: inherit; }
+  .writing-title a:hover { color: var(--accent); }
+  .writing-description {
+    margin: 0;
+    flex: 1;
+    color: var(--dim);
+    font: 400 .88rem/1.6 var(--font-sans);
+  }
+  .writing-actions {
+    margin-top: 1rem;
+  }
+  .writing-actions a {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    min-height: 40px;
+    color: var(--accent);
+    font: .8rem/1.4 var(--font-mono);
+  }
+  .writing-actions a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
   @media (prefers-reduced-motion: reduce) {
     .case-image :global(.progressive-image) { transition: none; }
+    .experience-card,
+    .featured-card,
+    .writing-card,
+    .signal-card { transition: none; }
+    .availability:not([data-available="false"]) .availability-dot { animation: none; }
+    .signal-title:hover .signal-title-arrow { transform: none; }
   }
 
   /* experience */
   .clients-section {
-    padding: 5rem 0;
     background: transparent;
     border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
+    border-bottom: none;
   }
   .experience-summary {
-    max-width: 48ch;
-    margin: -0.35rem 0 1.75rem;
+    max-width: 50ch;
+    margin: -0.35rem 0 1.5rem;
     color: var(--dim);
     font-family: var(--font-sans);
-    font-size: .95rem;
+    font-size: .98rem;
     line-height: 1.65;
   }
-  .proof-list {
+  .experience-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: .6rem;
+    align-items: stretch;
+  }
+  @media (min-width: 36rem) {
+    .experience-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (min-width: 48rem) {
+    .experience-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  @media (min-width: 64rem) {
+    .experience-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+  @media (min-width: 75rem) {
+    .experience-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  }
+  .experience-grid > li {
     display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: .7rem 1.2rem;
-    padding: 1.1rem 0;
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
+    min-width: 0;
   }
-  .proof-item {
-    display: inline-flex;
-    align-items: baseline;
-    gap: .55rem;
+  .experience-card {
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+    flex: 1;
+    width: 100%;
+    min-height: 6.85rem;
+    padding: .85rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    background: color-mix(in srgb, var(--surface) 35%, var(--bg));
+    color: inherit;
+    text-decoration: none;
+    transition: border-color 0.2s ease, background 0.2s ease;
   }
-  .proof-item strong {
+  .experience-card:hover {
+    border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+    background: color-mix(in srgb, var(--surface) 55%, var(--bg));
+  }
+  .experience-logo {
+    --experience-logo-height: calc(2rem * 2 / 3);
+    display: block;
+    width: auto;
+    height: var(--experience-logo-height);
+    max-width: calc(8rem * 2 / 3);
+    object-fit: contain;
+    object-position: left center;
+    opacity: .9;
+    filter: brightness(0);
+  }
+  .experience-logo--wordmark {
+    max-width: calc(9.5rem * 2 / 3);
+  }
+  .experience-logo--mark {
+    max-width: var(--experience-logo-height);
+  }
+  /* GDG mark is wide; same row height as other logos (128×74 source) */
+  .experience-logo--gdg {
+    width: auto;
+    max-width: calc(var(--experience-logo-height) * 128 / 74);
+  }
+  :root[data-theme="dark"] .experience-logo,
+  :root:not([data-theme]) .experience-logo {
+    filter: brightness(0) invert(1);
+    opacity: .82;
+  }
+  :root[data-theme="light"] .experience-logo {
+    opacity: .78;
+  }
+  .experience-card:hover .experience-logo {
+    opacity: 1;
+  }
+  .experience-card strong {
     font-family: var(--font-sans);
-    font-size: .9rem; font-weight: 600; color: var(--fg);
+    font-size: .88rem;
+    font-weight: 600;
+    line-height: 1.35;
+    min-height: calc(1.35em * 2);
+    color: var(--fg);
   }
-  .proof-item span {
-    font: .75rem/1.4 var(--font-mono); color: var(--dim);
+  .experience-card:hover strong {
+    color: var(--accent);
+  }
+  .experience-card span {
+    margin-top: auto;
+    font: .7rem/1.45 var(--font-mono);
+    color: var(--dim);
   }
 
   /* cta */
-  .cta-section { padding: 4.5rem 0; }
-  .cta-section .constrained {
-    text-align: left;
-    display: flex; flex-direction: column;
-    align-items: flex-start; gap: 1.2rem;
+  .cta-section {
+    padding-bottom: clamp(3rem, 6vw, 4.25rem);
+    border-top: 1px solid var(--border);
+    background: radial-gradient(
+      ellipse 100% 70% at 50% 100%,
+      color-mix(in srgb, var(--surface) 55%, var(--bg)),
+      var(--bg) 72%
+    );
   }
-  .cta-text {
-    font-family: var(--font-sans);
-    color: var(--fg); font-size: 1.15rem; max-width: 28ch;
-    line-height: 1.6;
+  .cta-band {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(12.5rem, auto);
+    gap: clamp(1.5rem, 4vw, 3rem);
+    align-items: end;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
   }
-  .cta-email { color: var(--dim); font-size: .78rem; }
-  .cta-email:hover { color: var(--accent); }
-
-  @media (min-width: 640px) {
-    .hero h1 { font-size: clamp(3rem, 5.3vw, 5.6rem); }
+  .cta-proof {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .35rem .55rem;
+    margin: 0 0 1rem;
+    font: 600 .68rem/1.4 var(--font-mono);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+  .cta-headline {
+    margin: 0 0 .85rem;
+    max-width: 24ch;
+    font: 600 clamp(1.2rem, 2.5vw, 1.75rem)/1.15 var(--font-sans);
+    letter-spacing: -.035em;
+    text-wrap: balance;
+  }
+  .cta-lede {
+    margin: 0;
+    max-width: 42ch;
+    color: var(--dim);
+    font: 400 .92rem/1.65 var(--font-sans);
+  }
+  .cta-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: .65rem;
+    width: min(100%, 15.5rem);
+  }
+  .cta-actions .btn-primary,
+  .cta-actions .btn-ghost {
+    width: 100%;
+    text-align: center;
+  }
+  .cta-light {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    font: .72rem/1.4 var(--font-mono);
+    color: var(--dim);
+    text-align: center;
+  }
+  .cta-light:hover {
+    color: var(--accent);
+    opacity: 1;
   }
 
   @media (min-width: 960px) {
     .hero-lede { font-size: 1.15rem; }
-    .case-copy h3 { font-size: 1.85rem; }
-    .cta-text { font-size: 1.3rem; }
+    .featured-title { font-size: 1.85rem; }
+    .cta-headline { max-width: 26ch; }
   }
 
   @media (min-width: 1400px) {
     .hero-lede { font-size: 1.2rem; }
-    .case-copy h3 { font-size: 2rem; }
-  }
-
-  @media (min-width: 761px) and (max-width: 1159px) {
-    .hero-frame-inner {
-      max-width: min(46%, 34rem);
-    }
+    .featured-title { font-size: 2rem; }
   }
 
   @media (max-width: 900px) {
-    .now-grid { grid-template-columns: 1fr; gap: 2rem; }
-    .case-study { grid-template-columns: 1fr; gap: 1.2rem; }
-    .case-copy { max-width: 42rem; }
+    .now-panel { grid-template-columns: 1fr; }
+    .featured-work,
+    .featured-writing { grid-template-columns: 1fr; }
   }
 
-  @media (min-width: 761px) and (max-width: 959px) {
-    .hero-lede { max-width: 40ch; }
-  }
-
-  @media (max-width: 639px) {
-    .hero {
-      align-items: flex-start;
-      min-height: calc(min(78svh, 680px) - 52px - env(safe-area-inset-top));
-      padding-top: 3rem;
+  @media (max-width: 720px) {
+    .cta-band {
+      grid-template-columns: 1fr;
+      align-items: stretch;
     }
+    .cta-actions {
+      width: 100%;
+      max-width: 22rem;
+    }
+    .cta-headline { max-width: none; }
+  }
+
+  @media (max-width: 760px) {
+    .hero {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+      min-height: 0;
+      padding-block: 2.5rem 2rem;
+    }
+    .hero-frame-inner { align-self: start; }
+    .hero-tag { margin-bottom: 1rem; }
+    .hero h1 { font-size: clamp(2rem, 7.6vw, 3.5rem); margin-bottom: .5rem; }
+    .hero-copy { grid-column: 1; grid-row: 3; margin-top: 1.75rem; }
+    .hero-lede { max-width: 48ch; }
   }
 
   @media (max-width: 400px) {
@@ -479,7 +962,7 @@ const clients = [
   }
 
   @media (max-width: 400px) and (max-height: 760px) {
-    .hero { padding-top: 2rem; padding-bottom: 1rem; }
+    .hero { padding-top: 2rem; }
     .hero-tag { margin-bottom: .5rem; }
     .hero-lede { margin-bottom: 1rem; }
     .now-section { padding-top: 1.25rem; }
@@ -488,27 +971,41 @@ const clients = [
 </style>
 
 <script>
-  import { currentIssueUrls, parseAvailabilityIssue, parseLatestIssue } from '../lib/current-feed';
+  import { currentIssueUrls, parseAvailabilityIssue } from '../lib/current-feed';
 
-  const heroContact = document.querySelector<HTMLAnchorElement>('.hero-contact');
-  if (heroContact) {
+  const contactPrimaryLinks = Array.from(
+    document.querySelectorAll<HTMLAnchorElement>('[data-contact-primary]'),
+  );
+  if (contactPrimaryLinks.length) {
     const mobileBreakpoint = window.matchMedia('(max-width: 639px)');
-    const updateHeroContact = () => {
+    const updateContactPrimaryLinks = () => {
       const isMobile = mobileBreakpoint.matches;
-      heroContact.href = isMobile
-        ? heroContact.dataset.whatsappHref ?? heroContact.href
-        : heroContact.dataset.emailHref ?? heroContact.href;
-      heroContact.setAttribute('aria-label', `Discuss a payment project via ${isMobile ? 'WhatsApp' : 'email'}`);
-      if (isMobile) {
-        heroContact.target = '_blank';
-        heroContact.rel = 'noopener';
-      } else {
-        heroContact.removeAttribute('target');
-        heroContact.removeAttribute('rel');
-      }
+      contactPrimaryLinks.forEach((link) => {
+        link.href = isMobile
+          ? link.dataset.whatsappHref ?? link.href
+          : link.dataset.emailHref ?? link.href;
+        const channel = isMobile ? 'WhatsApp' : 'email';
+        if (link.classList.contains('hero-contact')) {
+          link.setAttribute('aria-label', `Discuss a payment project via ${channel}`);
+        } else {
+          link.setAttribute('aria-label', `Start a conversation via ${channel}`);
+        }
+        const emailLabel = link.dataset.emailLabel;
+        const whatsappLabel = link.dataset.whatsappLabel;
+        if (emailLabel && whatsappLabel) {
+          link.textContent = isMobile ? whatsappLabel : emailLabel;
+        }
+        if (isMobile) {
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+        } else {
+          link.removeAttribute('target');
+          link.removeAttribute('rel');
+        }
+      });
     };
-    updateHeroContact();
-    mobileBreakpoint.addEventListener('change', updateHeroContact);
+    updateContactPrimaryLinks();
+    mobileBreakpoint.addEventListener('change', updateContactPrimaryLinks);
   }
 
   type FeedResult<T> =
@@ -518,7 +1015,7 @@ const clients = [
     | { kind: 'rate-limited'; retryAt: number };
 
   type CachedIssue = { savedAt: number; raw: unknown };
-  type FeedCache = { availability?: CachedIssue; latest?: CachedIssue; retryAt?: number };
+  type FeedCache = { availability?: CachedIssue; retryAt?: number };
   const cacheKey = 'jed-current-feed-v1';
   const refreshInterval = 5 * 60 * 1000;
 
@@ -555,15 +1052,10 @@ const clients = [
   const availability = signals?.querySelector<HTMLElement>('[data-current-availability]');
   const availabilityLabel = signals?.querySelector<HTMLElement>('[data-current-availability-label]');
   const availabilityDetail = signals?.querySelector<HTMLElement>('[data-current-availability-detail]');
-  const latestLink = signals?.querySelector<HTMLAnchorElement>('[data-current-latest-link]');
-  const latestTitle = signals?.querySelector<HTMLElement>('[data-current-latest-title]');
-  const latestDetail = signals?.querySelector<HTMLElement>('[data-current-latest-detail]');
-  const latestDate = signals?.querySelector<HTMLTimeElement>('[data-current-latest-date]');
   const status = document.querySelector<HTMLElement>('[data-current-status]');
 
-  if (availability && availabilityLabel && availabilityDetail && latestLink && latestTitle && latestDetail && latestDate && status) {
+  if (availability && availabilityLabel && availabilityDetail && status) {
     const fallbackStatus = status.textContent?.trim() ?? 'Status last reviewed';
-    const dateFormat = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
     const checkFormat = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
     const cache: FeedCache = (() => {
       try {
@@ -578,18 +1070,10 @@ const clients = [
       if (!entry || typeof entry.savedAt !== 'number' || Date.now() - entry.savedAt > 60 * 60 * 1000) return null;
       return parse(entry.raw);
     };
-    const showAvailability = (value: NonNullable<ReturnType<typeof parseAvailabilityIssue>>, fresh: boolean) => {
-      availability.dataset.available = fresh ? String(value.available) : 'unknown';
+    const showAvailability = (value: NonNullable<ReturnType<typeof parseAvailabilityIssue>>) => {
+      availability.dataset.available = String(value.available);
       availabilityLabel.textContent = value.label;
       availabilityDetail.textContent = value.detail;
-    };
-    const showLatest = (value: NonNullable<ReturnType<typeof parseLatestIssue>>) => {
-      latestTitle.textContent = value.title;
-      latestDetail.textContent = value.detail;
-      latestLink.href = value.href;
-      latestDate.dateTime = value.updatedAt;
-      latestDate.textContent = dateFormat.format(new Date(value.updatedAt));
-      latestDate.hidden = false;
     };
     let pending = false;
     let checked = false;
@@ -597,11 +1081,9 @@ const clients = [
     let lastKnownStatus = fallbackStatus;
 
     const savedAvailability = cachedValue(cache.availability, parseAvailabilityIssue);
-    const savedLatest = cachedValue(cache.latest, parseLatestIssue);
-    if (savedAvailability && savedLatest && cache.availability && cache.latest) {
-      showAvailability(savedAvailability, false);
-      showLatest(savedLatest);
-      lastCheck = Math.min(cache.availability.savedAt, cache.latest.savedAt);
+    if (savedAvailability && cache.availability) {
+      showAvailability(savedAvailability);
+      lastCheck = cache.availability.savedAt;
       lastKnownStatus = `Last synced ${checkFormat.format(new Date(lastCheck))}`;
       status.dataset.state = 'cached';
       status.textContent = lastKnownStatus;
@@ -613,60 +1095,38 @@ const clients = [
       pending = true;
       lastCheck = Date.now();
       if (!checked) {
-        availability.dataset.available = 'unknown';
         status.dataset.state = 'loading';
         status.textContent = 'Checking current status...';
       }
 
-      const [availabilityResult, latestResult] = await Promise.all([
-        readIssue(currentIssueUrls.availability, parseAvailabilityIssue),
-        readIssue(currentIssueUrls.latest, parseLatestIssue),
-      ]);
+      const availabilityResult = await readIssue(currentIssueUrls.availability, parseAvailabilityIssue);
 
       if (availabilityResult.kind === 'data') {
-        showAvailability(availabilityResult.value, true);
+        showAvailability(availabilityResult.value);
         cache.availability = { savedAt: Date.now(), raw: availabilityResult.raw };
       } else if (availabilityResult.kind === 'empty') {
         availability.dataset.available = 'false';
         availabilityLabel.textContent = 'Availability not published';
         availabilityDetail.textContent = 'Please email to ask about timing.';
         delete cache.availability;
-      } else {
-        availability.dataset.available = 'unknown';
       }
 
-      if (latestResult.kind === 'data') {
-        showLatest(latestResult.value);
-        cache.latest = { savedAt: Date.now(), raw: latestResult.raw };
-      } else if (latestResult.kind === 'empty') {
-        latestTitle.textContent = 'No public update yet';
-        latestDetail.textContent = 'Explore the Gwela case study.';
-        latestLink.href = '/projects/gwela';
-        latestDate.hidden = true;
-        delete cache.latest;
-      }
-
-      cache.retryAt = Math.max(
-        availabilityResult.kind === 'rate-limited' ? availabilityResult.retryAt : 0,
-        latestResult.kind === 'rate-limited' ? latestResult.retryAt : 0,
-      );
+      cache.retryAt = availabilityResult.kind === 'rate-limited' ? availabilityResult.retryAt : 0;
       saveCache();
-      const errorCount = Number(availabilityResult.kind === 'error' || availabilityResult.kind === 'rate-limited')
-        + Number(latestResult.kind === 'error' || latestResult.kind === 'rate-limited');
-      status.dataset.state = errorCount === 0 ? 'data' : errorCount === 2 ? 'error' : 'partial';
-      if (errorCount === 0) lastKnownStatus = `Last synced ${checkFormat.format(new Date())}`;
-      status.textContent = errorCount === 0
-        ? `Live status checked ${checkFormat.format(new Date())}`
-        : `Unable to refresh live status. ${lastKnownStatus}`;
+      const failed = availabilityResult.kind === 'error' || availabilityResult.kind === 'rate-limited';
+      status.dataset.state = failed ? 'error' : 'data';
+      if (!failed) lastKnownStatus = `Last synced ${checkFormat.format(new Date())}`;
+      status.textContent = failed
+        ? `Unable to refresh live status. ${lastKnownStatus}`
+        : `Live status checked ${checkFormat.format(new Date())}`;
       checked = true;
       pending = false;
     };
 
     if (cache.retryAt && Date.now() < cache.retryAt) {
-      availability.dataset.available = 'unknown';
       status.dataset.state = 'error';
       status.textContent = `Unable to refresh live status. ${lastKnownStatus}`;
-    } else if (!savedAvailability || !savedLatest || Date.now() - lastCheck >= refreshInterval) {
+    } else if (!savedAvailability || Date.now() - lastCheck >= refreshInterval) {
       void refresh();
     }
     window.setInterval(() => {
