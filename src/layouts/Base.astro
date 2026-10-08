@@ -1,15 +1,20 @@
 ---
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
+import OfflineNotice from '../components/OfflineNotice.astro';
+import { Font } from 'astro:assets';
 import '../styles/global.css';
 
 interface Props {
   title: string;
   description?: string;
   fullBleed?: boolean;
+  noindex?: boolean;
 }
 
-const { title, description = 'Full Stack Engineer. Stripe Architect. Security Researcher. Lagos.', fullBleed = false } = Astro.props;
+const { title, description = 'Full Stack Engineer. Stripe Architect. Security Researcher. Lagos.', fullBleed = false, noindex = false } = Astro.props;
+// SW_KILL_SWITCH=1 builds ship a self-unregistering sw.js, so pages must stop registering it.
+const registerServiceWorker = import.meta.env.PROD && process.env.SW_KILL_SWITCH !== '1';
 const canonicalURL = Astro.site ? new URL(Astro.url.pathname, Astro.site) : undefined;
 const socialImageURL = Astro.site ? new URL('/og.svg', Astro.site) : '/og.svg';
 ---
@@ -48,15 +53,14 @@ const socialImageURL = Astro.site ? new URL('/og.svg', Astro.site) : '/og.svg';
   </script>
   <title>{title}</title>
   <meta name="description" content={description} />
+  {noindex && <meta name="robots" content="noindex" />}
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="manifest" href="/manifest.json" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="amjed" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <Font cssVariable="--font-plex" preload={[{ weight: 400 }]} />
   {canonicalURL && <link rel="canonical" href={canonicalURL} />}
   <meta property="og:type" content="website" />
   {canonicalURL && <meta property="og:url" content={canonicalURL} />}
@@ -85,6 +89,7 @@ const socialImageURL = Astro.site ? new URL('/og.svg', Astro.site) : '/og.svg';
     </main>
   )}
   <Footer />
+  <OfflineNotice />
   <script is:inline>
     const pageProgress = document.querySelector('[data-page-progress]');
     let progressFrame = 0;
@@ -136,5 +141,24 @@ const socialImageURL = Astro.site ? new URL('/og.svg', Astro.site) : '/og.svg';
       }, { once: true });
     }
   </script>
+  {registerServiceWorker ? (
+    <script is:inline>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        }, { once: true });
+      }
+    </script>
+  ) : (
+    <script is:inline>
+      // Dev and kill-switch builds: drop any worker left behind (dev shares a port with `astro preview`).
+      navigator.serviceWorker?.getRegistrations().then((registrations) => {
+        registrations.forEach((registration) => registration.unregister());
+      });
+      window.caches?.keys().then((keys) => {
+        keys.filter((key) => key.startsWith('amjed-')).forEach((key) => window.caches.delete(key));
+      });
+    </script>
+  )}
 </body>
 </html>

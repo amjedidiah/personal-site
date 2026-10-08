@@ -50,3 +50,15 @@ The homepage renders dated fallback content from `src/data/current.ts`, then che
 - [Gwela update issue](https://github.com/amjedidiah/personal-site/issues/2): edit its title and first paragraph to publish a new update. The issue's edit time is shown on the site.
 
 Keep the fallback in `src/data/current.ts` accurate for visitors without JavaScript or during an API outage. The issue URLs and response validation live in `src/lib/current-feed.ts`.
+
+## Offline support
+
+Production builds emit `dist/sw.js` from `integrations/service-worker/`. It precaches every built file, versioned by a hash of their contents, so each deploy installs a fresh cache and deletes the old one.
+
+- Pages load network-first. If the network fails or takes longer than 3s, a cached copy is served. Routes that were never cached fall back to `/offline`.
+- Cached pages are tagged `data-cached-copy` on `<html>`, which shows the notice in `src/components/OfflineNotice.astro`: bottom-left on desktop, above the tab bar on phones. It checks every 15s, on reconnect and when the tab regains focus, and changes to "back online" once the site responds.
+- The status dot after the wordmark (`src/components/FreshnessDot.astro`) shows on every cached page: grey on a saved copy, blue with a pulse once the site responds. It is display-only. Dismissing the notice (× or Esc) keeps it hidden on later saved pages for the browser session, until a fresh page loads. If the site comes back, the notice reappears with "load latest".
+- Everything else (hashed `/_astro/` assets, fonts, images, icons) loads from cache first, then the network.
+- Dev builds never register the worker. They also remove any worker left behind by `astro preview`, which uses the same port.
+
+Kill switch: if a broken worker ships, build with `SW_KILL_SWITCH=1` and deploy. That build emits a `sw.js` that clears caches, unregisters itself and reloads open tabs. Its pages also stop registering the worker. Deploy a normal build afterwards to turn offline support back on.

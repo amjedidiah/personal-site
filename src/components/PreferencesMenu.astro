@@ -1,0 +1,333 @@
+---
+// Site preferences, in the header on desktop and mobile. Today it holds one group
+// (theme); adding a setting means adding a group below plus a handler with the
+// same id in the script.
+//
+// How this should grow:
+// - One setting (now): it stays a plain theme switch. The trigger shows the
+//   group's own icon and the menu has no headings; one setting doesn't need a
+//   "settings" label.
+// - Second setting (language, reduced motion, …): add its group. The trigger
+//   switches to the sliders icon and a "Preferences" label, and each group gets a
+//   heading, e.g. Theme: System / Light / Dark and Language: EN / FR. It stays in
+//   the spot people already use and needs no new nav tab.
+// - Outgrows a menu: add a /settings page linked from this menu and from the
+//   footer. It still doesn't need a tab; the bottom tabs are for content.
+import { SlidersHorizontal, SunMoon } from '@lucide/astro';
+
+interface PreferenceGroup {
+  /** Matches a key in the script's `handlers`. */
+  id: string;
+  /** Group heading, shown only when the menu holds more than one group. */
+  label: string;
+  /** Trigger icon while this is the only group. */
+  icon: typeof SunMoon;
+  options: Array<{ value: string; label: string }>;
+}
+
+const groups: PreferenceGroup[] = [
+  {
+    id: 'theme',
+    label: 'Theme',
+    icon: SunMoon,
+    options: [
+      { value: 'system', label: 'System' },
+      { value: 'light', label: 'Light' },
+      { value: 'dark', label: 'Dark' },
+    ],
+  },
+];
+
+const single = groups.length === 1;
+const TriggerIcon = single ? groups[0].icon : SlidersHorizontal;
+const triggerLabel = single ? 'Color theme' : 'Preferences';
+let optionIndex = 0;
+---
+
+<details class="preferences-menu" data-preferences-menu data-close-on-select={single ? '' : undefined}>
+  <summary aria-label={triggerLabel} data-preferences-trigger data-trigger-label={triggerLabel}>
+    <TriggerIcon size={17} stroke-width={2} aria-hidden="true" />
+  </summary>
+  <div class="preferences-panel">
+    {groups.map((group) => (
+      <div class="preferences-group" role="group" aria-label={`${group.label} options`} data-preference-group={group.id}>
+        {!single && <p class="preferences-group-label" aria-hidden="true">{group.label}</p>}
+        {group.options.map((option) => (
+          <button
+            type="button"
+            data-preference={group.id}
+            data-value={option.value}
+            aria-pressed="false"
+            style={`--option-index: ${optionIndex++}`}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+    ))}
+  </div>
+</details>
+
+<style>
+  .preferences-menu {
+    position: relative;
+    display: block;
+  }
+  .preferences-menu summary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    color: var(--dim);
+    border-radius: 4px;
+    cursor: pointer;
+    list-style: none;
+    transition: color .15s;
+    touch-action: manipulation;
+  }
+  .preferences-menu summary::-webkit-details-marker { display: none; }
+  .preferences-menu summary::marker { content: ''; }
+  .preferences-menu summary:hover,
+  .preferences-menu[open] summary {
+    color: var(--fg);
+  }
+  .preferences-menu summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  .preferences-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 2;
+    display: grid;
+    min-width: 8rem;
+    padding: .3rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg);
+    box-shadow:
+      -1px -1px 0 var(--imprint-highlight),
+      1px 1px 0 var(--imprint-shadow),
+      0 12px 28px rgb(0 0 0 / .14);
+    transform-origin: top right;
+  }
+  .preferences-group {
+    display: grid;
+  }
+  .preferences-group + .preferences-group {
+    margin-top: .3rem;
+    padding-top: .3rem;
+    border-top: 1px solid var(--border);
+  }
+  .preferences-group-label {
+    padding: .35rem .6rem .2rem;
+    color: var(--dim);
+    font: 500 .65rem/1.2 var(--font-mono);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .preferences-menu[open] .preferences-panel {
+    animation: preferences-menu-in .22s cubic-bezier(.16, 1, .3, 1) both;
+  }
+  .preferences-menu[open][data-closing] .preferences-panel {
+    animation: preferences-menu-out .18s cubic-bezier(.7, 0, .84, 0) both;
+  }
+  .preferences-panel button {
+    min-height: 36px;
+    padding: .35rem .6rem;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--dim);
+    font: 500 .75rem/1.2 var(--font-sans);
+    text-align: left;
+    cursor: pointer;
+  }
+  .preferences-menu[open]:not([data-closing]) .preferences-panel button {
+    animation: preferences-option-in .2s cubic-bezier(.16, 1, .3, 1) both;
+    animation-delay: calc(var(--option-index, 0) * 30ms);
+  }
+  .preferences-panel button:hover,
+  .preferences-panel button[aria-pressed="true"] {
+    background: transparent;
+    color: var(--accent);
+  }
+  .preferences-panel button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .preferences-menu summary { transition: none; }
+    .preferences-menu[open] .preferences-panel,
+    .preferences-menu[open][data-closing] .preferences-panel,
+    .preferences-menu[open]:not([data-closing]) .preferences-panel button {
+      animation: none;
+    }
+  }
+
+  @media (max-width: 639px) {
+    .preferences-menu summary {
+      width: 44px;
+      height: 44px;
+    }
+  }
+
+  @keyframes preferences-menu-in {
+    from {
+      opacity: 0;
+      clip-path: inset(0 0 24% 0 round 6px);
+      transform: translateY(-4px) scaleY(.78);
+    }
+    to {
+      opacity: 1;
+      clip-path: inset(0 0 0 0 round 6px);
+      transform: translateY(0) scaleY(1);
+    }
+  }
+  @keyframes preferences-menu-out {
+    from {
+      opacity: 1;
+      clip-path: inset(0 0 0 0 round 6px);
+      transform: translateY(0) scaleY(1);
+    }
+    to {
+      opacity: 0;
+      clip-path: inset(0 0 24% 0 round 6px);
+      transform: translateY(-4px) scaleY(.78);
+    }
+  }
+  @keyframes preferences-option-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+
+<script>
+  import {
+    THEME_CHANGE_EVENT,
+    THEME_STORAGE_KEY,
+    isThemePreference,
+    readThemePreference,
+    resolveTheme,
+    writeThemePreference,
+    type ThemePreference,
+  } from '../lib/theme';
+
+  /** One per preference group in the markup, keyed by the group's id. */
+  interface PreferenceHandler {
+    current(): string;
+    select(value: string): void;
+  }
+
+  const menus = Array.from(document.querySelectorAll<HTMLDetailsElement>('[data-preferences-menu]'));
+  const menuCloseMs = 180;
+
+  function getStorage(): Storage | null {
+    try {
+      return window.localStorage;
+    } catch {
+      return null;
+    }
+  }
+
+  // Theme
+  const themeRoot = document.documentElement;
+  const themeMedia = window.matchMedia('(prefers-color-scheme: dark)');
+  const themeColors = { dark: '#0a0c10', light: '#ffffff' };
+  let themePreference = readThemePreference(getStorage());
+
+  const applyTheme = (preference: ThemePreference, persist: boolean) => {
+    themePreference = preference;
+    if (persist) writeThemePreference(getStorage(), preference);
+
+    const resolvedTheme = resolveTheme(preference, themeMedia.matches);
+    themeRoot.dataset.theme = resolvedTheme;
+    themeRoot.dataset.themePreference = preference;
+    themeRoot.style.colorScheme = resolvedTheme;
+    document.querySelector('[data-theme-color]')?.setAttribute('content', themeColors[resolvedTheme]);
+    syncMenus();
+    document.dispatchEvent(new CustomEvent(THEME_CHANGE_EVENT, {
+      detail: { preference, resolvedTheme },
+    }));
+  };
+
+  const handlers: Record<string, PreferenceHandler> = {
+    theme: {
+      current: () => themePreference,
+      select: (value) => {
+        if (isThemePreference(value)) applyTheme(value, true);
+      },
+    },
+  };
+
+  // Marks the selected option in every group. While a menu holds a single group,
+  // its trigger label also names the current value ("Color theme: dark").
+  function syncMenus() {
+    menus.forEach((menu) => {
+      menu.querySelectorAll<HTMLButtonElement>('[data-preference]').forEach((button) => {
+        const current = handlers[button.dataset.preference ?? '']?.current();
+        button.setAttribute('aria-pressed', String(current === button.dataset.value));
+      });
+
+      const groups = menu.querySelectorAll<HTMLElement>('[data-preference-group]');
+      const trigger = menu.querySelector<HTMLElement>('[data-preferences-trigger]');
+      if (trigger && groups.length === 1) {
+        const current = handlers[groups[0].dataset.preferenceGroup ?? '']?.current();
+        trigger.setAttribute('aria-label', `${trigger.dataset.triggerLabel}: ${current}`);
+      }
+    });
+  }
+
+  function closeMenu(menu: HTMLDetailsElement, restoreFocus = false) {
+    if (!menu.open || menu.dataset.closing === 'true') return;
+    menu.dataset.closing = 'true';
+    window.setTimeout(() => {
+      menu.open = false;
+      delete menu.dataset.closing;
+      if (restoreFocus) menu.querySelector<HTMLElement>('summary')?.focus();
+    }, menuCloseMs);
+  }
+
+  menus.forEach((menu) => {
+    menu.querySelector('summary')?.addEventListener('click', (event) => {
+      if (!menu.open) return;
+      event.preventDefault();
+      closeMenu(menu);
+    });
+
+    menu.querySelectorAll<HTMLButtonElement>('[data-preference]').forEach((button) => {
+      button.addEventListener('click', () => {
+        handlers[button.dataset.preference ?? '']?.select(button.dataset.value ?? '');
+        // A single-setting menu closes on pick; with several, people often change more than one.
+        if (menu.hasAttribute('data-close-on-select')) closeMenu(menu, true);
+      });
+    });
+  });
+
+  applyTheme(themePreference, false);
+  themeMedia.addEventListener('change', () => {
+    if (themePreference === 'system') applyTheme('system', false);
+  });
+  window.addEventListener('storage', (event) => {
+    if (event.key === THEME_STORAGE_KEY) applyTheme(readThemePreference(getStorage()), false);
+  });
+
+  document.addEventListener('pointerdown', (event) => {
+    menus.forEach((menu) => {
+      if (menu.open && event.target instanceof Node && !menu.contains(event.target)) closeMenu(menu);
+    });
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+    menus.forEach((menu) => closeMenu(menu, true));
+  });
+</script>
