@@ -37,15 +37,15 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
 
 <Base title="Jedidiah Amaraegbu | Payments and AI Engineer" description="I help fintech and platform teams ship payments and AI that hold up in production. Explore working products and get in touch." fullBleed>
   <!-- HERO -->
-  <section class="hero hero-frame">
+  <section class="hero hero-frame" aria-labelledby="hero-title">
     <div class="hero-frame-inner">
       <p class="hero-name">Jedidiah Amaraegbu</p>
       <p class="hero-tag">full-stack engineer · Stripe architect · security researcher</p>
-      <h1><span>Apps and payments</span>{' '}<span>that hold up in</span>{' '}<span class="hero-title-emphasis">production.</span></h1>
+      <h1 id="hero-title"><span>Apps and payments</span>{' '}<span>that hold up in</span>{' '}<span class="hero-title-emphasis">production.</span></h1>
     </div>
     <HeroScene />
     <div class="hero-copy">
-      <p class="hero-lede">Stripe and payments architecture, full-stack web, mobile, and AI engineering — from requirements gathering through general availability.</p>
+      <p class="hero-lede">Stripe and payments architecture, full-stack web, mobile, and AI engineering — from requirements till general availability deployment.</p>
       <div class="hero-actions">
         <a
           class="btn-primary hero-contact"
@@ -62,36 +62,38 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
   </section>
 
   <!-- 01 — NOW -->
-  <section class="now-section" data-nav-surface="surface">
+  <section class="now-section" data-nav-surface="surface" aria-labelledby="now-title" data-home-current>
     <div class="constrained">
-      <div class="section-label section-label--plain sr">
-        <h2>now</h2>
+      <div class="section-label section-label--plain">
+        <h2 id="now-title">now</h2>
       </div>
-      <div class="now-panel sr">
+      <div class="now-panel">
         <div class="now-primary">
-          <p class="now-eyebrow">Current focus</p>
           <p class="now-lede">Building <a href="/projects/gwela">Gwela</a>, a shared AI session product, and researching application security using HackerOne Bug bounty program.</p>
         </div>
         <div class="current-signals" data-current-signals>
-          <article class="current-signal signal-card">
+          <article class="current-signal" id="current-availability" aria-busy="false">
             <span class="signal-label">Availability</span>
             <strong class="availability" data-current-availability data-available="true"><span class="availability-dot" aria-hidden="true"></span><span data-current-availability-label>{current.availability}</span></strong>
             <span class="signal-detail" data-current-availability-detail>{current.availabilityDetail}</span>
           </article>
         </div>
       </div>
-      <p class="current-reviewed" data-current-status role="status">Status last reviewed <time datetime={current.reviewedAt}>{new Date(`${current.reviewedAt}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })}</time></p>
+      <div class="current-toolbar">
+        <p class="current-reviewed" data-current-status role="status" aria-atomic="true">Status last reviewed <time datetime={current.reviewedAt}>{new Date(`${current.reviewedAt}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })}</time></p>
+        <button class="current-refresh" type="button" data-current-refresh aria-controls="current-availability" hidden>Refresh status</button>
+      </div>
     </div>
   </section>
 
   <!-- 02 — FEATURED WORK -->
-  <section class="work-section home-band">
+  <section class="work-section home-band" aria-labelledby="work-title">
     <div class="constrained">
-      <div class="section-label section-label--plain sr">
-        <h2>featured work</h2>
+      <div class="section-label section-label--plain">
+        <h2 id="work-title">featured work</h2>
       </div>
-      <div class="featured-work sr-stagger">
-        {caseStudies.map((p, index) => (
+      <div class="featured-work">
+        {caseStudies.map((p) => (
           <article class="featured-card">
             {showCaseStudyImages && p.data.image && (
               <a href={`/projects/${p.id}`} class="featured-card-media" aria-label={`Read ${p.data.title} case study`}>
@@ -102,26 +104,23 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
               </a>
             )}
             <div class="featured-card-body">
-              <header class="featured-card-head">
-                <span class="featured-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
-                <p class="featured-focus">{caseFocus[p.id]}</p>
-              </header>
               <h3 class="featured-title"><a href={`/projects/${p.id}`}>{p.data.title}</a></h3>
+              {caseFocus[p.id] && <p class="featured-focus">{caseFocus[p.id]}</p>}
               <p class="featured-description">{p.data.description}</p>
               <dl class="featured-facts">
                 {p.data.role && <div><dt>Role</dt><dd>{p.data.role}</dd></div>}
                 {p.data.evidence && <div><dt>Proof</dt><dd>{p.data.evidence}</dd></div>}
               </dl>
               <div class="featured-actions">
-                <a href={`/projects/${p.id}`}>Case study <span aria-hidden="true">&rarr;</span></a>
+                <a href={`/projects/${p.id}`}>Case study<span class="visually-hidden">: {p.data.title}</span> <span aria-hidden="true">&rarr;</span></a>
                 {p.data.url && (
                   <a href={p.data.url} target="_blank" rel="noopener noreferrer">
-                    {p.data.urlLabel ?? 'View project'} <span aria-hidden="true">&nearr;</span>
+                    {p.data.urlLabel ?? 'View project'}<span class="visually-hidden">: {p.data.title} (opens in a new tab)</span> <span aria-hidden="true">&nearr;</span>
                   </a>
                 )}
                 {p.data.urlSecondary && (
                   <a href={p.data.urlSecondary} target="_blank" rel="noopener noreferrer">
-                    {p.data.urlSecondaryLabel ?? 'View project'} <span aria-hidden="true">&nearr;</span>
+                    {p.data.urlSecondaryLabel ?? 'View project'}<span class="visually-hidden">: {p.data.title} (opens in a new tab)</span> <span aria-hidden="true">&nearr;</span>
                   </a>
                 )}
               </div>
@@ -129,65 +128,67 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
           </article>
         ))}
       </div>
+      {caseStudies.length === 0 && <p class="home-empty">No featured case studies right now. Browse all projects below.</p>}
       {otherFeatured.length > 0 && <p class="other-work">Also built: {otherFeatured.map((p, index) => <span>{index > 0 && ', '}<a href={`/projects/${p.id}`}>{p.data.title}</a></span>)}</p>}
       <a href="/projects" class="see-all">all projects &rarr;</a>
     </div>
   </section>
 
   <!-- FEATURED ARTICLES (after featured work) -->
-  {featuredArticles.length > 0 && (
-    <section class="writing-section home-band">
-      <div class="constrained">
-        <div class="section-label section-label--plain sr">
-          <h2>featured articles</h2>
-        </div>
-        <div class="featured-writing sr-stagger">
-          {featuredArticles.map((article) => (
-            <article class="writing-card">
-              <div class="writing-card-body">
-                <header class="writing-card-head">
-                  <time datetime={article.date.toISOString().slice(0, 10)} class="writing-date">
-                    {article.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })}
-                  </time>
-                  <p class="writing-focus">
-                    {article.external ? 'Hashnode' : (article.focus ?? 'on-site')}
-                  </p>
-                </header>
-                <h3 class="writing-title">
-                  <a
-                    href={article.href}
-                    {...(article.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                  >
-                    {article.title}
-                  </a>
-                </h3>
-                {article.description && <p class="writing-description">{article.description}</p>}
-                <div class="writing-actions">
-                  <a
-                    href={article.href}
-                    {...(article.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                  >
-                    Read article
-                    <span aria-hidden="true">{article.external ? '\u2197' : '\u2192'}</span>
-                  </a>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
-        <a href="/blog" class="see-all">all posts &rarr;</a>
+  <section class="writing-section home-band" aria-labelledby="writing-title">
+    <div class="constrained">
+      <div class="section-label section-label--plain">
+        <h2 id="writing-title">featured articles</h2>
       </div>
-    </section>
-  )}
+      <div class="featured-writing">
+        {featuredArticles.map((article) => (
+          <article class="writing-card">
+            <div class="writing-card-body">
+              <header class="writing-card-head">
+                <time datetime={article.date.toISOString().slice(0, 10)} class="writing-date">
+                  {article.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })}
+                </time>
+                <p class="writing-focus">
+                  {article.external ? 'Hashnode' : (article.focus ?? 'on-site')}
+                </p>
+              </header>
+              <h3 class="writing-title">
+                <a
+                  href={article.href}
+                  {...(article.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                >
+                  {article.title}
+                  {article.external && <span class="visually-hidden"> (opens in a new tab)</span>}
+                </a>
+              </h3>
+              {article.description && <p class="writing-description">{article.description}</p>}
+              <div class="writing-actions">
+                <a
+                  href={article.href}
+                  {...(article.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                >
+                  Read article
+                  <span class="visually-hidden">: {article.title}{article.external ? ' (opens in a new tab)' : ''}</span>
+                  <span aria-hidden="true">{article.external ? '\u2197' : '\u2192'}</span>
+                </a>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+      {featuredArticles.length === 0 && <p class="home-empty">No featured articles right now. Browse the writing archive below.</p>}
+      <a href="/blog" class="see-all">all posts &rarr;</a>
+    </div>
+  </section>
 
   <!-- 03 — EXPERIENCE -->
-  <section class="clients-section home-band" data-nav-surface="surface">
+  <section class="clients-section home-band" data-nav-surface="surface" aria-labelledby="experience-title">
     <div class="constrained">
-      <div class="section-label section-label--plain sr">
-        <h2>experience</h2>
+      <div class="section-label section-label--plain">
+        <h2 id="experience-title">experience</h2>
       </div>
-      <p class="experience-summary sr">Payments platforms, AI products, and the teams that ship them — in production, not slide decks.</p>
-      <ul class="experience-grid sr-stagger">
+      <p class="experience-summary">Payments platforms, AI products, and the teams that ship them — in production, not slide decks.</p>
+      <ul class="experience-grid">
         {experienceClients.map((c) => (
           <li>
             <a
@@ -221,13 +222,14 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
   </section>
 
   <!-- CTA -->
-  <section class="cta-section home-band" data-nav-surface="surface">
+  <section class="cta-section home-band" data-nav-surface="surface" aria-labelledby="contact-title">
     <div class="constrained">
-      <div class="section-label section-label--plain sr">
-        <h2>work together</h2>
+      <div class="section-label section-label--plain">
+        <h2 id="contact-title">work together</h2>
       </div>
-      <div class="cta-band sr">
+      <div class="cta-band">
         <div class="cta-copy">
+          <h3 class="cta-headline">Ship without the three-month detour.</h3>
           <p class="cta-proof">
             <span>Payments</span>
             <span class="cta-proof-sep" aria-hidden="true">·</span>
@@ -235,7 +237,6 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
             <span class="cta-proof-sep" aria-hidden="true">·</span>
             <span>Full-stack</span>
           </p>
-          <h3 class="cta-headline">Ship payments tooling, collaborative AI, or full-stack product work — without the three-month detour.</h3>
           <p class="cta-lede">Email a short note on what you’re building and when you need it — I usually reply within a few days.</p>
         </div>
         <div class="cta-actions">
@@ -258,9 +259,18 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
 </Base>
 
 <style>
+  .hero, .now-section, .home-band {
+    --home-muted: color-mix(in srgb, var(--dim) 80%, var(--fg));
+  }
+  .now-section, .home-band { overflow-wrap: anywhere; }
+  .hero a, .home-band a, .now-section a, .current-refresh { touch-action: manipulation; }
+  .hero a:hover, .home-band a:hover, .now-section a:hover { opacity: 1; }
+  .hero a:focus-visible, .home-band a:focus-visible, .now-section a:focus-visible,
+  .current-refresh:focus-visible { outline: 2px solid var(--accent); outline-offset: 5px; }
+  .home-empty { color: var(--home-muted); font: 1rem/1.65 var(--font-sans); }
   /* hero */
   .hero {
-    --hero-muted: color-mix(in srgb, var(--dim) 65%, var(--fg));
+    --hero-muted: color-mix(in srgb, var(--home-muted) 65%, var(--fg));
     display: grid;
     grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
     column-gap: clamp(1.5rem, 3vw, 3rem);
@@ -314,17 +324,18 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     color: var(--bg); background: var(--accent);
     padding: .65em 1.3em; border-radius: 2px;
     font-size: .8rem; font-weight: 600;
-    transition: opacity .15s;
+    transition: background-color 150ms ease, transform 100ms ease;
   }
-  .btn-primary:hover { opacity: .85; color: var(--bg); }
+  .btn-primary:is(:hover, :focus-visible) { background: color-mix(in srgb, var(--accent) 85%, var(--fg)); color: var(--bg); opacity: 1; }
+  .btn-primary:active, .btn-ghost:active { transform: translateY(1px); }
   .btn-ghost {
     display: inline-flex; align-items: center; justify-content: center;
     min-height: 44px;
     font-family: var(--font-mono);
     color: var(--fg); font-size: .8rem;
     padding: .65em 1.3em;
-    border: 1px solid var(--dim); border-radius: 2px;
-    transition: border-color .15s, color .15s;
+    border: 1px solid var(--home-muted); border-radius: 2px;
+    transition: border-color 150ms ease, color 150ms ease, transform 100ms ease;
   }
   .btn-ghost:hover { border-color: var(--accent); color: var(--accent); opacity: 1; }
 
@@ -351,16 +362,18 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
   .now-section .section-label--plain h2 {
     flex: none;
   }
-  .section-label h2 { font-size: .82rem; }
+  .section-label h2 {
+    color: var(--home-muted);
+    font: 500 clamp(0.92rem, 1.55vw, 1.05rem)/1.35 var(--font-sans);
+    letter-spacing: .07em;
+    text-transform: uppercase;
+  }
   .now-panel {
     display: grid;
     grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr);
     gap: clamp(1rem, 2.5vw, 1.75rem);
     align-items: stretch;
-    padding: clamp(1.1rem, 2.2vw, 1.45rem);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: color-mix(in srgb, var(--surface) 38%, var(--bg));
+    padding-block: .35rem;
   }
   .now-primary {
     display: flex;
@@ -368,13 +381,6 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     justify-content: center;
     gap: .55rem;
     min-width: 0;
-  }
-  .now-eyebrow {
-    margin: 0;
-    color: var(--dim);
-    font: 600 .68rem/1.35 var(--font-mono);
-    letter-spacing: .07em;
-    text-transform: uppercase;
   }
   .now-lede {
     margin: 0;
@@ -399,6 +405,8 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     grid-template-columns: minmax(0, 1fr);
     gap: .65rem;
     align-content: center;
+    padding-left: clamp(1rem, 2.5vw, 1.75rem);
+    border-left: 1px solid var(--border);
   }
   .current-signal {
     display: flex;
@@ -407,41 +415,16 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     gap: .45rem;
     min-width: 0;
   }
-  .signal-card {
-    padding: .9rem 1rem;
-    border: 1px solid var(--border);
-    border-radius: 5px;
-    background: color-mix(in srgb, var(--bg) 72%, var(--surface));
-    transition: border-color .2s ease, background .2s ease, transform .2s ease;
-  }
-  .signal-card:hover {
-    border-color: color-mix(in srgb, var(--fg) 12%, var(--border));
-    background: color-mix(in srgb, var(--bg) 58%, var(--surface));
-  }
   .signal-label {
     font-size: .72rem;
-    color: var(--dim);
+    color: var(--home-muted);
     text-transform: uppercase;
     letter-spacing: .06em;
   }
-  .current-signal strong,
-  .signal-title {
+  .current-signal strong {
     font: 600 clamp(.88rem, 1.4vw, .95rem)/1.4 var(--font-sans);
     color: var(--fg);
   }
-  .signal-title {
-    display: inline-flex;
-    align-items: baseline;
-    gap: .35rem;
-    max-width: 100%;
-  }
-  .signal-title:hover { color: var(--accent); }
-  .signal-title-arrow {
-    flex: none;
-    color: var(--accent);
-    transition: transform .2s ease;
-  }
-  .signal-title:hover .signal-title-arrow { transform: translateX(3px); }
   .availability { display: inline-flex; align-items: center; gap: .55rem; }
   .availability-dot {
     width: .48rem;
@@ -449,37 +432,54 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     flex: none;
     border-radius: 50%;
     background: #2f9f69;
-    box-shadow: 0 0 0 0 color-mix(in srgb, #2f9f69 35%, transparent);
-  }
-  .availability:not([data-available="false"]) .availability-dot {
-    background: #2f9f69;
-    animation: now-availability-pulse 2.8s ease-in-out infinite;
   }
   .availability[data-available="false"] .availability-dot {
-    background: var(--dim);
-    animation: none;
-  }
-  @keyframes now-availability-pulse {
-    0%, 100% {
-      box-shadow: 0 0 0 0 color-mix(in srgb, #2f9f69 45%, transparent);
-    }
-    55% {
-      box-shadow: 0 0 0 5px color-mix(in srgb, #2f9f69 0%, transparent);
-    }
+    background: var(--home-muted);
   }
   .signal-detail {
-    color: var(--dim);
+    color: var(--home-muted);
     font-size: .78rem;
     line-height: 1.55;
   }
   .current-signal time,
   .current-reviewed {
-    color: var(--dim);
+    color: var(--home-muted);
     font-size: .75rem;
   }
   .current-reviewed {
-    margin-top: 1rem;
     min-height: 1rem;
+    max-width: 75ch;
+    line-height: 1.6;
+  }
+  .current-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .25rem 1rem;
+    margin-top: 1rem;
+    min-height: 44px;
+  }
+  .current-refresh {
+    flex-shrink: 0;
+    min-height: 44px;
+    padding: .5rem .25rem;
+    border: 0;
+    background: transparent;
+    color: var(--accent);
+    font: 500 .8rem/1.4 var(--font-sans);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: .22em;
+    text-decoration-color: transparent;
+    transition: text-decoration-color 150ms ease, color 150ms ease;
+  }
+  .current-refresh[hidden] { display: none; }
+  .current-refresh:is(:hover, :focus-visible) { text-decoration-color: currentColor; }
+  .current-refresh[aria-disabled="true"] { color: var(--home-muted); cursor: wait; }
+  .current-signals[data-state="loading"] .availability-dot { background: var(--home-muted); }
+  .current-reviewed[data-state="error"], .current-reviewed[data-state="offline"] {
+    color: var(--fg);
   }
 
   /* homepage bands — shared vertical rhythm (work had 6rem/4rem + section margin; trimmed) */
@@ -513,7 +513,7 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     background: color-mix(in srgb, var(--surface) 30%, var(--bg));
     transition: border-color 0.2s ease, background 0.2s ease;
   }
-  .featured-card:hover {
+  .featured-card:is(:hover, :focus-within) {
     border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
     background: color-mix(in srgb, var(--surface) 45%, var(--bg));
   }
@@ -535,21 +535,8 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     flex-direction: column;
     padding: 1.25rem 1.2rem 1.35rem;
   }
-  .featured-card-head {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-  .featured-index {
-    font: 600 clamp(2rem, 4vw, 2.75rem)/1 var(--font-sans);
-    letter-spacing: -0.05em;
-    color: color-mix(in srgb, var(--dim) 55%, var(--border));
-  }
   .featured-focus {
-    margin: 0;
-    text-align: right;
+    margin: 0 0 .85rem;
     color: var(--accent);
     font: 600 .68rem/1.35 var(--font-mono);
     letter-spacing: .06em;
@@ -578,7 +565,7 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
   .case-caption {
     display: block;
     margin-top: .5rem;
-    color: var(--dim);
+    color: var(--home-muted);
     font-size: .75rem;
     line-height: 1.45;
     font-family: var(--font-mono);
@@ -594,7 +581,7 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
   .featured-description {
     margin: 0;
     flex: 1;
-    color: var(--dim);
+    color: var(--home-muted);
     font: 400 .9rem/1.65 var(--font-sans);
   }
   .featured-facts {
@@ -610,7 +597,7 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     gap: .5rem;
   }
   .featured-facts dt {
-    color: var(--dim);
+    color: var(--home-muted);
     font: 600 .68rem/1.4 var(--font-mono);
     letter-spacing: .04em;
     text-transform: uppercase;
@@ -631,22 +618,22 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     display: inline-flex;
     align-items: center;
     gap: .35rem;
-    min-height: 40px;
+    min-height: 44px;
     color: var(--accent);
     font: .8rem/1.4 var(--font-mono);
   }
   .featured-actions a:hover { text-decoration: underline; text-underline-offset: 3px; }
   .other-work {
     margin-top: 1.4rem;
-    color: var(--dim); font-size: .75rem;
+    color: var(--home-muted); font-size: .75rem;
   }
   .other-work a { color: var(--fg); }
   .other-work a:hover { color: var(--accent); }
   .see-all {
-    display: inline-block; margin-top: 1.2rem;
+    display: inline-flex; align-items: center; min-height: 44px; margin-top: .75rem;
     font-size: .8rem; color: var(--accent);
   }
-  .see-all:hover { color: var(--accent); }
+  .see-all:is(:hover, :focus-visible) { color: var(--accent); text-decoration: underline; text-underline-offset: .22em; }
 
   /* writing */
   .writing-section {
@@ -667,7 +654,7 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     background: color-mix(in srgb, var(--surface) 30%, var(--bg));
     transition: border-color 0.2s ease, background 0.2s ease;
   }
-  .writing-card:hover {
+  .writing-card:is(:hover, :focus-within) {
     border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
     background: color-mix(in srgb, var(--surface) 45%, var(--bg));
   }
@@ -688,7 +675,7 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     font: 600 .68rem/1.35 var(--font-mono);
     letter-spacing: .04em;
     text-transform: uppercase;
-    color: var(--dim);
+    color: var(--home-muted);
   }
   .writing-focus {
     margin: 0;
@@ -709,7 +696,7 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
   .writing-description {
     margin: 0;
     flex: 1;
-    color: var(--dim);
+    color: var(--home-muted);
     font: 400 .88rem/1.6 var(--font-sans);
   }
   .writing-actions {
@@ -719,7 +706,7 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     display: inline-flex;
     align-items: center;
     gap: .35rem;
-    min-height: 40px;
+    min-height: 44px;
     color: var(--accent);
     font: .8rem/1.4 var(--font-mono);
   }
@@ -729,10 +716,7 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     .case-image :global(.progressive-image) { transition: none; }
     .experience-card,
     .featured-card,
-    .writing-card,
-    .signal-card { transition: none; }
-    .availability:not([data-available="false"]) .availability-dot { animation: none; }
-    .signal-title:hover .signal-title-arrow { transform: none; }
+    .writing-card { transition: none; }
   }
 
   /* experience */
@@ -744,7 +728,7 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
   .experience-summary {
     max-width: 50ch;
     margin: -0.35rem 0 1.5rem;
-    color: var(--dim);
+    color: var(--home-muted);
     font-family: var(--font-sans);
     font-size: .98rem;
     line-height: 1.65;
@@ -758,14 +742,11 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     gap: .6rem;
     align-items: stretch;
   }
-  @media (min-width: 36rem) {
+  @media (min-width: 22rem) {
     .experience-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
   @media (min-width: 48rem) {
     .experience-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  }
-  @media (min-width: 64rem) {
-    .experience-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   }
   @media (min-width: 75rem) {
     .experience-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
@@ -789,7 +770,7 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     text-decoration: none;
     transition: border-color 0.2s ease, background 0.2s ease;
   }
-  .experience-card:hover {
+  .experience-card:is(:hover, :focus-visible) {
     border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
     background: color-mix(in srgb, var(--surface) 55%, var(--bg));
   }
@@ -840,12 +821,12 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
   .experience-card span {
     margin-top: auto;
     font: .7rem/1.45 var(--font-mono);
-    color: var(--dim);
+    color: var(--home-muted);
   }
 
-  /* cta */
+  /* cta — extra bottom air before footer; top matches other home bands */
   .cta-section {
-    padding-bottom: clamp(3rem, 6vw, 4.25rem);
+    padding-block: clamp(2.75rem, 5vw, 3.75rem) clamp(3.25rem, 6.5vw, 4.5rem);
     border-top: 1px solid var(--border);
     background: radial-gradient(
       ellipse 100% 70% at 50% 100%,
@@ -872,7 +853,7 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     font: 600 .68rem/1.4 var(--font-mono);
     letter-spacing: .06em;
     text-transform: uppercase;
-    color: var(--dim);
+    color: var(--home-muted);
   }
   .cta-headline {
     margin: 0 0 .85rem;
@@ -884,7 +865,7 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
   .cta-lede {
     margin: 0;
     max-width: 42ch;
-    color: var(--dim);
+    color: var(--home-muted);
     font: 400 .92rem/1.65 var(--font-sans);
   }
   .cta-actions {
@@ -905,7 +886,7 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     justify-content: center;
     min-height: 44px;
     font: .72rem/1.4 var(--font-mono);
-    color: var(--dim);
+    color: var(--home-muted);
     text-align: center;
   }
   .cta-light:hover {
@@ -926,20 +907,45 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
 
   @media (max-width: 900px) {
     .now-panel { grid-template-columns: 1fr; }
+    .current-signals { padding: 1rem 0 0; border-left: 0; border-top: 1px solid var(--border); }
     .featured-work,
     .featured-writing { grid-template-columns: 1fr; }
   }
 
   @media (max-width: 720px) {
+    .cta-section .section-label--plain {
+      justify-content: center;
+      margin-bottom: clamp(1.1rem, 3.5vw, 1.35rem);
+    }
+    .cta-section .section-label--plain h2 {
+      text-align: center;
+    }
     .cta-band {
       grid-template-columns: 1fr;
+      gap: clamp(1.75rem, 6vw, 2.5rem);
       align-items: stretch;
+      justify-items: center;
+      text-align: center;
+    }
+    .cta-copy {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+    .cta-proof {
+      justify-content: center;
+    }
+    .cta-headline,
+    .cta-lede {
+      max-width: 36ch;
     }
     .cta-actions {
       width: 100%;
       max-width: 22rem;
+      margin-inline: auto;
+      align-items: stretch;
     }
-    .cta-headline { max-width: none; }
   }
 
   @media (max-width: 760px) {
@@ -961,6 +967,14 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     .current-signals { grid-template-columns: 1fr; }
   }
 
+  @media (max-width: 480px) {
+    .hero-actions { flex-direction: column; align-items: stretch; gap: .65rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .btn-primary, .btn-ghost, .current-refresh { transition: none; }
+    .btn-primary:active, .btn-ghost:active { transform: none; }
+  }
+
   @media (max-width: 400px) and (max-height: 760px) {
     .hero { padding-top: 2rem; }
     .hero-tag { margin-bottom: .5rem; }
@@ -971,7 +985,7 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
 </style>
 
 <script>
-  import { currentIssueUrls, parseAvailabilityIssue } from '../lib/current-feed';
+  import '../lib/home-current-status';
 
   const contactPrimaryLinks = Array.from(
     document.querySelectorAll<HTMLAnchorElement>('[data-contact-primary]'),
@@ -985,16 +999,12 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
           ? link.dataset.whatsappHref ?? link.href
           : link.dataset.emailHref ?? link.href;
         const channel = isMobile ? 'WhatsApp' : 'email';
-        if (link.classList.contains('hero-contact')) {
-          link.setAttribute('aria-label', `Discuss a payment project via ${channel}`);
-        } else {
-          link.setAttribute('aria-label', `Start a conversation via ${channel}`);
-        }
         const emailLabel = link.dataset.emailLabel;
         const whatsappLabel = link.dataset.whatsappLabel;
         if (emailLabel && whatsappLabel) {
           link.textContent = isMobile ? whatsappLabel : emailLabel;
         }
+        link.setAttribute('aria-label', `${link.textContent?.trim()} via ${channel}${isMobile ? ' (opens in a new tab)' : ''}`);
         if (isMobile) {
           link.target = '_blank';
           link.rel = 'noopener noreferrer';
@@ -1008,132 +1018,4 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     mobileBreakpoint.addEventListener('change', updateContactPrimaryLinks);
   }
 
-  type FeedResult<T> =
-    | { kind: 'data'; value: T; raw: unknown }
-    | { kind: 'empty' }
-    | { kind: 'error' }
-    | { kind: 'rate-limited'; retryAt: number };
-
-  type CachedIssue = { savedAt: number; raw: unknown };
-  type FeedCache = { availability?: CachedIssue; retryAt?: number };
-  const cacheKey = 'jed-current-feed-v1';
-  const refreshInterval = 5 * 60 * 1000;
-
-  async function readIssue<T>(url: string, parse: (value: unknown) => T | null): Promise<FeedResult<T>> {
-    const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), 8000);
-    try {
-      const response = await fetch(url, {
-        headers: { Accept: 'application/vnd.github+json' },
-        cache: 'no-store',
-        signal: controller.signal,
-      });
-      if (response.status === 404) return { kind: 'empty' };
-      if (response.status === 403 || response.status === 429) {
-        const reset = Number(response.headers.get('x-ratelimit-reset')) * 1000;
-        const retryAfter = Number(response.headers.get('retry-after')) * 1000;
-        return {
-          kind: 'rate-limited',
-          retryAt: reset > Date.now() ? reset + 1000 : Date.now() + (retryAfter > 0 ? retryAfter : refreshInterval),
-        };
-      }
-      if (!response.ok) return { kind: 'error' };
-      const raw = await response.json();
-      const value = parse(raw);
-      return value ? { kind: 'data', value, raw } : { kind: 'empty' };
-    } catch {
-      return { kind: 'error' };
-    } finally {
-      window.clearTimeout(timeout);
-    }
-  }
-
-  const signals = document.querySelector<HTMLElement>('[data-current-signals]');
-  const availability = signals?.querySelector<HTMLElement>('[data-current-availability]');
-  const availabilityLabel = signals?.querySelector<HTMLElement>('[data-current-availability-label]');
-  const availabilityDetail = signals?.querySelector<HTMLElement>('[data-current-availability-detail]');
-  const status = document.querySelector<HTMLElement>('[data-current-status]');
-
-  if (availability && availabilityLabel && availabilityDetail && status) {
-    const fallbackStatus = status.textContent?.trim() ?? 'Status last reviewed';
-    const checkFormat = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-    const cache: FeedCache = (() => {
-      try {
-        const stored = JSON.parse(localStorage.getItem(cacheKey) ?? 'null');
-        return stored && typeof stored === 'object' ? stored as FeedCache : {};
-      } catch { return {}; }
-    })();
-    const saveCache = () => {
-      try { localStorage.setItem(cacheKey, JSON.stringify(cache)); } catch { /* Storage is optional. */ }
-    };
-    const cachedValue = <T,>(entry: CachedIssue | undefined, parse: (raw: unknown) => T | null): T | null => {
-      if (!entry || typeof entry.savedAt !== 'number' || Date.now() - entry.savedAt > 60 * 60 * 1000) return null;
-      return parse(entry.raw);
-    };
-    const showAvailability = (value: NonNullable<ReturnType<typeof parseAvailabilityIssue>>) => {
-      availability.dataset.available = String(value.available);
-      availabilityLabel.textContent = value.label;
-      availabilityDetail.textContent = value.detail;
-    };
-    let pending = false;
-    let checked = false;
-    let lastCheck = 0;
-    let lastKnownStatus = fallbackStatus;
-
-    const savedAvailability = cachedValue(cache.availability, parseAvailabilityIssue);
-    if (savedAvailability && cache.availability) {
-      showAvailability(savedAvailability);
-      lastCheck = cache.availability.savedAt;
-      lastKnownStatus = `Last synced ${checkFormat.format(new Date(lastCheck))}`;
-      status.dataset.state = 'cached';
-      status.textContent = lastKnownStatus;
-      checked = true;
-    }
-
-    const refresh = async () => {
-      if (pending || (cache.retryAt && Date.now() < cache.retryAt)) return;
-      pending = true;
-      lastCheck = Date.now();
-      if (!checked) {
-        status.dataset.state = 'loading';
-        status.textContent = 'Checking current status...';
-      }
-
-      const availabilityResult = await readIssue(currentIssueUrls.availability, parseAvailabilityIssue);
-
-      if (availabilityResult.kind === 'data') {
-        showAvailability(availabilityResult.value);
-        cache.availability = { savedAt: Date.now(), raw: availabilityResult.raw };
-      } else if (availabilityResult.kind === 'empty') {
-        availability.dataset.available = 'false';
-        availabilityLabel.textContent = 'Availability not published';
-        availabilityDetail.textContent = 'Please email to ask about timing.';
-        delete cache.availability;
-      }
-
-      cache.retryAt = availabilityResult.kind === 'rate-limited' ? availabilityResult.retryAt : 0;
-      saveCache();
-      const failed = availabilityResult.kind === 'error' || availabilityResult.kind === 'rate-limited';
-      status.dataset.state = failed ? 'error' : 'data';
-      if (!failed) lastKnownStatus = `Last synced ${checkFormat.format(new Date())}`;
-      status.textContent = failed
-        ? `Unable to refresh live status. ${lastKnownStatus}`
-        : `Live status checked ${checkFormat.format(new Date())}`;
-      checked = true;
-      pending = false;
-    };
-
-    if (cache.retryAt && Date.now() < cache.retryAt) {
-      status.dataset.state = 'error';
-      status.textContent = `Unable to refresh live status. ${lastKnownStatus}`;
-    } else if (!savedAvailability || Date.now() - lastCheck >= refreshInterval) {
-      void refresh();
-    }
-    window.setInterval(() => {
-      if (document.visibilityState === 'visible' && Date.now() - lastCheck >= refreshInterval) void refresh();
-    }, 60 * 1000);
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible' && Date.now() - lastCheck >= refreshInterval) void refresh();
-    });
-  }
 </script>

@@ -1,5 +1,7 @@
 ---
 import PortraitScene from './PortraitScene.astro';
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 interface Props {
   modelSrc?: string;
@@ -9,15 +11,16 @@ interface Props {
   initialMode?: 0 | 1;
 }
 const {
-  modelSrc = `${import.meta.env.BASE_URL}models/jedidiah-bust.glb`,
+  modelSrc = existsSync(resolve('public/models/jedidiah-bust.glb'))
+    ? `${import.meta.env.BASE_URL}models/jedidiah-bust.glb` : undefined,
   fallbackSrc = `${import.meta.env.BASE_URL}hero-portrait.webp`,
   modelYaw = 0,
   initialMode = 0,
 } = Astro.props;
 ---
 
-<div class="hero-visual" data-hero-scene data-volumetric-hero data-model-src={modelSrc}
-  data-model-yaw={modelYaw} data-mode={initialMode} data-portrait-status="loading">
+<div class="hero-visual" data-hero-scene data-volumetric-hero={modelSrc ? '' : undefined} data-model-src={modelSrc}
+  data-model-yaw={modelYaw} data-mode={initialMode} data-portrait-status={modelSrc ? 'loading' : 'fallback'}>
   <div class="hero-portrait" aria-hidden="true">
     <PortraitScene fallbackSrc={fallbackSrc} />
     <svg class="system-diagram" viewBox="0 0 600 540" fill="none">

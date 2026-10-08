@@ -16,7 +16,7 @@ const { fallbackSrc } = Astro.props;
       <circle cx="395" cy="455" r="5" /><circle cx="215" cy="440" r="5" />
     </g>
   </svg>
-  {fallbackSrc && <img class="portrait-poster" src={fallbackSrc} alt="" decoding="async" width="720" height="720" />}
+  {fallbackSrc && <img class="portrait-poster" src={fallbackSrc} alt="" decoding="async" fetchpriority="high" width="1254" height="1254" />}
   <canvas class="portrait-canvas" data-portrait-canvas></canvas>
 </div>
 <style>
@@ -46,6 +46,7 @@ const { fallbackSrc } = Astro.props;
     transform: translate(var(--portrait-pan-x, 0px), var(--portrait-pan-y, 0px));
     transition: opacity .25s ease, transform .45s cubic-bezier(.16, 1, .3, 1);
   }
+  :global([data-poster-state="error"]) .portrait-poster { display: none; }
   .portrait-canvas { opacity: 0; transition: opacity .25s ease; }
   :global([data-volumetric-hero][data-canvas-ready="true"]) .portrait-canvas { opacity: 1; }
   :global([data-volumetric-hero][data-canvas-ready="true"]) .portrait-fallback { opacity: 0; }

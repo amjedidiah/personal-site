@@ -40,6 +40,20 @@ describe('pickHomeFeaturedArticles', () => {
     ]);
   });
 
+  it('always includes pinned hello-world when present', () => {
+    const articles = pickHomeFeaturedArticles(
+      [
+        local('hello-world', '2026-10-07', true),
+        local('other', '2026-11-01'),
+      ],
+      [hashnode('featured-remote', '2026-09-26', true), hashnode('older', '2026-01-01', true)],
+      2,
+    );
+    expect(articles).toHaveLength(2);
+    expect(articles[0].href).toBe('/blog/hello-world');
+    expect(articles[1].href).toBe('https://example.com/featured-remote');
+  });
+
   it('backfills when fewer than limit are featured', () => {
     const articles = pickHomeFeaturedArticles(
       [local('only', '2026-10-01', true)],

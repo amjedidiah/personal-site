@@ -42,13 +42,17 @@ const tocHeadings = headings.filter((heading) => heading.depth === 2);
     <div class:list={['article-layout', { 'has-toc': tocHeadings.length > 0 }]}>
       {tocHeadings.length > 0 && (
         <div class="article-chrome">
-          <div id="overview" class="project-headline">
-            <h1>{project.data.title}</h1>
-            <p class="lead">{project.data.description}</p>
-          </div>
           <div class="article-rail">
-            <a href="/projects" class="back back-rail"><span aria-hidden="true">&larr;</span> all projects</a>
-            <ArticleToc headings={tocHeadings} />
+            <div id="overview" class="project-headline">
+              <h1>{project.data.title}</h1>
+              <p class="lead">{project.data.description}</p>
+            </div>
+            <div class="article-side-navigation">
+              <a href="/projects" class="back back-rail"><span aria-hidden="true">&larr;</span> all projects</a>
+              <div class="article-rail-aside">
+                <ArticleToc headings={tocHeadings} />
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -114,10 +118,7 @@ const tocHeadings = headings.filter((heading) => heading.depth === 2);
     gap: 0 clamp(2rem, 7vw, 6rem);
     align-items: start;
   }
-  .article-chrome { display: contents; }
   .project-headline {
-    grid-column: 1;
-    grid-row: 1;
     position: sticky;
     top: 3.5rem;
     padding-top: 1.25rem;
@@ -142,32 +143,36 @@ const tocHeadings = headings.filter((heading) => heading.depth === 2);
     color: var(--project-muted);
     font: 400 .92rem/1.65 var(--font-sans);
   }
-  .article-rail {
-    grid-column: 2;
-    grid-row: 1 / -1;
+  .back-rail {
+    justify-self: end;
+    align-self: start;
+    position: sticky;
+    top: 3.5rem;
+    z-index: 21;
+    margin-bottom: 0;
+  }
+  .article-rail-aside {
     position: sticky;
     top: 5rem;
     z-index: 20;
-    align-self: start;
-    justify-self: end;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
     width: 12rem;
     max-width: 100%;
+    padding-top: 2.75rem;
     max-height: calc(100dvh - 6rem);
     overflow-y: auto;
     overscroll-behavior: contain;
     text-align: right;
   }
-  .article-rail :global(.article-toc) {
+  .article-rail-aside :global(.article-toc) {
     width: 100%;
   }
-  .article-rail :global(.article-toc nav) {
+  .article-rail-aside :global(.article-toc nav) {
     justify-items: end;
   }
-  .back-rail { margin-bottom: 1rem; }
-  .article-layout.has-toc .prose { grid-column: 1; grid-row: 2; min-width: 0; }
+  .article-layout.has-toc .prose { min-width: 0; }
   .prose { max-width: 68ch; min-width: 0; font: .95rem/1.8 var(--font-sans); color: var(--fg); }
   .prose :global(p) { margin-bottom: 1.2em; }
   .prose :global(h2) {
@@ -212,6 +217,46 @@ const tocHeadings = headings.filter((heading) => heading.depth === 2);
     }
     .project-article--with-toc .project-figure :global(.progressive-image) { width: 100%; }
     .article-layout.has-toc { display: flex; flex-direction: column; gap: 0; }
+    .article-rail {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .back-rail {
+      order: 1;
+      position: static;
+      grid-column: auto;
+      grid-row: auto;
+      justify-self: auto;
+      margin-bottom: .15rem;
+    }
+    .project-headline {
+      order: 2;
+      position: static;
+      margin: 0;
+      padding: 0 0 .35rem;
+      background: transparent;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      border-bottom: 0;
+    }
+    .project-headline h1 {
+      margin: 0;
+      font-size: clamp(1.05rem, 4.5vw, 1.25rem);
+      line-height: 1.2;
+    }
+    .project-headline .lead { display: none; }
+    .article-rail-aside {
+      order: 3;
+      position: static;
+      width: 100%;
+      padding-top: 0;
+      max-height: none;
+      overflow: visible;
+      align-items: stretch;
+      text-align: start;
+    }
+    .article-rail-aside :global(.article-toc nav) { justify-items: start; }
   }
 
   @media (max-width: 480px) {

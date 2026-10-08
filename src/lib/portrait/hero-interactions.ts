@@ -10,6 +10,13 @@ function mountHero(host: HTMLElement): () => void {
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const finePointer = window.matchMedia('(pointer: fine)');
   const animations = new Map<Element, Animation>();
+  const poster = host.querySelector<HTMLImageElement>('.portrait-poster');
+  const showPosterState = () => {
+    host.dataset.posterState = poster?.naturalWidth ? 'ready' : 'error';
+  };
+  poster?.addEventListener('load', showPosterState, { signal: listeners.signal });
+  poster?.addEventListener('error', showPosterState, { signal: listeners.signal });
+  if (poster?.complete) showPosterState();
   let panFrame = 0;
   let entered = false;
   const mode = host.dataset.mode ?? '0';
