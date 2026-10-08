@@ -211,6 +211,28 @@ const brandLetters = ['a', 'm', 'j', 'e', 'd'];
   .nav-social { display: flex; gap: .15rem; border-left: 1px solid var(--border); padding-left: .8rem; margin-left: .4rem; }
   .mobile-nav { display: none; }
 
+  @keyframes desktop-nav-arrive {
+    from { opacity: 0; transform: translateY(100dvh); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes mobile-nav-drop {
+    from {
+      opacity: 0;
+      transform: translateY(calc(-100dvh + var(--mobile-nav-height) + env(safe-area-inset-bottom)));
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (min-width: 640px) {
+    .desktop-nav .nav-links {
+      animation: desktop-nav-arrive .58s cubic-bezier(.16, 1, .3, 1) both;
+    }
+  }
+
   @media (max-width: 639px) {
     .desktop-nav { display: none; }
     .mobile-topbar {
@@ -303,6 +325,7 @@ const brandLetters = ['a', 'm', 'j', 'e', 'd'];
       inset: auto 0 0;
       z-index: 150;
       display: grid;
+      animation: mobile-nav-drop .7s cubic-bezier(.16, 1, .3, 1) both;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       height: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom));
       padding: 3px env(safe-area-inset-right) calc(3px + env(safe-area-inset-bottom)) env(safe-area-inset-left);
@@ -349,7 +372,8 @@ const brandLetters = ['a', 'm', 'j', 'e', 'd'];
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .desktop-nav { transition: none; }
+    .desktop-nav,
+    .mobile-nav { animation: none; transition: none; }
     .mobile-topbar { transition: none; }
     .mobile-brand { transition: none; }
     .mobile-social > a, .mobile-contact > summary { transition: none; }
