@@ -1,0 +1,113 @@
+---
+// Status mark beside the wordmark, shown on every page served from cache (grey)
+// and turning accent once the site responds. Not interactive: OfflineNotice's
+// script drives its state and its live region speaks for it.
+---
+
+<span class="freshness-dot" data-freshness-dot data-state="offline" aria-hidden="true" hidden>
+  <span class="freshness-dot-mark"></span>
+  <span class="freshness-dot-tip" data-freshness-dot-tip>Saved copy</span>
+</span>
+
+<style>
+  /* The box is exactly the mark, so its baseline is the mark's bottom edge and
+     .brand-group's baseline alignment puts it where a full stop would sit. Keeping
+     the box this small means showing it never shifts the wordmark; the ::before
+     overlay widens the hover target for the tooltip without taking up layout. */
+  .freshness-dot {
+    position: relative;
+    display: inline-flex;
+    flex: none;
+    margin-left: 2px;
+  }
+
+  .freshness-dot[hidden] {
+    display: none;
+  }
+
+  .freshness-dot-mark {
+    position: relative;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--dim);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--dim) 20%, transparent);
+    transition: background-color .3s ease, box-shadow .3s ease, transform .2s ease-out;
+  }
+
+  .freshness-dot:hover .freshness-dot-mark {
+    transform: scale(1.4);
+  }
+
+  @starting-style {
+    .freshness-dot .freshness-dot-mark {
+      transform: scale(0);
+    }
+  }
+
+  .freshness-dot[data-state='online'] .freshness-dot-mark {
+    background: var(--accent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+
+  .freshness-dot[data-state='online'] .freshness-dot-mark::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: freshness-ping 1.8s cubic-bezier(0, 0, .2, 1) infinite;
+  }
+
+  @keyframes freshness-ping {
+    75%,
+    100% {
+      opacity: 0;
+      transform: scale(2.8);
+    }
+  }
+
+  .freshness-dot-tip {
+    position: absolute;
+    top: calc(100% + 14px);
+    left: -10px;
+    z-index: 1;
+    padding: .3rem .55rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg);
+    box-shadow: 0 6px 16px color-mix(in srgb, #000 16%, transparent);
+    color: var(--fg);
+    font: 500 .7rem/1.2 var(--font-mono);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    translate: 0 -2px;
+    transition: opacity .15s ease-out, translate .15s ease-out;
+  }
+
+  /* Tooltip only where hover exists. The overlay stays clear of the wordmark link. */
+  @media (hover: hover) and (pointer: fine) {
+    .freshness-dot::before {
+      content: '';
+      position: absolute;
+      inset: -16px -16px -10px 0;
+    }
+
+    .freshness-dot:hover .freshness-dot-tip {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .freshness-dot-mark,
+    .freshness-dot-tip {
+      transition: none;
+    }
+
+    .freshness-dot[data-state='online'] .freshness-dot-mark::after {
+      animation: none;
+    }
+  }
+</style>
