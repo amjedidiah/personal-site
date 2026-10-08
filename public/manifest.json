@@ -1,0 +1,47 @@
+{
+  "name": "Jedidiah Amaraegbu",
+  "short_name": "amjed",
+  "description": "Payments, AI, and security engineering by Jedidiah Amaraegbu.",
+  "lang": "en",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "categories": ["portfolio", "business", "developer"],
+  "shortcuts": [
+    {
+      "name": "Portfolio",
+      "short_name": "Work",
+      "description": "View selected projects and case studies.",
+      "url": "/projects"
+    },
+    {
+      "name": "Blog",
+      "short_name": "Blog",
+      "description": "Read engineering notes and updates.",
+      "url": "/blog"
+    },
+    {
+      "name": "Contact Jedidiah",
+      "short_name": "Contact",
+      "description": "Start a conversation about a project.",
+      "url": "/about#contact"
+    }
+  ],
+  "background_color": "#0a0c10",
+  "theme_color": "#0a0c10",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
