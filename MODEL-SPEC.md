@@ -1,6 +1,12 @@
 # Hero portrait model
 
-The hero loads `public/models/jedidiah-bust.glb`. Until a compatible model is installed, it uses `public/hero-portrait.webp`.
+The hero currently loads `public/models/jedidiah-bust-2.glb`. If the selected model is unavailable, it uses `public/hero-portrait.webp`. Change `activeModelFile` in `src/components/HeroScene.astro` to switch samples.
+
+## Installed portrait
+
+The supplied `sample_2.glb` is installed separately as `jedidiah-bust-2.glb`, a textured, 24-part assembly (32,785 triangles; 2,256,544 bytes). It retains its source orientation with no added root rotation and uses nonmetallic skin/cloth material. The first sample's −90° Y correction was removed after the user's screenshot showed it turned this sample sideways. Missing normals are computed on the original mesh before partitioning to keep lighting continuous across fragment boundaries. Browser confirmation is left to the user.
+
+The previous `sample.glb` remains at `public/models/jedidiah-bust.glb` unchanged (30,797 triangles; 2,107,984 bytes). Set `activeModelFile` to `jedidiah-bust.glb` to restore it. See `public/models/README.md` for source details. Both original downloads are unchanged.
 
 ## Generate and prepare
 
@@ -43,7 +49,7 @@ The hero loads `public/models/jedidiah-bust.glb`. Until a compatible model is in
 
    Preview the homepage with the managed development server (`astro dev --background`). The runtime normalizes model size. Use glTF's Y-up orientation with the face toward +Z; if the face points backward, adjust the portrait component's model yaw. Geometry that includes a background plane or unwanted full body needs cleanup before preparation.
 
-The local preparation step groups existing triangles into spatial fragments and recenters their pivots. It preserves UVs, materials, embedded images, and parent transforms. It **does not** improve facial likeness, remove backgrounds, or cap the exposed edges of separated fragments. For thick, solid pieces during the exploded state, author capped fragments in a modeling tool instead.
+The local preparation step groups existing triangles into spatial fragments and recenters their pivots. It preserves UVs, materials, embedded images, parent transforms, and authored normals. When normals are missing, it computes area-weighted vertex normals before splitting. It **does not** improve facial likeness, remove backgrounds, or cap the exposed edges of separated fragments. For thick, solid pieces during the exploded state, author capped fragments in a modeling tool instead.
 
 ## Runtime contract
 

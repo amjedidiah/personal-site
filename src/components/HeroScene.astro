@@ -1,101 +1,55 @@
 ---
-import PortraitScene from './PortraitScene.astro';
-import { existsSync } from 'node:fs';
-import { resolve } from 'node:path';
-
-interface Props {
-  modelSrc?: string;
-  fallbackSrc?: string;
-  /** Degrees around vertical axis; export front-facing toward glTF +Z for 0. */
-  modelYaw?: number;
-  initialMode?: 0 | 1;
-}
-const {
-  modelSrc = existsSync(resolve('public/models/jedidiah-bust.glb'))
-    ? `${import.meta.env.BASE_URL}models/jedidiah-bust.glb` : undefined,
-  fallbackSrc = `${import.meta.env.BASE_URL}hero-portrait.webp`,
-  modelYaw = 0,
-  initialMode = 0,
-} = Astro.props;
+import { Image } from 'astro:assets';
+import portrait from '../assets/me.webp';
 ---
 
-<div class="hero-visual" data-hero-scene data-volumetric-hero={modelSrc ? '' : undefined} data-model-src={modelSrc}
-  data-model-yaw={modelYaw} data-mode={initialMode} data-portrait-status={modelSrc ? 'loading' : 'fallback'}>
-  <div class="hero-portrait" aria-hidden="true">
-    <PortraitScene fallbackSrc={fallbackSrc} />
-    <svg class="system-diagram" viewBox="0 0 600 540" fill="none">
-      <!-- Routing, collaboration, and a permission boundary: illustrative system sketches. -->
-      <g data-system-diagram="0">
-        <path data-system-trace pathLength="1" d="M50 190V330L104 402M550 190V330L496 402M50 190L102 130M550 190L498 130M104 402Q300 530 496 402" />
-        <circle cx="50" cy="190" r="5" /><circle cx="550" cy="190" r="5" />
-        <circle cx="104" cy="402" r="5" /><circle cx="496" cy="402" r="5" />
-        <circle cx="102" cy="130" r="5" /><circle cx="498" cy="130" r="5" />
-      </g>
-      <g data-system-diagram="1">
-        <path data-system-trace pathLength="1" d="M134 74H90Q42 74 42 122V392Q42 440 90 440H132M466 74H510Q558 74 558 122V392Q558 440 510 440H468M42 250H100M558 250H500" />
-        <circle cx="134" cy="74" r="5" /><circle cx="466" cy="74" r="5" />
-        <circle cx="100" cy="250" r="5" /><circle cx="500" cy="250" r="5" />
-        <circle cx="132" cy="440" r="5" /><circle cx="468" cy="440" r="5" />
-      </g>
-    </svg>
-  </div>
-  <noscript>
-    <p class="hero-static-links"><a href="/projects/gwela">Explore AI work</a> · <a href="/projects/gwela#what-i-built">See permission controls</a></p>
-  </noscript>
+<div class="hero-visual">
+  <Image
+    class="hero-portrait"
+    src={portrait}
+    alt="Jedidiah Amaraegbu"
+    widths={[320, 480, 640, 960, 1254]}
+    sizes="(max-width: 760px) min(calc(100vw - 2rem), 22rem), min(42vw, 30rem)"
+    format="webp"
+    quality={88}
+    priority
+  />
 </div>
 
 <style>
   .hero-visual {
-    position: relative;
     grid-column: 2;
     grid-row: 1 / span 2;
     min-width: 0;
-    width: 100%;
-    color: var(--accent);
+    width: min(100%, clamp(17rem, 42vw, 30rem), 74svh);
     align-self: center;
+    justify-self: end;
   }
   .hero-portrait {
-    position: relative;
+    display: block;
     width: 100%;
-    aspect-ratio: 10 / 9;
-    isolation: isolate;
+    height: auto;
+    aspect-ratio: 1;
+    border-radius: 2px;
+    filter: grayscale(1);
+    transition: filter .45s cubic-bezier(.2, .7, .2, 1);
   }
-  .system-diagram {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    overflow: visible;
-    color: var(--accent);
+
+  @media (hover: hover) and (pointer: fine) {
+    .hero-portrait:hover { filter: grayscale(0); }
   }
-  .system-diagram g { opacity: 0; transition: opacity 180ms ease-out; }
-  [data-mode="0"] .system-diagram { color: #61d6bb; }
-  [data-mode="1"] .system-diagram { color: #b494e8; }
-  :global(:root[data-theme="light"]) [data-mode="0"] .system-diagram { color: #237864; }
-  :global(:root[data-theme="light"]) [data-mode="1"] .system-diagram { color: #73509f; }
-  [data-mode="0"] [data-system-diagram="0"],
-  [data-mode="1"] [data-system-diagram="1"] { opacity: 1; }
-  .system-diagram path { stroke: currentColor; stroke-width: 1; opacity: .6; }
-  .system-diagram circle { stroke: currentColor; stroke-width: 1.25; fill: var(--bg); }
-  .hero-static-links {
-    margin-top: 1rem;
-    text-align: center;
-    font-size: .8rem;
-  }
-  .hero-static-links a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-  .hero-visual ::selection { background: color-mix(in srgb, var(--accent) 25%, var(--bg)); color: var(--fg); }
 
   @media (max-width: 760px) {
-    .hero-visual { grid-column: 1; grid-row: 2; margin-top: .25rem; }
-    .hero-portrait { max-width: 20rem; margin-inline: auto; }
+    .hero-visual {
+      grid-column: 1;
+      grid-row: 2;
+      width: min(100%, 22rem);
+      margin-top: .25rem;
+      justify-self: center;
+    }
   }
+
   @media (prefers-reduced-motion: reduce) {
-    .system-diagram g { transition: none; }
+    .hero-portrait { transition: none; }
   }
 </style>
-
-<script>
-  import '../lib/portrait/hero-interactions';
-  import '../lib/portrait/bootstrap';
-</script>
