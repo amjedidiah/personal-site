@@ -19,7 +19,7 @@ CRM Praise Centre gives visitors a clear route into the church's programs, minis
 
 ## Hardest challenge
 
-Public pages need to remain useful when the WordPress endpoint is slow or unavailable, while fresh content should still appear when the CMS is healthy. The frontend uses a fallback data path and explicit cache revalidation around that boundary.
+Public pages need to remain useful when the WordPress endpoint is slow or unavailable, while fresh content should still appear when the CMS is healthy. Event, ministry, and devotional fetches fall back to local content on failure. Cache revalidation and a WordPress publish hook provide the refresh path.
 
 ## What I worked on
 

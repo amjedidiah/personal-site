@@ -1,13 +1,13 @@
 ---
 title: "Cocktail & Book Club"
-description: "An iPhone and iPad app for tracking books, sharing reviews, and gathering readers around events."
+description: "A mobile app for tracking books, sharing reviews, and gathering readers around events in the UK."
 tech: ["TypeScript", "React Native", "TanStack", "Expo Router", "Wix Headless", "Zustand", "Git"]
 platforms: ["mobile"]
 mobileDelivery: "native"
 disciplines: ["front-end"]
 type: "client"
 featured: true
-metric: "Published iOS app"
+metric: "Published iOS and Android app"
 order: 4
 dateStart: "2026-04-08"
 dateEnd: "2026-09-24"
@@ -30,6 +30,7 @@ Sign-in crosses a native app, an in-app Wix WebView, and sometimes the browser f
 - React Native screens and navigation built with Expo Router
 - App state for reading and community flows using Zustand
 - Integration with Wix Headless for authentication and content
+- Sign-in, verification, password-reset, and callback handling between native screens and Wix
 
 ## Lessons learned
 

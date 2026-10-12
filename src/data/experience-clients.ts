@@ -11,7 +11,7 @@ export type ExperienceClient = {
 export const experienceClients: ExperienceClient[] = [
   {
     name: 'Fiverr Pro',
-    note: '100+ contractors',
+    note: 'freelance · payments',
     href: 'https://www.fiverr.com/',
     logo: '/brands/fiverr.svg',
     logoAlt: 'Fiverr',
@@ -19,7 +19,7 @@ export const experienceClients: ExperienceClient[] = [
   },
   {
     name: 'Remotebase',
-    note: 'cross-border payments',
+    note: 'software engineer',
     href: 'https://remotebase.com/',
     logo: '/brands/remotebase-mark.png',
     logoAlt: 'Remotebase',
@@ -27,7 +27,7 @@ export const experienceClients: ExperienceClient[] = [
   },
   {
     name: 'GoMyCode',
-    note: '4 cohorts trained',
+    note: 'instructor · 4 cohorts',
     href: 'https://gomycode.com/',
     logo: '/brands/gomycode-mark.png',
     logoAlt: 'GoMyCode',
@@ -50,7 +50,7 @@ export const experienceClients: ExperienceClient[] = [
   },
   {
     name: 'HackerOne',
-    note: 'Bounty program',
+    note: 'bug bounty research',
     href: 'https://hackerone.com/',
     logo: '/brands/hackerone.svg',
     logoAlt: 'HackerOne',

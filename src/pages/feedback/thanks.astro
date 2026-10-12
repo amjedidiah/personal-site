@@ -1,13 +1,14 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { Check } from '@lucide/astro';
+import { feedbackSuccess } from '../../data/feedback-copy';
 ---
 
 <Base title="Thank you — Jedidiah Amaraegbu" description="Thanks for sharing your feedback." noindex>
   <div class="thanks">
     <span class="mark" aria-hidden="true"><Check size={16} strokeWidth={2} /></span>
-    <h1>Thanks for the thoughtful note.</h1>
-    <p>It’s been sent to my inbox. I appreciate you taking the time.</p>
+    <h1>{feedbackSuccess.title}</h1>
+    <p>{feedbackSuccess.detail}</p>
     <a href="/">Return home <span aria-hidden="true">&rarr;</span></a>
   </div>
 </Base>

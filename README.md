@@ -47,7 +47,11 @@ Feel free to check [our documentation](https://docs.astro.build) or jump into ou
 The homepage renders dated fallback content from `src/data/current.ts`, then checks two public GitHub issues on load and every five minutes while the tab is visible. If GitHub is unavailable, the fallback stays visible and is marked as unrefreshed.
 
 - [Availability issue](https://github.com/amjedidiah/personal-site/issues/1): open means available for project conversations; closed means unavailable. Its first paragraph is the open-state detail.
-- [Gwela update issue](https://github.com/amjedidiah/personal-site/issues/2): edit its title and first paragraph to publish a new update. The issue's edit time is shown on the site.
+- [Gwela update issue](https://github.com/amjedidiah/personal-site/issues/2): a public record for build updates. Dated case-study notes are maintained in `src/content/projects/gwela.md`.
+
+Established positioning lives in `src/data/profile.ts`. Current work, the AI app review offer, and dated availability fallback live in `src/data/current.ts`; review them monthly and when the work changes. The `CurrentWork` component keeps Home and About in sync. Featured writing is selected using the existing `featured` metadata.
+
+The [content review implementation report](docs/content-review-implementation-2026-10-12.md) records evidence, verification limits, and the maintenance responsibilities for each content source.
 
 Keep the fallback in `src/data/current.ts` accurate for visitors without JavaScript or during an API outage. The issue URLs and response validation live in `src/lib/current-feed.ts`.
 

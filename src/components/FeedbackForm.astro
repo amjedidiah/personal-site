@@ -1,5 +1,6 @@
 ---
 import { Check } from '@lucide/astro';
+import { feedbackSuccess } from '../data/feedback-copy';
 
 interface Props {
   project?: { id: string; title: string };
@@ -51,8 +52,8 @@ const directWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComponent(di
       <p class="visually-hidden" data-feedback-error-live role="alert"></p>
       <div class="success" data-success hidden tabindex="-1">
         <span class="success-mark" aria-hidden="true"><Check size={16} strokeWidth={2} /></span>
-        <h2>Thanks for the thoughtful note.</h2>
-        <p>It’s been sent to my inbox. I appreciate you taking the time.</p>
+        <h2>{feedbackSuccess.title}</h2>
+        <p>{feedbackSuccess.detail}</p>
         <a href={project ? `/projects/${project.id}` : '/'}>{project ? 'Return to project' : 'Return home'} <span aria-hidden="true">&rarr;</span></a>
       </div>
     </div>
@@ -78,6 +79,7 @@ const directWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComponent(di
 
   form?.addEventListener('submit', async (event) => {
     event.preventDefault();
+    if (submit?.disabled) return;
     if (!form.reportValidity() || !errorPanel || !errorText || !success || !submit) return;
 
     const originalLabel = submit.innerHTML;
@@ -99,8 +101,8 @@ const directWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComponent(di
         headers: { 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
       });
       const result = await response.json().catch(() => ({})) as { message?: string };
-      if (!response.ok) {
-        showError(result.message || 'Your message could not be sent. Please try again.');
+      if (!response.ok || typeof result.message !== 'string') {
+        showError(typeof result.message === 'string' ? result.message : 'Couldn’t confirm your feedback was sent. Please try again.');
         return;
       }
 
@@ -108,7 +110,7 @@ const directWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComponent(di
       success.hidden = false;
       success.focus();
     } catch {
-      showError('Connection lost. Check your connection.');
+      showError('Couldn’t confirm your feedback was sent. Check your connection and try again.');
     } finally {
       if (pendingStatus) pendingStatus.textContent = '';
       submit.disabled = false;

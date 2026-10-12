@@ -26,7 +26,7 @@ The story-led interface also has live community state, authentication, and an or
 - Responsive React interface and animated transitions
 - Interactive story and exploration pages
 - Integration of the site's visual language across the experience
-- API routes and persistent data for community features
+- API routes and PostgreSQL storage for Echo Tree messages and community features
 
 ## Lessons learned
 

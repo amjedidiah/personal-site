@@ -1,3 +1,5 @@
+import { current } from '../data/current';
+
 export const currentIssueUrls = {
   availability: 'https://api.github.com/repos/amjedidiah/personal-site/issues/1',
   latest: 'https://api.github.com/repos/amjedidiah/personal-site/issues/2',
@@ -27,7 +29,7 @@ export function parseAvailabilityIssue(value: unknown) {
     available,
     label: available ? 'Open to project conversations' : 'Not taking new projects',
     detail: available
-      ? firstParagraph(issue.body) || 'Ask about payments, platforms, or production AI.'
+      ? firstParagraph(issue.body) || current.availabilityDetail
       : 'You can still get in touch about future work.',
   };
 }

@@ -140,16 +140,16 @@ function mountCurrent(host: HTMLElement): () => void {
     } else if (result.kind === 'empty') {
       availability.dataset.available = 'false';
       label.textContent = 'Availability not published';
-      detail.textContent = 'Please email to ask about timing.';
+      detail.textContent = 'Please get in touch to ask about timing.';
       delete cache.availability;
       delete cache.retryAt;
-      lastKnownStatus = 'No availability published. Please email to ask about timing.';
+      lastKnownStatus = 'No availability published. Get in touch to ask about timing.';
       setState('empty', lastKnownStatus);
     } else if (result.kind === 'rate-limited') {
       cache.retryAt = result.retryAt;
       showCooldown();
     } else {
-      setState('error', `Couldn’t refresh availability. ${lastKnownStatus} Retry or email to ask about timing.`);
+      setState('error', `Couldn’t refresh availability. ${lastKnownStatus} Retry or get in touch to ask about timing.`);
     }
     host.dataset.lastKnownStatus = lastKnownStatus;
     saveCache();

@@ -1,0 +1,9 @@
+---
+import { current } from '../data/current';
+
+interface Props {
+  class?: string;
+}
+---
+
+<p class={Astro.props.class}>I’m building <a href={current.work.href}>{current.work.name}</a>, {current.work.description}, and researching {current.work.research}.</p>
