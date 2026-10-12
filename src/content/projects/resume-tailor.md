@@ -7,8 +7,8 @@ disciplines: ["front-end", "back-end"]
 type: "founder"
 metric: "AWS microservice pipeline"
 order: 9
-yearStart: 2024
-monthStart: 8
+dateStart: "2024-03-08"
+dateEnd: "2024-12-18"
 url: "https://github.com/amjedidiah/resume-tailor"
 urlLabel: "view source"
 ---

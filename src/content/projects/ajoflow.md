@@ -9,8 +9,8 @@ type: "founder"
 featured: false
 metric: "Wallets + payouts + trust scoring"
 order: 1
-yearStart: 2025
-monthStart: 3
+dateStart: "2026-03-24"
+dateEnd: "2026-06-25"
 url: "https://ajo-flow.vercel.app/"
 urlLabel: "open working demo"
 role: "Full-stack development and AI integration"

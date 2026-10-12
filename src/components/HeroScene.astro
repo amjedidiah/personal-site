@@ -1,23 +1,39 @@
 ---
 import { Image } from 'astro:assets';
 import portrait from '../assets/me.webp';
+
+const portraitImage = {
+  src: portrait,
+  widths: [320, 480, 640, 960, 1254],
+  sizes: '(max-width: 760px) min(calc(100vw - 2rem), 22rem), min(42vw, 30rem)',
+  format: 'webp' as const,
+  quality: 88,
+};
 ---
 
 <div class="hero-visual">
   <Image
-    class="hero-portrait"
-    src={portrait}
+    {...portraitImage}
+    class="hero-portrait hero-portrait--base"
     alt="Jedidiah Amaraegbu"
-    widths={[320, 480, 640, 960, 1254]}
-    sizes="(max-width: 760px) min(calc(100vw - 2rem), 22rem), min(42vw, 30rem)"
-    format="webp"
-    quality={88}
     priority
+  />
+  <Image
+    {...portraitImage}
+    class="hero-portrait hero-portrait--color"
+    alt=""
+    aria-hidden="true"
+    loading="eager"
+    decoding="async"
   />
 </div>
 
 <style>
   .hero-visual {
+    position: relative;
+    isolation: isolate;
+    overflow: clip;
+    border-radius: 2px;
     grid-column: 2;
     grid-row: 1 / span 2;
     min-width: 0;
@@ -31,12 +47,36 @@ import portrait from '../assets/me.webp';
     height: auto;
     aspect-ratio: 1;
     border-radius: 2px;
+  }
+  .hero-portrait--base {
     filter: grayscale(1);
     transition: filter .45s cubic-bezier(.2, .7, .2, 1);
   }
+  .hero-portrait--color {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    pointer-events: none;
+    clip-path: inset(0 0 100% 0);
+  }
+
+  @keyframes portrait-color-reveal {
+    from { clip-path: inset(0 0 100% 0); }
+    to { clip-path: inset(0); }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: scroll(root block)) and (animation-range: entry) and (animation-range: 0px 280px) {
+      .hero-portrait--color {
+        animation: portrait-color-reveal linear both;
+        animation-timeline: scroll(root block);
+        animation-range: 0px 280px;
+      }
+    }
+  }
 
   @media (hover: hover) and (pointer: fine) {
-    .hero-portrait:hover { filter: grayscale(0); }
+    .hero-visual:hover .hero-portrait--base { filter: grayscale(0); }
   }
 
   @media (max-width: 760px) {
@@ -50,6 +90,6 @@ import portrait from '../assets/me.webp';
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .hero-portrait { transition: none; }
+    .hero-portrait--base { transition: none; }
   }
 </style>

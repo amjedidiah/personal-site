@@ -8,6 +8,7 @@ import { hashnodePosts } from '../data/hashnode';
 import { imagePlaceholders } from '../data/image-placeholders';
 import { pickHomeFeaturedArticles } from '../lib/home-featured-articles';
 import { experienceClients } from '../data/experience-clients';
+import { ArrowRight, ArrowUpRight } from '@lucide/astro';
 
 const projects = (await getCollection('projects'))
   .filter((p) => p.data.featured)
@@ -112,15 +113,15 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
                 {p.data.evidence && <div><dt>Proof</dt><dd>{p.data.evidence}</dd></div>}
               </dl>
               <div class="featured-actions">
-                <a href={`/projects/${p.id}`}>Case study<span class="visually-hidden">: {p.data.title}</span> <span aria-hidden="true">&rarr;</span></a>
+                <a href={`/projects/${p.id}`}>Case study<span class="visually-hidden">: {p.data.title}</span> <ArrowRight size={14} strokeWidth={1.8} aria-hidden="true" /></a>
                 {p.data.url && (
                   <a href={p.data.url} target="_blank" rel="noopener noreferrer">
-                    {p.data.urlLabel ?? 'View project'}<span class="visually-hidden">: {p.data.title} (opens in a new tab)</span> <span aria-hidden="true">&nearr;</span>
+                    {p.data.urlLabel ?? 'View project'}<span class="visually-hidden">: {p.data.title} (opens in a new tab)</span> <ArrowUpRight size={14} strokeWidth={1.8} aria-hidden="true" />
                   </a>
                 )}
                 {p.data.urlSecondary && (
                   <a href={p.data.urlSecondary} target="_blank" rel="noopener noreferrer">
-                    {p.data.urlSecondaryLabel ?? 'View project'}<span class="visually-hidden">: {p.data.title} (opens in a new tab)</span> <span aria-hidden="true">&nearr;</span>
+                    {p.data.urlSecondaryLabel ?? 'View project'}<span class="visually-hidden">: {p.data.title} (opens in a new tab)</span> <ArrowUpRight size={14} strokeWidth={1.8} aria-hidden="true" />
                   </a>
                 )}
               </div>
@@ -130,7 +131,7 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
       </div>
       {caseStudies.length === 0 && <p class="home-empty">No featured case studies right now. Browse all projects below.</p>}
       {otherFeatured.length > 0 && <p class="other-work">Also built: {otherFeatured.map((p, index) => <span>{index > 0 && ', '}<a href={`/projects/${p.id}`}>{p.data.title}</a></span>)}</p>}
-      <a href="/projects" class="see-all">all projects &rarr;</a>
+      <a href="/projects" class="see-all">all projects <ArrowRight size={14} strokeWidth={1.8} aria-hidden="true" /></a>
     </div>
   </section>
 
@@ -169,7 +170,7 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
                 >
                   Read article
                   <span class="visually-hidden">: {article.title}{article.external ? ' (opens in a new tab)' : ''}</span>
-                  <span aria-hidden="true">{article.external ? '\u2197' : '\u2192'}</span>
+                  {article.external ? <ArrowUpRight size={14} strokeWidth={1.8} aria-hidden="true" /> : <ArrowRight size={14} strokeWidth={1.8} aria-hidden="true" />}
                 </a>
               </div>
             </div>
@@ -177,7 +178,7 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
         ))}
       </div>
       {featuredArticles.length === 0 && <p class="home-empty">No featured articles right now. Browse the writing archive below.</p>}
-      <a href="/blog" class="see-all">all posts &rarr;</a>
+      <a href="/blog" class="see-all">all posts <ArrowRight size={14} strokeWidth={1.8} aria-hidden="true" /></a>
     </div>
   </section>
 
@@ -237,7 +238,7 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
             <span class="cta-proof-sep" aria-hidden="true">·</span>
             <span>Full-stack</span>
           </p>
-          <p class="cta-lede">Email a short note on what you’re building and when you need it — I usually reply within a few days.</p>
+          <p class="cta-lede">Send a short note on what you’re building and when you need it — I usually reply within a few days.</p>
         </div>
         <div class="cta-actions">
           <a
@@ -262,6 +263,11 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
   .hero, .now-section, .home-band {
     --home-muted: color-mix(in srgb, var(--dim) 80%, var(--fg));
   }
+  .hero ::selection, .now-section ::selection, .home-band ::selection {
+    background: var(--accent);
+    color: var(--bg);
+  }
+  .hero-lede, .featured-description, .writing-description, .cta-lede { text-wrap: pretty; }
   .now-section, .home-band { overflow-wrap: anywhere; }
   .hero a, .home-band a, .now-section a, .current-refresh { touch-action: manipulation; }
   .hero a:hover, .home-band a:hover, .now-section a:hover { opacity: 1; }
@@ -275,8 +281,9 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
     column-gap: clamp(1.5rem, 3vw, 3rem);
     row-gap: 0;
+    align-content: center;
     overflow: clip;
-    min-height: min(82svh, 760px);
+    min-height: min(76svh, 700px);
     padding-block: clamp(2rem, 4vw, 3rem);
   }
   .hero-frame-inner {
@@ -337,7 +344,7 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     border: 1px solid var(--home-muted); border-radius: 2px;
     transition: border-color 150ms ease, color 150ms ease, transform 100ms ease;
   }
-  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); opacity: 1; }
+  .btn-ghost:is(:hover, :focus-visible) { border-color: var(--accent); color: var(--accent); opacity: 1; }
 
   /* constrained */
   .constrained {
@@ -443,6 +450,7 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
   }
   .current-signal time,
   .current-reviewed {
+    flex: 1 1 14rem;
     color: var(--home-muted);
     font-size: .75rem;
   }
@@ -498,13 +506,13 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
   }
 
   /* work */
-  .featured-work {
+  .featured-work, .featured-writing {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: .75rem;
+    gap: clamp(.875rem, 1.5vw, 1.25rem);
     margin-top: .25rem;
   }
-  .featured-card {
+  .featured-card, .writing-card {
     display: flex;
     flex-direction: column;
     min-height: 100%;
@@ -513,7 +521,7 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     background: color-mix(in srgb, var(--surface) 30%, var(--bg));
     transition: border-color 0.2s ease, background 0.2s ease;
   }
-  .featured-card:is(:hover, :focus-within) {
+  .featured-card:is(:hover, :focus-within), .writing-card:is(:hover, :focus-within) {
     border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
     background: color-mix(in srgb, var(--surface) 45%, var(--bg));
   }
@@ -529,11 +537,11 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
   .featured-card-media .case-caption {
     padding: 0 1.1rem .75rem;
   }
-  .featured-card-body {
+  .featured-card-body, .writing-card-body {
     display: flex;
     flex: 1;
     flex-direction: column;
-    padding: 1.25rem 1.2rem 1.35rem;
+    padding: clamp(1.25rem, 2vw, 1.75rem);
   }
   .featured-focus {
     margin: 0 0 .85rem;
@@ -577,12 +585,12 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     text-wrap: balance;
   }
   .featured-title a { color: inherit; }
-  .featured-title a:hover { color: var(--accent); }
+  .featured-title a:is(:hover, :focus-visible) { color: var(--accent); }
   .featured-description {
     margin: 0;
     flex: 1;
     color: var(--home-muted);
-    font: 400 .9rem/1.65 var(--font-sans);
+    font: 400 .95rem/1.65 var(--font-sans);
   }
   .featured-facts {
     display: grid;
@@ -622,7 +630,8 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     color: var(--accent);
     font: .8rem/1.4 var(--font-mono);
   }
-  .featured-actions a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .featured-actions a:is(:hover, :focus-visible) { text-decoration: underline; text-underline-offset: .22em; }
+  .featured-actions :global(svg), .writing-actions :global(svg), .see-all :global(svg) { flex-shrink: 0; }
   .other-work {
     margin-top: 1.4rem;
     color: var(--home-muted); font-size: .75rem;
@@ -630,7 +639,7 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
   .other-work a { color: var(--fg); }
   .other-work a:hover { color: var(--accent); }
   .see-all {
-    display: inline-flex; align-items: center; min-height: 44px; margin-top: .75rem;
+    display: inline-flex; align-items: center; gap: .35rem; min-height: 44px; margin-top: .75rem;
     font-size: .8rem; color: var(--accent);
   }
   .see-all:is(:hover, :focus-visible) { color: var(--accent); text-decoration: underline; text-underline-offset: .22em; }
@@ -639,36 +648,12 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
   .writing-section {
     border-top: 1px solid var(--border);
   }
-  .featured-writing {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: .75rem;
-    margin-top: .25rem;
-  }
-  .writing-card {
-    display: flex;
-    flex-direction: column;
-    min-height: 100%;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: color-mix(in srgb, var(--surface) 30%, var(--bg));
-    transition: border-color 0.2s ease, background 0.2s ease;
-  }
-  .writing-card:is(:hover, :focus-within) {
-    border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
-    background: color-mix(in srgb, var(--surface) 45%, var(--bg));
-  }
-  .writing-card-body {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    padding: 1.15rem 1.2rem 1.25rem;
-  }
   .writing-card-head {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
     gap: 1rem;
+    flex-wrap: wrap;
     margin-bottom: .85rem;
   }
   .writing-date {
@@ -692,12 +677,12 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     text-wrap: balance;
   }
   .writing-title a { color: inherit; }
-  .writing-title a:hover { color: var(--accent); }
+  .writing-title a:is(:hover, :focus-visible) { color: var(--accent); }
   .writing-description {
     margin: 0;
     flex: 1;
     color: var(--home-muted);
-    font: 400 .88rem/1.6 var(--font-sans);
+    font: 400 .95rem/1.65 var(--font-sans);
   }
   .writing-actions {
     margin-top: 1rem;
@@ -710,7 +695,7 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     color: var(--accent);
     font: .8rem/1.4 var(--font-mono);
   }
-  .writing-actions a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .writing-actions a:is(:hover, :focus-visible) { text-decoration: underline; text-underline-offset: .22em; }
 
   @media (prefers-reduced-motion: reduce) {
     .case-image :global(.progressive-image) { transition: none; }
@@ -804,7 +789,7 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
   :root[data-theme="light"] .experience-logo {
     opacity: .78;
   }
-  .experience-card:hover .experience-logo {
+  .experience-card:is(:hover, :focus-visible) .experience-logo {
     opacity: 1;
   }
   .experience-card strong {
@@ -815,12 +800,12 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     min-height: calc(1.35em * 2);
     color: var(--fg);
   }
-  .experience-card:hover strong {
+  .experience-card:is(:hover, :focus-visible) strong {
     color: var(--accent);
   }
   .experience-card span {
     margin-top: auto;
-    font: .7rem/1.45 var(--font-mono);
+    font: .75rem/1.5 var(--font-mono);
     color: var(--home-muted);
   }
 

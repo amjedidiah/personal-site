@@ -60,6 +60,28 @@ test('invalid input and cross-site requests never send email', async () => {
   assert.equal(send.mock.callCount(), 0);
 });
 
+test('Astro-loaded credentials work without process.env and default delivery to the sender', async () => {
+  delete process.env.GMAIL_USER;
+  delete process.env.GMAIL_APP_PASSWORD;
+  process.env.FEEDBACK_TO = 'stale-recipient@example.com';
+  let auth: unknown;
+  let sent: Record<string, unknown> | undefined;
+  mock.method(nodemailer, 'createTransport', (options: { auth: unknown }) => {
+    auth = options.auth;
+    return { sendMail: async (mail: Record<string, unknown>) => { sent = mail; } };
+  });
+
+  const response = await submitFeedback(request('source=site&message=Useful+work'), {
+    GMAIL_USER: 'sender@gmail.com',
+    GMAIL_APP_PASSWORD: 'app-password',
+  });
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(auth, { user: 'sender@gmail.com', pass: 'app-password' });
+  assert.equal(sent?.from, 'sender@gmail.com');
+  assert.equal(sent?.to, 'sender@gmail.com');
+});
+
 test('honeypot submission returns success without delivery', async () => {
   const send = mock.fn();
   mock.method(nodemailer, 'createTransport', () => ({ sendMail: send }));

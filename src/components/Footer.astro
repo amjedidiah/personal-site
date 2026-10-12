@@ -25,7 +25,7 @@ const year = new Date().getFullYear();
     max-width: var(--max-w);
     margin: 0 auto;
     padding: 0 var(--gutter);
-    color: var(--dim); font-size: .7rem;
+    color: color-mix(in srgb, var(--dim) 80%, var(--fg)); font-size: .75rem;
     display: flex; align-items: center; justify-content: space-between;
     flex-wrap: wrap; gap: .75rem 1.5rem;
   }
@@ -40,7 +40,7 @@ const year = new Date().getFullYear();
     order: 2;
     margin-inline-start: auto;
   }
-  .footer-meta a { color: var(--dim); text-decoration: underline; text-underline-offset: .2em; }
+  .footer-meta a { color: inherit; text-decoration: underline; text-underline-offset: .2em; }
   .footer-meta a:hover { color: var(--accent); opacity: 1; }
   .feedback-link { display: inline-flex; align-items: center; gap: .8em; white-space: nowrap; }
 

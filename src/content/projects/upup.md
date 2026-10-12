@@ -9,8 +9,8 @@ url: "https://useupup.com/"
 urlLabel: "try the live demo"
 metric: "One core · six UI options"
 order: 3
-yearStart: 2024
-monthStart: 6
+dateStart: "2024-11-04"
+dateEnd: "2025-02-25"
 role: "Open-source contributor"
 evidence: "Published packages, documentation, and a live uploader demo"
 ---

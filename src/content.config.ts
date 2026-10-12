@@ -34,8 +34,11 @@ const projects = defineCollection({
     imageAlt: z.string().optional(),
     imageCaption: z.string().optional(),
     order: z.number(),
-    yearStart: z.number().int().min(1990).max(2100),
-    monthStart: z.number().int().min(1).max(12),
+    dateStart: z.iso.date(),
+    dateEnd: z.iso.date(),
+  }).refine((project) => project.dateEnd >= project.dateStart, {
+    message: 'The latest commit date must be on or after the first commit date.',
+    path: ['dateEnd'],
   }),
 });
 

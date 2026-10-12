@@ -11,7 +11,7 @@ const links = [
   { href: '/about', label: 'about' },
 ];
 const isActive = (href: string) => pathname === href || (href !== '/' && pathname.startsWith(`${href}/`));
-const brandLetters = ['a', 'm', 'j', 'e', 'd'];
+const brandLetters = ['a', 'm', 'j', 'e', 'd', 'i', 'd', 'i', 'a', 'h'];
 ---
 
 <header class="mobile-topbar">
@@ -176,7 +176,7 @@ const brandLetters = ['a', 'm', 'j', 'e', 'd'];
   .nav-links a, .nav-social a {
     display: inline-flex; align-items: center; justify-content: center;
     min-height: 40px;
-    font-size: .75rem; color: var(--dim);
+    font-size: .75rem; color: color-mix(in srgb, var(--dim) 80%, var(--fg));
     padding: .35em .6em; border-radius: 4px;
     transition: color .15s, background .15s;
   }
@@ -233,10 +233,13 @@ const brandLetters = ['a', 'm', 'j', 'e', 'd'];
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-wrap: wrap;
+      column-gap: .5rem;
       position: sticky;
       top: 0;
       z-index: 100;
-      height: calc(52px + env(safe-area-inset-top));
+      min-height: calc(52px + env(safe-area-inset-top));
+      height: auto;
       padding: env(safe-area-inset-top) var(--gutter) 0;
       background: var(--bg);
       border-bottom: 1px solid transparent;
@@ -257,7 +260,7 @@ const brandLetters = ['a', 'm', 'j', 'e', 'd'];
       transition: opacity .12s;
     }
     .mobile-brand:active { opacity: .65; }
-    .mobile-social { display: flex; align-items: center; gap: 2px; }
+    .mobile-social { display: flex; align-items: center; gap: 2px; margin-inline-start: auto; }
     .mobile-contact { position: relative; width: 44px; height: 44px; }
     .mobile-social > a, .mobile-contact > summary {
       display: inline-flex;

@@ -7,8 +7,8 @@ disciplines: ["back-end"]
 type: "founder"
 metric: "Custom scoring algorithms"
 order: 10
-yearStart: 2023
-monthStart: 7
+dateStart: "2025-02-13"
+dateEnd: "2025-02-17"
 url: "https://github.com/amjedidiah/web-scrapper"
 urlLabel: "view source"
 ---
