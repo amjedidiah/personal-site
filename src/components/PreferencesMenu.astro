@@ -1,7 +1,7 @@
 ---
-// Site preferences, in the header on desktop and mobile. Today it holds one group
-// (theme); adding a setting means adding a group below plus a handler with the
-// same id in the script.
+// Site preferences, in the header on desktop and mobile. Home pilots a motion
+// group alongside theme; other routes retain their existing theme control.
+// Each group below has a handler with the same id in the script.
 //
 // How this should grow:
 // - One setting (now): it stays a plain theme switch. The trigger shows the
@@ -38,13 +38,23 @@ const groups: PreferenceGroup[] = [
   },
 ];
 
+// Pilot the immersive experience on Home before extending it to other routes.
+const hasMotionPreference = Astro.url.pathname === '/';
+if (hasMotionPreference) groups.push({
+  id: 'motion', label: 'Motion', icon: SlidersHorizontal,
+  options: [
+    { value: 'system', label: 'Follow system' },
+    { value: 'reduce', label: 'Reduce motion' },
+  ],
+});
+
 const single = groups.length === 1;
 const TriggerIcon = single ? groups[0].icon : SlidersHorizontal;
 const triggerLabel = single ? 'Color theme' : 'Preferences';
 let optionIndex = 0;
 ---
 
-<details class="preferences-menu" data-preferences-menu data-close-on-select={single ? '' : undefined}>
+<details class="preferences-menu" data-preferences-menu data-home-motion-preferences={hasMotionPreference ? '' : undefined} data-close-on-select={single ? '' : undefined}>
   <summary aria-label={triggerLabel} data-preferences-trigger data-trigger-label={triggerLabel}>
     <TriggerIcon size={17} stroke-width={2} aria-hidden="true" />
   </summary>
@@ -69,6 +79,7 @@ let optionIndex = 0;
 </details>
 
 <style>
+  :global(:root:not(.has-js)) .preferences-menu[data-home-motion-preferences] { display: none; }
   .preferences-menu {
     position: relative;
     display: block;
@@ -213,6 +224,11 @@ let optionIndex = 0;
 
 <script>
   import {
+    MOTION_STORAGE_KEY, MOTION_CHANGE_EVENT,
+    readMotionPreference, writeMotionPreference, prefersReducedMotion,
+    type MotionPreference,
+  } from '../lib/motion';
+  import {
     THEME_CHANGE_EVENT,
     THEME_STORAGE_KEY,
     isThemePreference,
@@ -250,7 +266,7 @@ let optionIndex = 0;
   const applyTheme = (preference: ThemePreference, persist: boolean, animate = persist) => {
     themePreference = preference;
     if (persist) writeThemePreference(getStorage(), preference);
-    if (animate && !reducedMotion.matches) {
+    if (animate && !prefersReducedMotion()) {
       themeRoot.classList.add('theme-transitioning');
       window.clearTimeout(themeTransitionTimer);
       themeTransitionTimer = window.setTimeout(() => {
@@ -269,7 +285,27 @@ let optionIndex = 0;
     }));
   };
 
+  let motionPreference = readMotionPreference(getStorage());
+  function applyMotion(value: MotionPreference, persist = false) {
+    if (!document.querySelector('[data-preference-group="motion"]')) return;
+    motionPreference = value;
+    if (persist) writeMotionPreference(getStorage(), value);
+    themeRoot.dataset.motion = value;
+    if (prefersReducedMotion()) {
+      themeRoot.classList.remove('motion-ready', 'theme-transitioning');
+      document.getAnimations().forEach((animation) => animation.cancel());
+    }
+    syncMenus();
+    document.dispatchEvent(new CustomEvent(MOTION_CHANGE_EVENT));
+  }
+
   const handlers: Record<string, PreferenceHandler> = {
+    motion: {
+      current: () => motionPreference,
+      select: (value) => {
+        if (value === 'system' || value === 'reduce') applyMotion(value, true);
+      },
+    },
     theme: {
       current: () => themePreference,
       select: (value) => {
@@ -303,7 +339,7 @@ let optionIndex = 0;
       menu.open = false;
       delete menu.dataset.closing;
       if (restoreFocus) menu.querySelector<HTMLElement>('summary')?.focus();
-    }, menuCloseMs);
+    }, prefersReducedMotion() ? 0 : menuCloseMs);
   }
 
   menus.forEach((menu) => {
@@ -323,11 +359,14 @@ let optionIndex = 0;
   });
 
   applyTheme(themePreference, false);
+  applyMotion(motionPreference);
+  reducedMotion.addEventListener('change', () => applyMotion(motionPreference));
   themeMedia.addEventListener('change', () => {
     if (themePreference === 'system') applyTheme('system', false);
   });
   window.addEventListener('storage', (event) => {
     if (event.key === THEME_STORAGE_KEY) applyTheme(readThemePreference(getStorage()), false);
+    if (event.key === MOTION_STORAGE_KEY || event.key === null) applyMotion(readMotionPreference(getStorage()));
   });
 
   document.addEventListener('pointerdown', (event) => {

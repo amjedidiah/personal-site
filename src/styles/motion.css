@@ -1,0 +1,28 @@
+/* Each enhancement starts from a complete static composition. */
+@property --flow-position {
+  syntax: '<percentage>';
+  inherits: true;
+  initial-value: 100%;
+}
+
+/* Covers CSS, pseudo-elements and native navigation snapshots. State remains
+   immediate; no tiny-duration hack or replacement scroll engine is needed. */
+:root[data-motion='reduce'] { scroll-behavior: auto; }
+:root[data-motion='reduce'] *,
+:root[data-motion='reduce'] *::before,
+:root[data-motion='reduce'] *::after {
+  animation: none !important;
+  transition: none !important;
+}
+:root[data-motion='reduce']::view-transition-group(*),
+:root[data-motion='reduce']::view-transition-old(*),
+:root[data-motion='reduce']::view-transition-new(*) { animation: none !important; }
+:root[data-motion='reduce'] .sr,
+:root[data-motion='reduce'] .sr-stagger > * { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

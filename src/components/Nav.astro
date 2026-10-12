@@ -388,11 +388,11 @@ const brandLetters = ['a', 'm', 'j', 'e', 'd', 'i', 'd', 'i', 'a', 'h'];
 </style>
 
 <script>
-  const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+  import { prefersReducedMotion, observeReducedMotion } from '../lib/motion';
   const wordmarkAnimations = new Map<HTMLElement, Animation[]>();
 
   const playWordmark = (wordmark: HTMLElement) => {
-    if (motionPreference.matches || !wordmark.offsetWidth || !Element.prototype.animate) return;
+    if (prefersReducedMotion() || !wordmark.offsetWidth || !Element.prototype.animate) return;
     if (wordmarkAnimations.get(wordmark)?.some((animation) => animation.playState === 'running')) return;
 
     const colors = getComputedStyle(document.documentElement);
@@ -423,8 +423,8 @@ const brandLetters = ['a', 'm', 'j', 'e', 'd', 'i', 'd', 'i', 'a', 'h'];
   const cancelWordmarkAnimations = () => {
     wordmarkAnimations.forEach((animations) => animations.forEach((animation) => animation.cancel()));
   };
-  motionPreference.addEventListener('change', (event) => {
-    if (event.matches) cancelWordmarkAnimations();
+  observeReducedMotion(() => {
+    if (prefersReducedMotion()) cancelWordmarkAnimations();
   });
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) cancelWordmarkAnimations();

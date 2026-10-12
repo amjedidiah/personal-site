@@ -1,0 +1,86 @@
+---
+interface Props { projectId: string; }
+const { projectId } = Astro.props;
+const isGwela = projectId === 'gwela';
+const supported = isGwela || projectId === 'cocktail-book-club';
+---
+
+{supported && <figure class:list={['project-diagram', isGwela ? 'diagram-session' : 'diagram-books']}>
+  <svg viewBox="0 0 600 230" fill="none" aria-hidden="true">
+    {isGwela ? <>
+      <g class="diagram-tracks">
+        <path d="M72 54H160L200 115H255M72 176H160L200 115M528 54H440L400 115H345M528 176H440L400 115" />
+        <path d="M255 115H345" />
+      </g>
+      <g class="diagram-signal">
+        <path pathLength="100" d="M72 54H160L200 115H300L400 115L440 54H528" />
+        <path pathLength="100" d="M72 176H160L200 115H300L400 115L440 176H528" />
+      </g>
+      <g class="diagram-people">
+        <circle cx="72" cy="54" r="12" /><circle cx="72" cy="176" r="12" />
+        <circle cx="528" cy="54" r="12" /><circle cx="528" cy="176" r="12" />
+      </g>
+      <rect class="diagram-core" x="255" y="70" width="90" height="90" rx="12" />
+      <path class="diagram-core-mark" d="M280 102h40m-40 13h29m-29 13h35" />
+      <circle class="diagram-orbit" cx="300" cy="115" r="62" />
+    </> : <>
+      <path class="diagram-tracks" d="M64 182H536M300 60V182" />
+      <g class="diagram-book book-first">
+        <path d="M94 63h54a8 8 0 0 1 8 8v92H94Z" />
+        <path class="book-spine" d="M103 63v100m14-69h23m-23 10h17" />
+      </g>
+      <g class="diagram-book book-second">
+        <path d="M163 45h55a8 8 0 0 1 8 8v110h-63Z" />
+        <path class="book-spine" d="M173 45v118m14-89h23m-23 10h15" />
+      </g>
+      <g class="diagram-community">
+        <circle cx="371" cy="84" r="13" /><circle cx="416" cy="72" r="13" /><circle cx="461" cy="84" r="13" />
+        <path d="M352 134v-17a19 19 0 0 1 38 0v17m7 0V105a19 19 0 0 1 38 0v29m7 0v-17a19 19 0 0 1 38 0v17" />
+      </g>
+      <path class="diagram-signal" pathLength="100" d="M95 182H536" />
+      <g class="diagram-event">
+        <rect x="386" y="150" width="60" height="42" rx="5" />
+        <path d="M386 163h60m-45-18v10m30-10v10m-29 21h28" />
+      </g>
+    </>}
+  </svg>
+  <figcaption>
+    <span>{isGwela ? 'One session. Shared context.' : 'Reading becomes a shared experience.'}</span>
+    <span class="diagram-caption-note">Concept diagram</span>
+  </figcaption>
+</figure>}
+
+<style>
+  .project-diagram { position: relative; isolation: isolate; overflow: clip; margin: 0; padding: clamp(1rem, 2vw, 1.5rem); border-bottom: 1px solid var(--border); color: var(--accent); --flow-position: 100%; view-timeline: --project-diagram block; }
+  .project-diagram::before { content: ''; position: absolute; inset: 0; z-index: -1; background: radial-gradient(ellipse at var(--flow-position) 45%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 65%); }
+  svg { display: block; width: 100%; height: auto; }
+  path { stroke-linecap: round; stroke-linejoin: round; }
+  .diagram-tracks { stroke: var(--border); stroke: color-mix(in srgb, var(--accent) 25%, var(--border)); stroke-width: 1.5; }
+  .diagram-signal { stroke: currentColor; stroke-width: 2; }
+  .diagram-people, .diagram-community { stroke: currentColor; stroke-width: 1.5; }
+  .diagram-core, .diagram-event { fill: var(--bg); stroke: currentColor; stroke-width: 1.5; }
+  .diagram-core-mark { stroke: currentColor; stroke-width: 2; }
+  .diagram-orbit { stroke: currentColor; stroke-width: 1; stroke-dasharray: 3 9; transform-origin: 300px 115px; opacity: .5; }
+  .diagram-book { fill: var(--bg); fill: color-mix(in srgb, var(--accent) 8%, var(--bg)); stroke: currentColor; stroke-width: 1.5; transform-box: fill-box; transform-origin: bottom left; }
+  .book-second { color: color-mix(in srgb, var(--accent) 65%, var(--fg)); }
+  .book-spine { fill: none; }
+  figcaption { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .35rem 1rem; color: var(--dim); color: color-mix(in srgb, var(--dim) 70%, var(--fg)); font: 500 .75rem/1.5 var(--font-sans); }
+  .diagram-caption-note { font-weight: 400; }
+  @keyframes session-converge { from { stroke-dasharray: 0 100; } to { stroke-dasharray: 100 0; } }
+  @keyframes session-orbit { from { rotate: -80deg; } to { rotate: 0deg; } }
+  @keyframes book-open { from { rotate: -12deg; } to { rotate: 0deg; } }
+  @keyframes diagram-light { from { --flow-position: 0%; } to { --flow-position: 100%; } }
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) and (view-timeline: --project-diagram block) and (animation-range: entry 0% cover 45%) {
+      .project-diagram { animation: var(--diagram-animation, diagram-light linear both); animation-timeline: view(); animation-range: entry 0% cover 45%; }
+      .diagram-signal { animation: var(--signal-animation, session-converge linear both); animation-timeline: --project-diagram; animation-range: entry 0% cover 45%; }
+      .diagram-orbit { animation: var(--orbit-animation, session-orbit linear both); animation-timeline: --project-diagram; animation-range: entry 0% cover 45%; }
+      .diagram-book { animation: var(--book-animation, book-open linear both); animation-timeline: --project-diagram; animation-range: entry 0% cover 45%; }
+    }
+  }
+  @media (forced-colors: active) {
+    .project-diagram::before { display: none; }
+    svg * { stroke: CanvasText; }
+    .diagram-core, .diagram-event, .diagram-book { fill: Canvas; }
+  }
+</style>

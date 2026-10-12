@@ -1,6 +1,9 @@
 ---
 import { Image } from 'astro:assets';
 import portrait from '../assets/me.webp';
+import ProductionFlow from './ProductionFlow.astro';
+
+const portraitTrace = 'M4 82V4H82M398 4H476V82M476 398V476H398M82 476H4V398';
 
 const portraitImage = {
   src: portrait,
@@ -11,6 +14,7 @@ const portraitImage = {
 };
 ---
 
+<div class="hero-artwork">
 <div class="hero-visual">
   <Image
     {...portraitImage}
@@ -26,14 +30,16 @@ const portraitImage = {
     loading="eager"
     decoding="async"
   />
+  <svg class="portrait-trace" viewBox="0 0 480 480" fill="none" aria-hidden="true">
+    <path class="portrait-trace-track" d={portraitTrace} />
+    <path class="portrait-trace-ink" pathLength="100" d={portraitTrace} />
+  </svg>
+</div>
+<ProductionFlow />
 </div>
 
 <style>
-  .hero-visual {
-    position: relative;
-    isolation: isolate;
-    overflow: clip;
-    border-radius: 2px;
+  .hero-artwork {
     grid-column: 2;
     grid-row: 1 / span 2;
     min-width: 0;
@@ -41,6 +47,10 @@ const portraitImage = {
     align-self: center;
     justify-self: end;
   }
+  .hero-visual { position: relative; isolation: isolate; overflow: clip; border-radius: 2px; padding: .7rem; }
+  .portrait-trace { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .portrait-trace-track { stroke: var(--border); stroke-width: 1; }
+  .portrait-trace-ink { stroke: var(--accent); stroke-width: 1.5; }
   .hero-portrait {
     display: block;
     width: 100%;
@@ -54,8 +64,9 @@ const portraitImage = {
   }
   .hero-portrait--color {
     position: absolute;
-    inset: 0;
-    height: 100%;
+    inset: .7rem;
+    width: calc(100% - 1.4rem);
+    height: calc(100% - 1.4rem);
     pointer-events: none;
     clip-path: inset(0 0 100% 0);
   }
@@ -64,11 +75,20 @@ const portraitImage = {
     from { clip-path: inset(0 0 100% 0); }
     to { clip-path: inset(0); }
   }
+  @keyframes portrait-trace-reveal {
+    from { stroke-dasharray: 0 100; }
+    to { stroke-dasharray: 100 0; }
+  }
 
   @media (prefers-reduced-motion: no-preference) {
     @supports (animation-timeline: scroll(root block)) and (animation-range: entry) and (animation-range: 0px 280px) {
       .hero-portrait--color {
-        animation: portrait-color-reveal linear both;
+        animation: var(--portrait-animation, portrait-color-reveal linear both);
+        animation-timeline: scroll(root block);
+        animation-range: 0px 280px;
+      }
+      .portrait-trace-ink {
+        animation: var(--portrait-trace-animation, portrait-trace-reveal linear both);
         animation-timeline: scroll(root block);
         animation-range: 0px 280px;
       }
@@ -80,7 +100,7 @@ const portraitImage = {
   }
 
   @media (max-width: 760px) {
-    .hero-visual {
+    .hero-artwork {
       grid-column: 1;
       grid-row: 2;
       width: min(100%, 22rem);

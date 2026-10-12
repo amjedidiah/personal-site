@@ -31,12 +31,14 @@ const socialImageURL = Astro.site ? new URL('/og.svg', Astro.site) : '/og.svg';
     (() => {
       const root = document.documentElement;
       root.classList.add('has-js');
+      root.dataset.motion = 'system';
       const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       let preference = 'system';
 
       try {
         const stored = window.localStorage.getItem('amjed-theme');
         if (stored === 'light' || stored === 'dark') preference = stored;
+        if (window.location.pathname === '/' && window.localStorage.getItem('amjed-motion') === 'reduce') root.dataset.motion = 'reduce';
       } catch {
         // Storage can be unavailable without preventing theme initialization.
       }
@@ -122,7 +124,14 @@ const socialImageURL = Astro.site ? new URL('/og.svg', Astro.site) : '/og.svg';
     window.addEventListener('resize', requestProgressUpdate, { passive: true });
     window.addEventListener('load', requestProgressUpdate, { once: true });
 
-    if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const motionIsReduced = () => document.documentElement.dataset.motion === 'reduce'
+      || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const respectMotion = (event) => {
+      if (document.documentElement.dataset.motion === 'reduce') event.viewTransition?.skipTransition();
+    };
+    window.addEventListener('pageswap', respectMotion);
+    window.addEventListener('pagereveal', respectMotion);
+    if ('IntersectionObserver' in window && !motionIsReduced()) {
       const targets = document.querySelectorAll('.sr, .sr-stagger');
       const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
