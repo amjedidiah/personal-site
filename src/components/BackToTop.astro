@@ -72,11 +72,11 @@ import { ArrowUp } from '@lucide/astro';
 </style>
 
 <script>
+  import { prefersReducedMotion } from '../lib/motion';
   const button = document.querySelector<HTMLAnchorElement>('.back-to-top');
   if (button) {
     button.inert = true;
     button.setAttribute('aria-hidden', 'true');
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     let frame = 0;
 
     const updateVisibility = () => {
@@ -103,7 +103,7 @@ import { ArrowUp } from '@lucide/astro';
         start.tabIndex = -1;
         start.focus({ preventScroll: true });
       }
-      window.scrollTo({ top: 0, behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+      window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
       requestUpdate();
     });
     button.addEventListener('blur', requestUpdate);

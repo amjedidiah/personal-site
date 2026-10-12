@@ -1,4 +1,5 @@
 import { currentIssueUrls, parseAvailabilityIssue } from './current-feed';
+import { prefersReducedMotion, observeReducedMotion } from './motion';
 
 type CachedIssue = { savedAt: number; raw: unknown };
 type FeedCache = { availability?: CachedIssue; retryAt?: number };
@@ -64,7 +65,6 @@ function mountCurrent(host: HTMLElement): () => void {
   let disposed = false;
   let cooldown = 0;
   let feedback: Animation | undefined;
-  const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
   let cache: FeedCache = {};
   try {
     const stored: FeedCache | null = JSON.parse(localStorage.getItem(cacheKey) ?? 'null');
@@ -154,7 +154,7 @@ function mountCurrent(host: HTMLElement): () => void {
     host.dataset.lastKnownStatus = lastKnownStatus;
     saveCache();
     // User-requested refresh gets a brief confirmation; background checks stay quiet.
-    if (manual && (result.kind === 'data' || result.kind === 'empty') && !motion.matches && signals.animate) {
+    if (manual && (result.kind === 'data' || result.kind === 'empty') && !prefersReducedMotion() && signals.animate) {
       feedback?.cancel();
       feedback = signals.animate([{ opacity: .65 }, { opacity: 1 }], { duration: 180, easing: 'ease-out' });
     }
@@ -169,7 +169,7 @@ function mountCurrent(host: HTMLElement): () => void {
   window.addEventListener('offline', () => {
     setState('offline', `You’re offline. ${lastKnownStatus} Refresh will resume when you reconnect.`);
   }, { signal: listeners.signal });
-  motion.addEventListener('change', () => { if (motion.matches) feedback?.cancel(); }, { signal: listeners.signal });
+  observeReducedMotion(() => { if (prefersReducedMotion()) feedback?.cancel(); }, listeners.signal);
   if (!navigator.onLine || cache.retryAt || !cache.availability || Date.now() - lastCheck >= refreshInterval) void refresh();
 
   return () => {

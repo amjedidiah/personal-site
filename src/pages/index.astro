@@ -1,6 +1,9 @@
 ---
 import Base from '../layouts/Base.astro';
 import HeroScene from '../components/HeroScene.astro';
+import ProjectDiagram from '../components/ProjectDiagram.astro';
+import ArticleMark from '../components/ArticleMark.astro';
+import '../styles/motion.css';
 import CurrentWork from '../components/CurrentWork.astro';
 import ProgressiveImage from '../components/ProgressiveImage.astro';
 import { getCollection } from 'astro:content';
@@ -98,6 +101,7 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
       <div class="featured-work">
         {caseStudies.map((p) => (
           <article class="featured-card">
+            <ProjectDiagram projectId={p.id} />
             {showCaseStudyImages && p.data.image && (
               <a href={`/projects/${p.id}`} class="featured-card-media" aria-label={`Read ${p.data.title} case study`}>
                 <div class="case-image">
@@ -147,6 +151,7 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
         {featuredArticles.map((article) => (
           <article class="writing-card">
             <div class="writing-card-body">
+              <ArticleMark />
               <header class="writing-card-head">
                 <time datetime={article.date.toISOString().slice(0, 10)} class="writing-date">
                   {article.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })}
@@ -192,15 +197,20 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
       </div>
       <p class="experience-summary">Client work, engineering roles, teaching, speaking, and security research.</p>
       <ul class="experience-grid">
-        {experienceClients.map((c) => (
+        {experienceClients.map((c, index) => (
           <li>
             <a
               class="experience-card"
               href={c.href}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label={`${c.name} — ${c.note} (opens in a new tab)`}
+              style={`--experience-entry: ${index * 15}%`}
             >
+              <svg class="experience-connection" viewBox="0 0 160 24" fill="none" aria-hidden="true">
+                <path class="experience-track" d="M0 12H160" />
+                <path class="experience-ink" d="M0 12H160" pathLength="100" />
+                <circle class="experience-node" cx="80" cy="12" r="4" />
+              </svg>
               <img
                 class:list={[
                   'experience-logo',
@@ -217,6 +227,7 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
               />
               <strong>{c.name}</strong>
               <span>{c.note}</span>
+              <span class="visually-hidden"> (opens in a new tab)</span>
             </a>
           </li>
         ))}
@@ -243,6 +254,10 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
           <p class="cta-lede">Tell me what you’re building, what needs work, and when you need it. I usually reply within a few days.</p>
         </div>
         <div class="cta-actions">
+          <svg class="contact-route" viewBox="0 0 248 64" fill="none" aria-hidden="true">
+            <path class="contact-track" d="M12 8H100Q124 8 124 32V54M115 45L124 54L133 45" />
+            <path class="contact-ink" d="M12 8H100Q124 8 124 32V54M115 45L124 54L133 45" pathLength="100" />
+          </svg>
           <a
             class="btn-primary cta-contact"
             href={projectInquiryEmail}
@@ -310,6 +325,7 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     margin-bottom: .35rem;
   }
   .hero h1 {
+    overflow-wrap: anywhere;
     font-size: clamp(2rem, 4.65vw, 4.5rem);
     line-height: 1.02;
     letter-spacing: -.035em;
@@ -372,12 +388,15 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     flex: none;
   }
   .section-label h2 {
+    min-width: 0;
+    max-width: 100%;
     color: var(--home-muted);
     font: 500 clamp(0.92rem, 1.55vw, 1.05rem)/1.35 var(--font-sans);
     letter-spacing: .07em;
     text-transform: uppercase;
   }
   .now-panel {
+    view-timeline: --now-panel block;
     display: grid;
     grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr);
     gap: clamp(1rem, 2.5vw, 1.75rem);
@@ -391,7 +410,7 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     gap: .55rem;
     min-width: 0;
   }
-  .now-lede {
+  .now-primary :global(.now-lede) {
     margin: 0;
     max-width: 36ch;
     color: var(--fg);
@@ -399,23 +418,33 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     letter-spacing: -0.02em;
     text-wrap: balance;
   }
-  .now-lede a {
+  .now-primary :global(.now-lede a) {
     color: inherit;
+    background: linear-gradient(var(--accent), var(--accent)) left bottom / var(--flow-position) .12em no-repeat;
     text-decoration: underline;
     text-decoration-color: color-mix(in srgb, var(--fg) 28%, transparent);
     text-underline-offset: .18em;
     transition: text-decoration-color .15s ease;
   }
-  .now-lede a:hover {
+  .now-primary :global(.now-lede a:hover) {
     text-decoration-color: color-mix(in srgb, var(--fg) 55%, transparent);
   }
   .current-signals {
+    position: relative;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: .65rem;
     align-content: center;
     padding-left: clamp(1rem, 2.5vw, 1.75rem);
     border-left: 1px solid var(--border);
+  }
+  .current-signals::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 -1px;
+    width: 1px;
+    background: var(--accent);
+    pointer-events: none;
   }
   .current-signal {
     display: flex;
@@ -721,6 +750,7 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     line-height: 1.65;
   }
   .experience-grid {
+    view-timeline: --experience-grid block;
     list-style: none;
     margin: 0;
     padding: 0;
@@ -757,6 +787,11 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     text-decoration: none;
     transition: border-color 0.2s ease, background 0.2s ease;
   }
+  .experience-connection { display: block; width: 100%; height: 1.5rem; margin-bottom: .4rem; overflow: visible; }
+  .experience-connection path { stroke-width: 1.5; }
+  .experience-track { stroke: var(--border); }
+  .experience-ink { stroke: var(--accent); }
+  .experience-node { stroke: var(--accent); stroke-width: 1.5; fill: var(--bg); transform-box: fill-box; transform-origin: center; }
   .experience-card:is(:hover, :focus-visible) {
     border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
     background: color-mix(in srgb, var(--surface) 55%, var(--bg));
@@ -856,11 +891,63 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     font: 400 .92rem/1.65 var(--font-sans);
   }
   .cta-actions {
+    view-timeline: --contact-route block;
     display: flex;
     flex-direction: column;
     align-items: stretch;
     gap: .65rem;
     width: min(100%, 15.5rem);
+  }
+  .contact-route { display: block; width: 100%; height: 4rem; overflow: visible; }
+  .contact-route path { stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .contact-track { stroke: var(--border); }
+  .contact-ink { stroke: var(--accent); }
+
+  /* The writing motif unfolds in ArticleMark. These sections instead connect
+     current work, professional contributions and the contact action. Nothing
+     here is a status, loading bar or measure of professional experience. */
+  @keyframes now-underline { from { --flow-position: 0%; } to { --flow-position: 100%; } }
+  @keyframes now-divider { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0); } }
+  @keyframes now-divider-horizontal { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0); } }
+  @keyframes experience-connect { from { stroke-dasharray: 0 100; } to { stroke-dasharray: 100 0; } }
+  @keyframes experience-node { from { transform: scale(.4); } to { transform: scale(1); } }
+  @keyframes contact-connect { from { stroke-dasharray: 0 100; } to { stroke-dasharray: 100 0; } }
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) and (view-timeline: --now-panel block) and (animation-range: entry 0% cover 45%) {
+      /* The var() fallbacks keep Astro's production optimizer from merging
+         animation-timeline into an unsupported animation shorthand. */
+      .now-primary {
+        animation: var(--now-work-animation, now-underline linear both);
+        animation-timeline: --now-panel;
+        animation-range: entry 0% cover 35%;
+      }
+      .current-signals::before {
+        animation: var(--now-divider-animation, now-divider linear both);
+        animation-timeline: --now-panel;
+        animation-range: entry 0% cover 35%;
+      }
+      .experience-ink, .experience-node {
+        animation: var(--experience-animation, experience-connect linear both);
+        animation-timeline: --experience-grid;
+        animation-range: entry var(--experience-entry, 0%) cover 45%;
+      }
+      .experience-node { --experience-animation: experience-node linear both; }
+      .contact-ink {
+        animation: var(--contact-animation, contact-connect linear both);
+        animation-timeline: --contact-route;
+        /* Finish while fully entering: the footer limits further scrolling. */
+        animation-range: entry 0% entry 100%;
+      }
+    }
+  }
+  @media (max-width: 900px) {
+    .current-signals::before { inset: -1px 0 auto; width: auto; height: 1px; }
+    .current-signals { --now-divider-animation: now-divider-horizontal linear both; }
+  }
+  @media (forced-colors: active) {
+    .current-signals::before { background: CanvasText; }
+    .experience-connection path, .experience-node, .contact-route path { stroke: CanvasText; }
+    .experience-node { fill: Canvas; }
   }
   .cta-actions .btn-primary,
   .cta-actions .btn-ghost {
@@ -973,6 +1060,7 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
 
 <script>
   import '../lib/home-current-status';
+  import '../lib/home-hero-motion';
 
   const contactPrimaryLinks = Array.from(
     document.querySelectorAll<HTMLAnchorElement>('[data-contact-primary]'),

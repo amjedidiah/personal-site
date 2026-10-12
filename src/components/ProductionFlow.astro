@@ -1,0 +1,60 @@
+---
+const flowPath = 'M38 36H150L170 16H180L200 36H300L320 56H380L400 36H562';
+---
+
+<figure class="production-flow">
+  <svg viewBox="0 0 600 72" fill="none" aria-hidden="true">
+    <path class="flow-track" d={flowPath} />
+    <path class="flow-ink" d={flowPath} />
+    <path class="flow-signal" d={flowPath} pathLength="100" />
+    <g class="flow-terminals">
+      <rect x="24" y="22" width="28" height="28" rx="6" />
+      <path d="m30 36 5 5 10-10" />
+      <path d="m200 22 14 14-14 14-14-14Z" />
+      <rect x="386" y="22" width="28" height="28" rx="6" />
+      <path d="M392 32h16m-16 8h9" />
+      <circle cx="562" cy="36" r="14" />
+      <path d="m555 36 5 5 9-10" />
+    </g>
+  </svg>
+  <figcaption>
+    <span class="flow-context">Payment flow · illustration</span>
+    <span>Request</span><span>Validate</span><span>Payment</span><span>Confirm</span>
+    <span class="visually-hidden">This is not a live transaction.</span>
+  </figcaption>
+</figure>
+
+<style>
+  .production-flow { margin: 1.15rem 0 0; color: var(--accent); }
+  svg { display: block; width: 100%; height: auto; overflow: visible; }
+  path { stroke-linecap: round; stroke-linejoin: round; }
+  .flow-track { stroke: var(--border); stroke-width: 2; }
+  .flow-ink { stroke: currentColor; stroke-width: 2; mask-image: linear-gradient(90deg, #000 var(--flow-position), transparent var(--flow-position)); }
+  .flow-signal { display: none; stroke: currentColor; stroke-width: 4; stroke-dasharray: 2 98; opacity: .85; }
+  .flow-terminals { stroke: currentColor; stroke-width: 1.5; fill: var(--bg); }
+  .flow-terminals path { fill: none; }
+  figcaption { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .4rem .7rem; color: var(--dim); color: color-mix(in srgb, var(--dim) 65%, var(--fg)); font: 500 .7rem/1.5 var(--font-sans); }
+  .flow-context { flex-basis: 100%; color: var(--fg); margin-bottom: .15rem; }
+  @keyframes flow-connect { from { --flow-position: 0%; } to { --flow-position: 100%; } }
+  @keyframes flow-signal { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -100; } }
+  @media (prefers-reduced-motion: no-preference) {
+    .production-flow[data-ambient] .flow-signal {
+      display: block;
+      animation: flow-signal 8s linear infinite;
+      animation-play-state: paused;
+    }
+    .production-flow[data-ambient="running"] .flow-signal { animation-play-state: running; }
+    @supports (animation-timeline: scroll(root block)) and (animation-range: 0px 280px) {
+      .flow-ink {
+        /* Keep the timeline separate through production CSS minification. */
+        animation: var(--flow-animation, flow-connect linear both);
+        animation-timeline: scroll(root block);
+        animation-range: 0px 280px;
+      }
+    }
+  }
+  @media (forced-colors: active) {
+    .flow-track, .flow-ink, .flow-terminals { stroke: CanvasText; }
+    .flow-terminals { fill: Canvas; }
+  }
+</style>
