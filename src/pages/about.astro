@@ -1,16 +1,19 @@
 ---
 import Base from '../layouts/Base.astro';
+import CurrentWork from '../components/CurrentWork.astro';
+import { current } from '../data/current';
+import { profile } from '../data/profile';
 import { ArrowUpRight } from '@lucide/astro';
 ---
 
-<Base title="About — Jedidiah Amaraegbu" description="Full stack engineer, Stripe architect, security researcher based in Lagos.">
+<Base title="About — Jedidiah Amaraegbu" description={profile.description}>
   <header class="about-hero sr">
     <div class="about-hero-top">
       <p class="about-path">Based in Lagos, Nigeria</p>
       <button class="typewriter-control" type="button" data-typewriter-toggle="hero" hidden>Pause text</button>
     </div>
     <h1 aria-label="Need a developer, engineer, speaker, consultant, or instructor?"><span class="typewriter-prefix">Need <span data-typewriter-article aria-hidden="true">a</span></span>{' '}<span class="typewriter-text" data-typewriter-text aria-hidden="true">developer?</span></h1>
-    <p class="about-deck">I empower individuals and businesses with web and mobile applications — from payment infrastructure and AI-powered products to real-time collaborative tools.</p>
+    <p class="about-deck">I build web and mobile applications, integrate payments, and help teams polish code for launch.</p>
   </header>
 
   <div class="about-intro">
@@ -20,8 +23,9 @@ import { ArrowUpRight } from '@lucide/astro';
         <p>I began in dental surgery, then moved into Electronics Engineering before building my career in software. I was drawn to software’s wider reach: helping people and businesses communicate, earn, automate, and build at scale, with AI expanding that reach even further.<br /> I’ve been shipping production code for <strong>6+ years</strong>, mostly in <strong>TypeScript</strong>, <strong>React</strong>, <strong>Node.js</strong>, and <strong>Python</strong>.</p>
       </section>
       <section class="story-section">
-        <h2>the specialty</h2>
-        <p>My speciality is <strong>payments</strong>. I hold both <strong>Stripe certifications</strong> (Professional Implementation Architect and Professional Payments Developer). I've built <strong>compliant payment systems</strong> for government contractors, automated <strong>cross-border payment flows</strong>, and integrated <strong>mobile money APIs across West Africa</strong>.</p>
+        <h2>the speciality</h2>
+        <p>My speciality is <strong>payments</strong>. I’ve built a Stripe Connect platform serving government contractors, automated <strong>cross-border payment flows</strong>, and integrated <strong>mobile money APIs across West Africa</strong>. I earned the Stripe Professional Implementation Architect and Professional Payments Developer credentials in <strong>2022</strong>; their current status is listed below.</p>
+        <p>{current.appReview}</p>
       </section>
       <section class="story-section">
         <h2>the multiplier</h2>
@@ -29,13 +33,13 @@ import { ArrowUpRight } from '@lucide/astro';
       </section>
       <section class="story-section">
         <h2>now</h2>
-        <p>Right now I'm building <strong>Gwela</strong>, a <strong>multiplayer AI agent platform</strong>, and doing <strong>security research</strong> across payment, AI, and SaaS infrastructure through multiple <strong>HackerOne</strong> programs, including Stripe.</p>
+        <CurrentWork />
       </section>
     </div>
 
     <aside class="proof-rail sr" aria-label="Selected proof">
       <div class="proof-item"><strong>6+</strong><span>years shipping</span></div>
-      <div class="proof-item"><strong>2x</strong><span>Stripe certified</span></div>
+      <div class="proof-item"><strong>2</strong><span>Stripe credentials earned</span></div>
       <div class="proof-item"><strong>200+</strong><span>developers mentored</span></div>
       <div class="proof-item"><strong>3</strong><span>continents</span></div>
     </aside>
@@ -47,10 +51,10 @@ import { ArrowUpRight } from '@lucide/astro';
       <li class="exp">
         <div class="exp-head">
           <span class="exp-name">Fiverr Pro</span>
-          <span class="exp-role">Full Stack Stripe Certified Developer</span>
+          <span class="exp-role">Freelance Full Stack & Payments Developer</span>
           <span class="exp-date">2023&ndash;present</span>
         </div>
-        <div class="exp-desc">Payment systems for 100+ government contractors. PCI-compliant Stripe integrations. AI-native development workflows.</div>
+        <div class="exp-desc">Built a Stripe Connect integration for a platform serving 100+ government contractors. Client work includes payment APIs, integration tests, and documentation for support teams.</div>
       </li>
       <li class="exp">
         <div class="exp-head">
@@ -58,7 +62,7 @@ import { ArrowUpRight } from '@lucide/astro';
           <span class="exp-role">Full Stack Software Engineer</span>
           <span class="exp-date">2022&ndash;2023</span>
         </div>
-        <div class="exp-desc">Custom podcast player (+10% engagement), automated cross-border payments (-25% processing time), SSG optimisation (-20% load times). Mentored 5 engineers.</div>
+        <div class="exp-desc">Built a custom podcast player, automated cross-border payments for the finance team, and improved page loading with static site generation. Mentored 5 engineers.</div>
       </li>
       <li class="exp">
         <div class="exp-head">
@@ -66,7 +70,7 @@ import { ArrowUpRight } from '@lucide/astro';
           <span class="exp-role">Full Stack JavaScript Instructor</span>
           <span class="exp-date">2021&ndash;2022</span>
         </div>
-        <div class="exp-desc">Trained 4 cohorts. 25% student job placement increase. Volunteered a 1-week bootcamp in Benin Republic.</div>
+        <div class="exp-desc">Taught full-stack JavaScript across 4 cohorts through practical workshops and team projects. Volunteered to lead a 1-week frontend and API development bootcamp in Benin Republic.</div>
       </li>
       <li class="exp">
         <div class="exp-head">
@@ -74,7 +78,7 @@ import { ArrowUpRight } from '@lucide/astro';
           <span class="exp-role">Full Stack Web Developer</span>
           <span class="exp-date">2021</span>
         </div>
-        <div class="exp-desc">Responsive design patterns for bandwidth-constrained mobile users. 30% page load improvement through modular architecture.</div>
+        <div class="exp-desc">Built responsive interfaces for mobile users on limited bandwidth, and improved page loading through code optimisation and reusable components.</div>
       </li>
     </ol>
   </section>
@@ -82,12 +86,12 @@ import { ArrowUpRight } from '@lucide/astro';
   <section class="about-proof">
     <h2>credentials & proof</h2>
     <ul class="certs">
-      <li><a href="https://stripecertifications.credential.net/50c637da-8253-49e6-9434-48bfe4719917" target="_blank" rel="noopener noreferrer">Stripe Professional Implementation Architect <ArrowUpRight size={13} strokeWidth={1.8} aria-hidden="true" /><span class="visually-hidden"> (opens in a new tab)</span></a> <span>(2022)</span></li>
-      <li><a href="https://stripecertifications.credential.net/efcd44b0-6e66-4262-89c2-5a513bdec126#gs.d68lud" target="_blank" rel="noopener noreferrer">Stripe Professional Payments Developer <ArrowUpRight size={13} strokeWidth={1.8} aria-hidden="true" /><span class="visually-hidden"> (opens in a new tab)</span></a> <span>(2022)</span></li>
-      <li>B.E. Electronic Engineering <span>University of Nigeria, Nsukka · EU Blue Card-eligible accredited university & degree · Top 10 in the country</span></li>
+      <li><a href="https://stripecertifications.credential.net/50c637da-8253-49e6-9434-48bfe4719917" target="_blank" rel="noopener noreferrer">Stripe Professional Implementation Architect <ArrowUpRight size={13} strokeWidth={1.8} aria-hidden="true" /><span class="visually-hidden"> (opens in a new tab)</span></a> <span>Earned December 2022 · expired 1 October 2026</span></li>
+      <li><a href="https://stripecertifications.credential.net/efcd44b0-6e66-4262-89c2-5a513bdec126" target="_blank" rel="noopener noreferrer">Stripe Professional Payments Developer <ArrowUpRight size={13} strokeWidth={1.8} aria-hidden="true" /><span class="visually-hidden"> (opens in a new tab)</span></a> <span>Earned November 2022 · does not expire</span></li>
+      <li>B.E. Electronic Engineering <span>University of Nigeria, Nsukka</span></li>
       <li><a href="https://docs.google.com/presentation/d/1ubONK6ZQfQ-LADqEJtD7mxPFCkmrCGuisRm6joqcfuE/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Google DevFest speaker <ArrowUpRight size={13} strokeWidth={1.8} aria-hidden="true" /><span class="visually-hidden"> (opens in a new tab)</span></a> <span>Enugu, 2022 & 2023</span></li>
       <li>200+ developers mentored <span>across 3 continents</span></li>
-      <li><a href="https://www.youtube.com/watch?v=SQ2vMppVmcc" target="_blank" rel="noopener noreferrer">iCreate Skills Festival <ArrowUpRight size={13} strokeWidth={1.8} aria-hidden="true" /><span class="visually-hidden"> (opens in a new tab)</span></a> <span>2019 · Built 2 websites in record time to win a National medal</span></li>
+      <li><a href="https://www.youtube.com/watch?v=SQ2vMppVmcc" target="_blank" rel="noopener noreferrer">iCreate Skills Festival <ArrowUpRight size={13} strokeWidth={1.8} aria-hidden="true" /><span class="visually-hidden"> (opens in a new tab)</span></a> <span>2019 · National medal for website development</span></li>
     </ul>
   </section>
 
@@ -139,7 +143,7 @@ import { ArrowUpRight } from '@lucide/astro';
     <div class="links">
       <a href="https://github.com/amjedidiah" target="_blank" rel="noopener noreferrer">github<span class="visually-hidden"> (opens in a new tab)</span></a>
       <a href="https://twitter.com/am_jedidiah" target="_blank" rel="noopener noreferrer">x / twitter<span class="visually-hidden"> (opens in a new tab)</span></a>
-      <a href="https://linkedin.com/in/amjedidiah" target="_blank" rel="noopener noreferrer">linkedin<span class="visually-hidden"> (opens in a new tab)</span></a>
+      <a href="https://www.linkedin.com/in/am-jedidiah/" target="_blank" rel="noopener noreferrer">linkedin<span class="visually-hidden"> (opens in a new tab)</span></a>
       <a class="about-email-link" href="mailto:imunacode@gmail.com">email</a>
       <a class="about-phone-link" href="tel:+2348165972229">call</a>
       <a href="https://docs.google.com/document/d/1_6ohHcb4bY9K7168NzdT5_nF9qKQSTtr70kRpAQrN6o/edit?usp=sharing" target="_blank" rel="noopener noreferrer">resume<span class="visually-hidden"> (opens in a new tab)</span></a>
@@ -170,6 +174,7 @@ import { ArrowUpRight } from '@lucide/astro';
   }
   .about-hero h1 {
     max-width: 13ch;
+    overflow-wrap: anywhere;
     min-height: 2.1em;
     color: var(--fg);
     font: 700 clamp(2.8rem, 6vw, 5.8rem)/.96 var(--font-sans);
@@ -232,6 +237,7 @@ import { ArrowUpRight } from '@lucide/astro';
     color: var(--fg);
     font: 1rem/1.8 var(--font-sans);
   }
+  .story-section p + p { margin-top: .8rem; }
   .proof-rail {
     display: grid;
     gap: 1.25rem;
@@ -239,6 +245,9 @@ import { ArrowUpRight } from '@lucide/astro';
   }
   .proof-item {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    min-width: 0;
+    overflow-wrap: anywhere;
     gap: .2rem;
     padding-top: .7rem;
     border-top: 1px solid var(--border);

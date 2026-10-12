@@ -33,4 +33,4 @@ The availability shown in a browser cannot be the final authority for a booking.
 
 ## Evidence and status
 
-[Event site](https://stone-watch-party.vercel.app/) - built around a 750-seat venue.
+[Event site](https://stone-watch-party.vercel.app/) - built around a 750-seat venue. The source includes database integration tests for concurrent seat allocation and registration throttling.

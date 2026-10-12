@@ -28,7 +28,7 @@ Savings groups need a clear record of contributions, member reliability, and the
 
 ## Hardest challenge
 
-The payout queue had to respond to late and missed contributions without becoming a black box. The trust agent could suggest a new order, but an admin needed to see the payment history and the reason for each change before triggering a payout.
+The payout queue had to respond to late and missed contributions without becoming a black box. The trust agent could suggest a new order, while admins needed to see the payment history and the reason for each change.
 
 ## What I built
 
@@ -36,10 +36,11 @@ The payout queue had to respond to late and missed contributions without becomin
 - A trust-scoring agent that evaluates payment history and explains changes to the payout queue
 - A conversational AI assistant for navigating the product
 - A Next.js frontend, Express API, and MongoDB data layer
+- API tests for pod access controls and payout failure paths
 
 ## Lessons learned
 
-When AI influences a financial decision, the inputs, explanation, and human action need to stay visible together. A score alone cannot explain a change to the payout order.
+When AI influences a financial decision, the inputs and explanation need to stay visible so people can inspect the result. A score alone cannot explain a change to the payout order.
 
 ## Evidence and status
 

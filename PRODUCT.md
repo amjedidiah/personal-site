@@ -10,11 +10,11 @@ web
 
 The existing site supports these audience hypotheses:
 
-- Prospective project clients evaluating payments, platform architecture, and production AI work before contacting Jedidiah.
+- Prospective project clients evaluating app development, payments, and polish of AI-generated apps before contacting Jedidiah.
 - Technical readers exploring articles, case studies, and implementation lessons.
 - Potential collaborators and hiring teams evaluating contribution scope, experience, and credentials.
 
-Open decision: the primary audience has not been selected. These audiences are inferred from the site's current copy, workflows, and resume/contact links; their order does not establish priority.
+Working editorial priority: clients and founders with an app to launch or improve. Technical readers, collaborators, and hiring teams remain supported. This follows the content audit direction authorized for implementation; it is not a claim about measured visitor demographics.
 
 ## Product Purpose
 
@@ -22,7 +22,7 @@ Jedidiah Amaraegbu's personal professional website presents his work, writing, e
 
 ## Positioning
 
-The site's existing copy emphasizes payments engineering, Stripe architecture, production AI, and security research. Its project records distinguish independent builds, client work, and open-source contributions, with project-specific roles, scope, and evidence.
+The durable promise is apps and payments that hold up in production. Established positioning lives in `src/data/profile.ts`. Current work and offers, including code review, interface improvements, testing, and security fixes for AI-generated apps, live in `src/data/current.ts`. Project records distinguish independent builds, client work, and open-source contributions, with project-specific roles, scope, and evidence.
 
 ## Operating Context
 
@@ -37,7 +37,7 @@ The site's existing copy emphasizes payments engineering, Stripe architecture, p
 - This is an existing Astro website with TypeScript and Markdown content collections, deployed through the Vercel adapter. Project and blog pages are prerendered; the feedback endpoint runs on the server.
 - Project records in `src/content/projects/` and their schema in `src/content.config.ts` own project titles, descriptions, technologies, roles, evidence, delivery platforms, links, and chronology. Native mobile apps and mobile PWAs are distinct.
 - Local writing lives in `src/content/blog/`; external article metadata lives in `src/data/hashnode.ts`.
-- Homepage availability and the latest Gwela update can refresh from public GitHub issues. Dated fallback content in `src/data/current.ts` remains available when refresh fails or JavaScript is unavailable. Do not assume availability is permanently open.
+- Homepage availability refreshes from a public GitHub issue. Dated fallback content in `src/data/current.ts` remains available when refresh fails or JavaScript is unavailable. Do not assume availability is permanently open. Gwela’s historical build notes remain dated in its project record.
 - Production offline support serves saved content with a connection/freshness notice and a recovery action. Preserve the distinction between a saved copy and current content.
 - Feedback is sent by email through `/api/feedback`; the site does not store submissions in a database. Delivery requires environment configuration. Failed submissions retain the draft and offer recovery.
 - Core browsing and reading remain usable without JavaScript. Interactive views and preferences enhance the rendered content.
@@ -45,7 +45,7 @@ The site's existing copy emphasizes payments engineering, Stripe architecture, p
 
 ## Brand Commitments
 
-- The public name is Jedidiah Amaraegbu; the site's wordmark is `amjed`.
+- The public name is Jedidiah Amaraegbu; the site's wordmark is `amjedidiah` and installed-app short name is `amjed`.
 - Existing writing uses a direct, first-person voice and concrete technical explanations.
 - Preserve accurate attribution, contribution scope, and project status. A demo, prototype, independent build, client contribution, and production product must not be presented as interchangeable.
 
@@ -55,7 +55,7 @@ The site's existing copy emphasizes payments engineering, Stripe architecture, p
 - Local articles and the external writing archive: `src/content/blog/` and `src/data/hashnode.ts`.
 - Experience, credential references, speaking links, and contact information: `src/pages/about.astro`.
 - Project imagery: `src/assets/projects/`, with optional captions and alt text in project records. Some preview images are intentionally disabled pending readiness.
-- Identity and social-preview assets: `public/favicon.svg`, `public/og.svg`, and related icons.
+- Identity and social-preview assets: the face favicon and installed-app icons in `public/`, plus `public/og.svg`.
 - These are repository-provided records and references, not an independent verification of their external claims. Do not invent testimonials, customer logos, adoption figures, financial outcomes, or additional credentials.
 
 ## Product Principles

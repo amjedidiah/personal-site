@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { afterEach, test, mock } from 'node:test';
 import nodemailer from 'nodemailer';
-import { submitFeedback } from '../src/lib/feedback-server.ts';
+import { submitFeedback, validateFeedback } from '../src/lib/feedback-server.ts';
 
 const originalUser = process.env.GMAIL_USER;
 const originalPassword = process.env.GMAIL_APP_PASSWORD;
@@ -109,4 +109,49 @@ test('mail delivery failure returns an error without exposing the message', asyn
   const response = await submitFeedback(request('source=site&message=Useful+work'));
   assert.equal(response.status, 502);
   assert.doesNotMatch((await response.json()).message, /SMTP/);
+});
+
+test('native submission redirects only after the mail service accepts it', async () => {
+  process.env.GMAIL_USER = 'sender@gmail.com';
+  process.env.GMAIL_APP_PASSWORD = 'app-password';
+  let accepted = false;
+  mock.method(nodemailer, 'createTransport', () => ({
+    sendMail: async () => { accepted = true; },
+  }));
+  const response = await submitFeedback(request('source=site&message=Useful+work', { accept: 'text/html' }));
+  assert.equal(accepted, true);
+  assert.equal(response.status, 303);
+  assert.equal(response.headers.get('location'), 'https://example.com/feedback/thanks');
+  assert.equal(response.headers.get('cache-control'), 'no-store');
+});
+
+test('native sending errors offer recovery without exposing the draft', async () => {
+  delete process.env.GMAIL_USER;
+  delete process.env.GMAIL_APP_PASSWORD;
+  const response = await submitFeedback(request('source=site&message=Private+draft', { accept: 'text/html' }));
+  const html = await response.text();
+  assert.equal(response.status, 503);
+  assert.match(html, /<main>/);
+  assert.match(html, /Back button/);
+  assert.match(html, /mailto:imunacode@gmail.com/);
+  assert.match(html, /https:\/\/wa.me\//);
+  assert.doesNotMatch(html, /Private draft/);
+});
+
+test('the advertised message limit includes exactly 3,000 characters', () => {
+  assert.equal(typeof validateFeedback(new URLSearchParams({ source: 'site', message: 'a'.repeat(3000) })), 'object');
+  assert.match(String(validateFeedback(new URLSearchParams({ source: 'site', message: 'a'.repeat(3001) }))), /3,000 characters or fewer/);
+});
+
+test('an at-limit non-ASCII message is accepted after URL encoding', async () => {
+  process.env.GMAIL_USER = 'sender@gmail.com';
+  process.env.GMAIL_APP_PASSWORD = 'app-password';
+  let sent: Record<string, unknown> | undefined;
+  mock.method(nodemailer, 'createTransport', () => ({
+    sendMail: async (mail: Record<string, unknown>) => { sent = mail; },
+  }));
+  const message = '界'.repeat(3000);
+  const response = await submitFeedback(request(new URLSearchParams({ source: 'site', message }).toString()));
+  assert.equal(response.status, 200);
+  assert.ok(String(sent?.text).endsWith(message));
 });

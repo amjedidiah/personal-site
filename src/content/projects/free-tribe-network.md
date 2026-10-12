@@ -22,9 +22,10 @@ Multilingual health-advocacy Progressive Web App built for an NGO to expand thei
 
 The site brings together program pages, resources, search, and language routes while editors update content through WordPress. Those pieces need a consistent content model so a visitor can find the same kind of information across languages.
 
-## Technical highlights
+## What I worked on
 
 - Headless WordPress CMS for content management
+- English, French, and Dutch routes and navigation
 - Multilingual Algolia search across resources
 - Resource sharing and volunteer management features
 

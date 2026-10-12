@@ -32,7 +32,7 @@ Participants joining at different times must arrive at the same session state wh
 - Live sessions with catch-up and reconnect so participants converge on the same state
 - Permissioned redirects, admission controls, and role-based session governance
 - An interruptible agent with multi-provider support and graceful degradation when the agent is unavailable
-- A React web client with end-to-end coverage for joining, lifecycle, and convergence
+- A React web client with end-to-end coverage for joining, reconnecting, redirects, lifecycle, and convergence
 
 ## Lessons learned
 

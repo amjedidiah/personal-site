@@ -1,9 +1,11 @@
 ---
 import Base from '../layouts/Base.astro';
 import HeroScene from '../components/HeroScene.astro';
+import CurrentWork from '../components/CurrentWork.astro';
 import ProgressiveImage from '../components/ProgressiveImage.astro';
 import { getCollection } from 'astro:content';
 import { current } from '../data/current';
+import { profile } from '../data/profile';
 import { hashnodePosts } from '../data/hashnode';
 import { imagePlaceholders } from '../data/image-placeholders';
 import { pickHomeFeaturedArticles } from '../lib/home-featured-articles';
@@ -29,33 +31,33 @@ const caseFocus: Record<string, string> = {
 /** TODO: set true when featured case study images are ready to ship */
 const showCaseStudyImages = false;
 
-const paymentInquirySubject = 'Payment project inquiry';
-const paymentInquiryMessage = "Hi Jedidiah, I'd like to discuss a payment project.";
-const paymentInquiryEmail = `mailto:imunacode@gmail.com?subject=${encodeURIComponent(paymentInquirySubject)}&body=${encodeURIComponent(paymentInquiryMessage)}`;
-const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComponent(paymentInquiryMessage)}`;
+const projectInquirySubject = 'Project inquiry';
+const projectInquiryMessage = "Hi Jedidiah, I'd like to discuss building or improving an app. Here's what I'm working on: ";
+const projectInquiryEmail = `mailto:imunacode@gmail.com?subject=${encodeURIComponent(projectInquirySubject)}&body=${encodeURIComponent(projectInquiryMessage)}`;
+const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComponent(projectInquiryMessage)}`;
 
 ---
 
-<Base title="Jedidiah Amaraegbu | Payments and AI Engineer" description="I help fintech and platform teams ship payments and AI that hold up in production. Explore working products and get in touch." fullBleed>
+<Base title="Jedidiah Amaraegbu | Full-stack and Payments Engineer" description="I build web and mobile apps, integrate payments, and polish AI-generated apps for launch. Explore my work and discuss your project." fullBleed>
   <!-- HERO -->
   <section class="hero hero-frame" aria-labelledby="hero-title">
     <div class="hero-frame-inner">
       <p class="hero-name">Jedidiah Amaraegbu</p>
-      <p class="hero-tag">full-stack engineer · Stripe architect · security researcher</p>
+      <p class="hero-tag">{profile.roles}</p>
       <h1 id="hero-title"><span>Apps and payments</span>{' '}<span>that hold up in</span>{' '}<span class="hero-title-emphasis">production.</span></h1>
     </div>
     <HeroScene />
     <div class="hero-copy">
-      <p class="hero-lede">Stripe and payments architecture, full-stack web, mobile, and AI engineering — from requirements till general availability deployment.</p>
+      <p class="hero-lede">I build web and mobile products and integrate payments. {current.appReview}</p>
       <div class="hero-actions">
         <a
           class="btn-primary hero-contact"
-          href={paymentInquiryEmail}
+          href={projectInquiryEmail}
           data-contact-primary
-          data-email-href={paymentInquiryEmail}
-          data-whatsapp-href={paymentInquiryWhatsApp}
+          data-email-href={projectInquiryEmail}
+          data-whatsapp-href={projectInquiryWhatsApp}
         >
-          Discuss a payment project
+          Discuss your project
         </a>
         <a class="btn-ghost" href="/projects/gwela">Explore Gwela (AI)</a>
       </div>
@@ -70,7 +72,7 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
       </div>
       <div class="now-panel">
         <div class="now-primary">
-          <p class="now-lede">Building <a href="/projects/gwela">Gwela</a>, a shared AI session product, and researching application security using HackerOne Bug bounty program.</p>
+          <CurrentWork class="now-lede" />
         </div>
         <div class="current-signals" data-current-signals>
           <article class="current-signal" id="current-availability" aria-busy="false">
@@ -188,7 +190,7 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
       <div class="section-label section-label--plain">
         <h2 id="experience-title">experience</h2>
       </div>
-      <p class="experience-summary">Payments platforms, AI products, and the teams that ship them — in production, not slide decks.</p>
+      <p class="experience-summary">Client work, engineering roles, teaching, speaking, and security research.</p>
       <ul class="experience-grid">
         {experienceClients.map((c) => (
           <li>
@@ -230,29 +232,29 @@ const paymentInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
       </div>
       <div class="cta-band">
         <div class="cta-copy">
-          <h3 class="cta-headline">Ship without the three-month detour.</h3>
+          <h3 class="cta-headline">Have an app or website to launch or polish?</h3>
           <p class="cta-proof">
             <span>Payments</span>
             <span class="cta-proof-sep" aria-hidden="true">·</span>
-            <span>Production AI</span>
+            <span>AI app reviews</span>
             <span class="cta-proof-sep" aria-hidden="true">·</span>
             <span>Full-stack</span>
           </p>
-          <p class="cta-lede">Send a short note on what you’re building and when you need it — I usually reply within a few days.</p>
+          <p class="cta-lede">Tell me what you’re building, what needs work, and when you need it. I usually reply within a few days.</p>
         </div>
         <div class="cta-actions">
           <a
             class="btn-primary cta-contact"
-            href={paymentInquiryEmail}
+            href={projectInquiryEmail}
             data-contact-primary
-            data-email-href={paymentInquiryEmail}
-            data-whatsapp-href={paymentInquiryWhatsApp}
+            data-email-href={projectInquiryEmail}
+            data-whatsapp-href={projectInquiryWhatsApp}
             data-email-label="Email me"
             data-whatsapp-label="WhatsApp"
           >
             Email me
           </a>
-          <a class="cta-light" href="/feedback">lighter ask: share feedback</a>
+          <a class="cta-light" href="/feedback">Share feedback on the site</a>
         </div>
       </div>
     </div>
