@@ -7,8 +7,8 @@ disciplines: ["front-end", "back-end"]
 type: "client"
 metric: "750-seat event capacity"
 order: 6
-yearStart: 2025
-monthStart: 5
+dateStart: "2026-07-10"
+dateEnd: "2026-07-11"
 url: "https://stone-watch-party.vercel.app/"
 urlLabel: "view event site"
 role: "Full-stack development"

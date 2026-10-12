@@ -8,8 +8,8 @@ type: "founder"
 featured: true
 metric: "Shared state + permissioned redirects"
 order: 2
-yearStart: 2025
-monthStart: 1
+dateStart: "2026-08-22"
+dateEnd: "2026-09-29"
 role: "Product, architecture, and full-stack engineering"
 evidence: "Working web client with end-to-end coverage"
 image: "../../assets/projects/gwela-product.webp"

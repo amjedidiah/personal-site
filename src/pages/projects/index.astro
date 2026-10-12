@@ -20,12 +20,12 @@ const typeColor: Record<string, string> = {
 
 const projectsByYear = new Map<number, typeof numberedProjects>();
 for (const entry of numberedProjects) {
-  const year = entry.project.data.yearStart;
+  const year = Number(entry.project.data.dateStart.slice(0, 4));
   if (!projectsByYear.has(year)) projectsByYear.set(year, []);
   projectsByYear.get(year)!.push(entry);
 }
 for (const entries of projectsByYear.values()) {
-  entries.sort((a, b) => a.project.data.order - b.project.data.order);
+  entries.sort((a, b) => b.project.data.dateStart.localeCompare(a.project.data.dateStart) || a.project.data.order - b.project.data.order);
 }
 const timelineYears = Array.from(projectsByYear.keys()).sort((a, b) => b - a);
 
@@ -53,7 +53,7 @@ const exploreProjects = numberedProjects.map(({ project }) => ({
   scope: formatProjectScope(project.data),
   href: `/projects/${project.id}`,
   platforms: project.data.platforms.join(' '),
-  yearStart: project.data.yearStart,
+  yearStart: Number(project.data.dateStart.slice(0, 4)),
 }));
 
 const projectAttrs = (project: (typeof numberedProjects)[number]['project']) => ({

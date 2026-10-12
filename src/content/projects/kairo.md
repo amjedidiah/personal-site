@@ -7,8 +7,8 @@ disciplines: ["front-end", "back-end"]
 type: "client"
 metric: "Interactive story world"
 order: 5
-yearStart: 2024
-monthStart: 4
+dateStart: "2025-11-29"
+dateEnd: "2026-06-19"
 url: "https://kairotoken.com/"
 urlLabel: "explore live site"
 role: "Full-stack website development"

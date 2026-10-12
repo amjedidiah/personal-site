@@ -2,6 +2,7 @@
 import type { CollectionEntry } from 'astro:content';
 import { ArrowUpRight } from '@lucide/astro';
 import { formatProjectScope } from '../data/project-scope';
+import { formatProjectDate } from '../data/project-timeline';
 
 interface Props { project: CollectionEntry<'projects'>; }
 const { project } = Astro.props;
@@ -27,6 +28,10 @@ const typeLabel = { founder: 'independent build', client: 'client work', oss: 'O
     )}
   </div>
   <p class="project-scope">{formatProjectScope(project.data)}</p>
+  <p class="project-dates">
+    <span>{project.data.type === 'oss' ? 'First contribution' : 'Started'}</span>{' '}
+    <time datetime={project.data.dateStart}>{formatProjectDate(project.data.dateStart)}</time>
+  </p>
   {project.data.role && <p class="project-role"><strong>My role</strong> {project.data.role}</p>}
   {project.data.evidence && <p class="project-evidence">{project.data.evidence}</p>}
   <p class="tech">{project.data.tech.join(' · ')}</p>
@@ -42,6 +47,8 @@ const typeLabel = { founder: 'independent build', client: 'client work', oss: 'O
   .ext:hover :global(svg) { transform: translate(2px, -2px); }
   .project-details p { margin-bottom: 0; }
   .project-scope { margin-top: .8rem; color: var(--project-muted); font: .7rem/1.5 var(--font-mono); letter-spacing: .05em; text-transform: uppercase; }
+  .project-dates { margin-top: .5rem; color: var(--project-muted); font: .75rem/1.6 var(--font-mono); font-variant-numeric: tabular-nums; }
+  .project-dates > span { margin-right: .5rem; }
   .project-role { margin-top: 1.25rem; color: var(--fg); font-size: .85rem; line-height: 1.6; }
   .project-role strong { color: var(--project-muted); margin-right: .5rem; text-transform: uppercase; font-size: .67rem; letter-spacing: .04em; }
   .project-evidence { margin-top: .5rem; color: var(--accent); font-size: .8rem; line-height: 1.6; }

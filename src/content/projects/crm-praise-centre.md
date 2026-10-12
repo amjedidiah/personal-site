@@ -7,8 +7,8 @@ disciplines: ["front-end", "back-end"]
 type: "client"
 metric: "Content-managed church website"
 order: 8
-yearStart: 2023
-monthStart: 2
+dateStart: "2026-01-29"
+dateEnd: "2026-10-12"
 url: "https://www.crmpraisecenter.org/"
 urlLabel: "visit live site"
 role: "Planning, development and CMS integration"

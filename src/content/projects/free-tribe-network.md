@@ -8,8 +8,8 @@ disciplines: ["front-end", "back-end"]
 type: "client"
 metric: "Multilingual resources and programs"
 order: 7
-yearStart: 2022
-monthStart: 11
+dateStart: "2023-12-28"
+dateEnd: "2025-06-16"
 url: "https://www.freetribenetwork.org/en"
 urlLabel: "visit live site"
 role: "Planning, development and CMS integration"

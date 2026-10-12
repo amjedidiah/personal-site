@@ -9,6 +9,11 @@ const RESPONSE_HEADERS = {
 };
 
 type Feedback = { message: string; email: string; source: string; website: string };
+type FeedbackEnvironment = {
+  GMAIL_USER?: string;
+  GMAIL_APP_PASSWORD?: string;
+  FEEDBACK_TO?: string;
+};
 
 function respond(request: Request, status: number, message: string): Response {
   if (request.headers.get('accept')?.includes('application/json')) {
@@ -46,7 +51,11 @@ export function validateFeedback(params: URLSearchParams): Feedback | string {
   return { message, email, source, website };
 }
 
-export async function submitFeedback(request: Request): Promise<Response> {
+export async function submitFeedback(request: Request, env: FeedbackEnvironment = {
+  GMAIL_USER: process.env.GMAIL_USER,
+  GMAIL_APP_PASSWORD: process.env.GMAIL_APP_PASSWORD,
+  FEEDBACK_TO: process.env.FEEDBACK_TO,
+}): Promise<Response> {
   const origin = request.headers.get('origin');
   if (origin && origin !== new URL(request.url).origin) {
     return respond(request, 403, 'Please submit the form from this site.');
@@ -76,9 +85,9 @@ export async function submitFeedback(request: Request): Promise<Response> {
   if (typeof feedback === 'string') return respond(request, 400, feedback);
   if (feedback.website) return respond(request, 200, 'Thanks for sharing your feedback.');
 
-  const user = process.env.GMAIL_USER;
-  const password = process.env.GMAIL_APP_PASSWORD;
-  const recipient = process.env.FEEDBACK_TO || user;
+  const user = env.GMAIL_USER;
+  const password = env.GMAIL_APP_PASSWORD;
+  const recipient = env.FEEDBACK_TO || user;
   if (!user || !password || !recipient) {
     return respond(request, 503, 'Sending is unavailable right now.');
   }

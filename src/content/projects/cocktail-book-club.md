@@ -9,8 +9,8 @@ type: "client"
 featured: true
 metric: "Published iOS app"
 order: 4
-yearStart: 2025
-monthStart: 9
+dateStart: "2026-04-08"
+dateEnd: "2026-09-24"
 url: "https://apps.apple.com/us/app/cocktail-book-club/id6772709680"
 urlLabel: "App Store"
 urlSecondary: "https://play.google.com/store/apps/details?id=com.alexlatte.cocktailandbookclub"
