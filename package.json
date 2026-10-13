@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "prebuild": "node scripts/generate-lqip.mjs",
+    "prebuild": "node --experimental-strip-types scripts/generate-profile-assets.mjs && node scripts/generate-lqip.mjs",
     "build": "astro build",
     "images:lqip": "node scripts/generate-lqip.mjs",
     "preview": "astro preview",

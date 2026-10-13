@@ -22,7 +22,7 @@ Jedidiah Amaraegbu's personal professional website presents his work, writing, e
 
 ## Positioning
 
-The durable promise is apps and payments that hold up in production. Established positioning lives in `src/data/profile.ts`. Current work and offers, including code review, interface improvements, testing, and security fixes for AI-generated apps, live in `src/data/current.ts`. Project records distinguish independent builds, client work, and open-source contributions, with project-specific roles, scope, and evidence.
+The durable promise is apps and payments that hold up in production. Primary roles are full-stack engineer and Stripe Implementation Architect, with TypeScript, React.js and Node.js as the core stack. AI-native workflows with Cursor and Claude Code support delivery; security research remains a supporting capability and current activity. Established positioning lives in `src/data/profile.ts`; the social preview and installed-app description are generated from it during prebuild. Current work and offers, including code review, interface improvements, testing, and security fixes for AI-generated apps, live in `src/data/current.ts`. Project records distinguish independent builds, client work, and open-source contributions, with project-specific roles, scope, and evidence.
 
 ## Operating Context
 

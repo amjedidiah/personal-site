@@ -11,7 +11,7 @@ dateStart: "2026-07-10"
 dateEnd: "2026-07-11"
 url: "https://stone-watch-party.vercel.app/"
 urlLabel: "view event site"
-role: "Full-stack development"
+role: "Full-stack development and registration workflows"
 evidence: "Public event page and registration flow"
 ---
 
