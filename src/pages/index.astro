@@ -35,13 +35,13 @@ const caseFocus: Record<string, string> = {
 const showCaseStudyImages = false;
 
 const projectInquirySubject = 'Project inquiry';
-const projectInquiryMessage = "Hi Jedidiah, I'd like to discuss building or improving an app. Here's what I'm working on: ";
+const projectInquiryMessage = "Hi Jedidiah, I'd like to discuss an app, payment integration or workflow improvement. Here's what I'm working on: ";
 const projectInquiryEmail = `mailto:imunacode@gmail.com?subject=${encodeURIComponent(projectInquirySubject)}&body=${encodeURIComponent(projectInquiryMessage)}`;
 const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComponent(projectInquiryMessage)}`;
 
 ---
 
-<Base title="Jedidiah Amaraegbu | Full-stack and Payments Engineer" description="I build web and mobile apps, integrate payments, and polish AI-generated apps for launch. Explore my work and discuss your project." fullBleed>
+<Base title={profile.homeTitle} description={profile.description} fullBleed>
   <!-- HERO -->
   <section class="hero hero-frame" aria-labelledby="hero-title">
     <div class="hero-frame-inner">
@@ -51,7 +51,7 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     </div>
     <HeroScene />
     <div class="hero-copy">
-      <p class="hero-lede">I build web and mobile products and integrate payments. {current.appReview}</p>
+      <p class="hero-lede">{profile.delivery} {current.appReview}</p>
       <div class="hero-actions">
         <a
           class="btn-primary hero-contact"
@@ -195,7 +195,7 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
       <div class="section-label section-label--plain">
         <h2 id="experience-title">experience</h2>
       </div>
-      <p class="experience-summary">Client work, engineering roles, teaching, speaking, and security research.</p>
+      <p class="experience-summary">{profile.yearsExperience}+ years building software, remote work with teams in the US, Europe and Asia, and {profile.developersMentored}+ developers mentored.</p>
       <ul class="experience-grid">
         {experienceClients.map((c, index) => (
           <li>
@@ -243,13 +243,13 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
       </div>
       <div class="cta-band">
         <div class="cta-copy">
-          <h3 class="cta-headline">Have an app or website to launch or polish?</h3>
+          <h3 class="cta-headline">Have an app, payment flow or workflow to improve?</h3>
           <p class="cta-proof">
             <span>Payments</span>
             <span class="cta-proof-sep" aria-hidden="true">·</span>
             <span>AI app reviews</span>
             <span class="cta-proof-sep" aria-hidden="true">·</span>
-            <span>Full-stack</span>
+            <span>Product engineering</span>
           </p>
           <p class="cta-lede">Tell me what you’re building, what needs work, and when you need it. I usually reply within a few days.</p>
         </div>

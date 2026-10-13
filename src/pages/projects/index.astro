@@ -67,9 +67,9 @@ const projectAttrs = (project: (typeof numberedProjects)[number]['project']) => 
 });
 ---
 
-<Base title="Projects — Jedidiah Amaraegbu" description="Selected projects across collaborative AI, payments, open source, mobile apps, and client platforms.">
+<Base title="Projects — Jedidiah Amaraegbu" description="Applications, payment integrations and workflow architecture across independent products, client work and open-source contributions.">
   <div class:list={['projects-page', { 'is-empty': allProjects.length === 0 }]} data-view="timeline" data-listing-item-transitions data-listing-motion>
-    <ListingPageIntro title="Projects" description="Selected products, client work, and open-source contributions." />
+    <ListingPageIntro title="Projects" description="Applications, payment flows and the architecture behind them — across independent products, client work and open-source contributions." />
     {allProjects.length > 0 && (
       <ListingPageControls collapseOnMobile summary={`${allProjects.length} projects`}>
         <nav slot="toolbar" class="year-nav" aria-label="Jump to year">

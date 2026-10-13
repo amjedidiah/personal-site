@@ -15,23 +15,24 @@ import { ArrowUpRight } from '@lucide/astro';
       <button class="typewriter-control" type="button" data-typewriter-toggle="hero" hidden>Pause text</button>
     </div>
     <h1 aria-label="Need a developer, engineer, speaker, consultant, or instructor?"><span class="typewriter-prefix">Need <span data-typewriter-article aria-hidden="true">a</span></span>{' '}<span class="typewriter-text" data-typewriter-text aria-hidden="true">developer?</span></h1>
-    <p class="about-deck">I build web and mobile applications, integrate payments, and help teams polish code for launch.</p>
+    <p class="about-deck">{profile.introduction}</p>
   </header>
 
   <div class="about-intro">
     <div class="about-story">
       <section class="story-section">
         <h2>the pivot</h2>
-        <p>I began in dental surgery, then moved into Electronics Engineering before building my career in software. I was drawn to software’s wider reach: helping people and businesses communicate, earn, automate, and build at scale, with AI expanding that reach even further.<br /> I’ve been shipping production code for <strong>6+ years</strong>, mostly in <strong>TypeScript</strong>, <strong>React</strong>, <strong>Node.js</strong>, and <strong>Python</strong>.</p>
+        <p>I began in dental surgery, then switched to Electronic Engineering. That’s where I found programming, and I’ve been building software ever since.</p>
+        <p>I’ve been shipping production code for <strong>{profile.yearsExperience}+ years</strong>, mostly in <strong>TypeScript</strong>, <strong>React.js</strong>, <strong>Node.js</strong>, and <strong>Python</strong>. I’m drawn to work that makes an application easier to use or a business process easier to run.</p>
       </section>
       <section class="story-section">
         <h2>the speciality</h2>
-        <p>My speciality is <strong>payments</strong>. I’ve built a Stripe Connect platform serving government contractors, automated <strong>cross-border payment flows</strong>, and integrated <strong>mobile money APIs across West Africa</strong>. I earned the Stripe Professional Implementation Architect and Professional Payments Developer credentials in <strong>2022</strong>; their current status is listed below.</p>
+        <p>My speciality is <strong>payments</strong>. I’m a <strong>Stripe-certified developer</strong> and work on Stripe implementation architecture. I’ve built a Stripe Connect platform serving government contractors, automated <strong>cross-border payment flows</strong>, and integrated <strong>mobile money APIs across West Africa</strong>. I earned the Stripe Professional Implementation Architect and Professional Payments Developer credentials in <strong>2022</strong>; their current status is listed below.</p>
         <p>{current.appReview}</p>
       </section>
       <section class="story-section">
         <h2>the multiplier</h2>
-        <p>I also teach. I've mentored <strong>200+ developers</strong> across <strong>3 continents</strong> through Google Developer Groups, Andela, GoMyCode, and Remotebase. I ran workshops at <strong>Google DevFest</strong> in 2022 and 2023, and led a bootcamp in the <strong>Benin Republic</strong>.</p>
+        <p>I also teach. I've mentored <strong>{profile.developersMentored}+ developers</strong> across <strong>3 continents</strong> through Google Developer Groups, Andela, GoMyCode, and Remotebase. I ran workshops at <strong>Google DevFest</strong> in 2022 and 2023, and led a BootCamp in the <strong>Benin Republic</strong>.</p>
       </section>
       <section class="story-section">
         <h2>now</h2>
@@ -40,15 +41,16 @@ import { ArrowUpRight } from '@lucide/astro';
     </div>
 
     <aside class="proof-rail" aria-label="Selected proof">
-      <div class="proof-item"><CountUp value={6} suffix="+" /><span>years shipping</span></div>
+      <div class="proof-item"><CountUp value={profile.yearsExperience} suffix="+" /><span>years shipping</span></div>
       <div class="proof-item"><CountUp value={2} /><span>Stripe credentials earned</span></div>
-      <div class="proof-item"><CountUp value={200} suffix="+" /><span>developers mentored</span></div>
-      <div class="proof-item"><CountUp value={3} /><span>continents</span></div>
+      <div class="proof-item"><CountUp value={profile.developersMentored} suffix="+" /><span>developers mentored</span></div>
+      <div class="proof-item"><CountUp value={3} /><span>continents mentored across</span></div>
     </aside>
   </div>
 
   <section class="about-experience" id="experience">
     <h2>selected experience</h2>
+    <p class="experience-context">From Lagos, I’ve worked remotely with teams in the US, Europe and Asia, delivering applications, payment integrations and custom solutions.</p>
     <ol class="timeline">
       <li class="exp">
         <div class="exp-head">
@@ -92,7 +94,7 @@ import { ArrowUpRight } from '@lucide/astro';
       <li><a href="https://stripecertifications.credential.net/efcd44b0-6e66-4262-89c2-5a513bdec126" target="_blank" rel="noopener noreferrer">Stripe Professional Payments Developer <ArrowUpRight size={13} strokeWidth={1.8} aria-hidden="true" /><span class="visually-hidden"> (opens in a new tab)</span></a> <span>Earned November 2022 · does not expire</span></li>
       <li>B.E. Electronic Engineering <span>University of Nigeria, Nsukka</span></li>
       <li><a href="https://docs.google.com/presentation/d/1ubONK6ZQfQ-LADqEJtD7mxPFCkmrCGuisRm6joqcfuE/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Google DevFest speaker <ArrowUpRight size={13} strokeWidth={1.8} aria-hidden="true" /><span class="visually-hidden"> (opens in a new tab)</span></a> <span>Enugu, 2022 & 2023</span></li>
-      <li>200+ developers mentored <span>across 3 continents</span></li>
+      <li>{profile.developersMentored}+ developers mentored <span>across 3 continents</span></li>
       <li><a href="https://www.youtube.com/watch?v=SQ2vMppVmcc" target="_blank" rel="noopener noreferrer">iCreate Skills Festival <ArrowUpRight size={13} strokeWidth={1.8} aria-hidden="true" /><span class="visually-hidden"> (opens in a new tab)</span></a> <span>2019 · National medal for website development</span></li>
     </ul>
   </section>
@@ -109,8 +111,9 @@ import { ArrowUpRight } from '@lucide/astro';
         <p>Node.js · Express.js · REST APIs · GraphQL · Stripe · mobile money · PostgreSQL · MongoDB · Redis · AWS: Lambda, SQS, S3, DynamoDB, Cognito · Vercel · Docker</p>
       </div>
       <div>
-        <h3>AI & assisted development</h3>
-        <p>Python · LangChain · Claude Code · Cursor AI · Codex CLI</p>
+        <h3>AI-native workflow</h3>
+        <p>I use Cursor and Claude Code to explore approaches and implement changes. I review the code and test critical flows, with architecture and security decisions guided by the product’s needs.</p>
+        <p class="workflow-tools">Python · LangChain · Codex CLI</p>
       </div>
       <div>
         <h3>quality & delivery</h3>
@@ -133,7 +136,10 @@ import { ArrowUpRight } from '@lucide/astro';
         <span>Call of Duty</span>
       </span>
       <span>Table tennis</span>
+      <span>Board games</span>
+      <span>Duolingo</span>
     </div>
+    <p>I also enjoy activities that get me moving and meeting interesting people.</p>
   </section>
 
   <section class="about-contact" id="contact">
@@ -141,7 +147,7 @@ import { ArrowUpRight } from '@lucide/astro';
       <h2 aria-label="Have an idea or project?"><span class="contact-prefix">Have <span data-contact-article aria-hidden="true">an </span></span><span class="contact-typewriter" data-contact-typewriter aria-hidden="true">idea?</span></h2>
       <button class="typewriter-control" type="button" data-typewriter-toggle="contact" hidden>Pause text</button>
     </div>
-    <p>Let's talk.</p>
+    <p>Let’s talk about your app, payment integration or a workflow you want to improve.</p>
     <div class="links">
       <a href="https://github.com/amjedidiah" target="_blank" rel="noopener noreferrer">github<span class="visually-hidden"> (opens in a new tab)</span></a>
       <a href="https://twitter.com/am_jedidiah" target="_blank" rel="noopener noreferrer">x / twitter<span class="visually-hidden"> (opens in a new tab)</span></a>
@@ -365,8 +371,11 @@ import { ArrowUpRight } from '@lucide/astro';
     font: 600 .9rem/1.3 var(--font-sans);
   }
   .stack-groups p { color: var(--about-muted); font: .82rem/1.65 var(--font-sans); }
+  .stack-groups .workflow-tools { margin-top: .8rem; }
+  .experience-context { max-width: 62ch; margin-bottom: 1.5rem; color: var(--about-muted); line-height: 1.7; }
 
   .about-interests { margin-bottom: 5rem; }
+  .about-interests > p { max-width: 62ch; margin-top: 1rem; color: var(--about-muted); line-height: 1.7; }
   .interest-list {
     display: flex;
     flex-wrap: wrap;

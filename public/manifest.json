@@ -1,13 +1,17 @@
 {
   "name": "Jedidiah Amaraegbu",
   "short_name": "amjed",
-  "description": "Full-stack, payments, and security engineering by Jedidiah Amaraegbu, based in Lagos, Nigeria.",
+  "description": "Full-stack engineer and Stripe-certified developer in Lagos, Nigeria. TypeScript, React, Node.js and AI-native workflows for apps and payments.",
   "lang": "en",
   "id": "/",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "categories": ["portfolio", "business", "developer"],
+  "categories": [
+    "portfolio",
+    "business",
+    "developer"
+  ],
   "shortcuts": [
     {
       "name": "Portfolio",

@@ -11,7 +11,7 @@ dateStart: "2024-03-08"
 dateEnd: "2024-12-18"
 url: "https://github.com/amjedidiah/resume-tailor"
 urlLabel: "view source"
-role: "Full-stack development and AWS integration"
+role: "Full-stack development, AWS architecture and payment integration"
 evidence: "Public source for the web app and document-processing pipeline"
 ---
 
