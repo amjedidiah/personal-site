@@ -26,6 +26,7 @@ const projects = defineCollection({
     urlLabel: z.string().optional(),
     urlSecondary: z.string().optional(),
     urlSecondaryLabel: z.string().optional(),
+    videos: z.array(z.string()).optional(),
     featured: z.boolean().optional(),
     metric: z.string().optional(),
     role: z.string().optional(),

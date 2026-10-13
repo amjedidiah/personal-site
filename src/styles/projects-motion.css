@@ -1,0 +1,8 @@
+.projects-page .project-row .view-cue svg { transition: transform 150ms ease-out; }
+.projects-page .project-row:is(:hover, :focus-visible) .view-cue svg { transform: translateX(3px); }
+.projects-page .project-row:focus-visible,
+.projects-page .timeline-entry:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+@media (prefers-reduced-motion: reduce) {
+  .projects-page .project-row .view-cue svg { transition: none; }
+  .projects-page .project-row:is(:hover, :focus-visible) .view-cue svg { transform: none; }
+}

@@ -2,6 +2,12 @@ export const MOTION_STORAGE_KEY = 'amjed-motion';
 export const MOTION_CHANGE_EVENT = 'motionchange';
 export type MotionPreference = 'system' | 'reduce';
 
+/** Only routes whose motion treatment has been implemented expose the control. */
+export function supportsMotionPreference(pathname: string): boolean {
+  return pathname === '/' || ['/about', '/projects', '/blog'].includes(pathname.replace(/\/+$/, ''))
+    || /^\/(?:blog|projects)\/[^/]+\/?$/.test(pathname);
+}
+
 export function readMotionPreference(storage?: Pick<Storage, 'getItem'> | null): MotionPreference {
   try { return storage?.getItem(MOTION_STORAGE_KEY) === 'reduce' ? 'reduce' : 'system'; }
   catch { return 'system'; }

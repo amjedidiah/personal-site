@@ -55,7 +55,7 @@ The durable promise is apps and payments that hold up in production. Established
 - Local articles and the external writing archive: `src/content/blog/` and `src/data/hashnode.ts`.
 - Experience, credential references, speaking links, and contact information: `src/pages/about.astro`.
 - Project imagery: `src/assets/projects/`, with optional captions and alt text in project records. Some preview images are intentionally disabled pending readiness.
-- Identity and social-preview assets: the face favicon and installed-app icons in `public/`, plus `public/og.svg`.
+- Identity and social-preview assets: the face favicon and installed-app icons in `public/`, plus `public/og.png`.
 - These are repository-provided records and references, not an independent verification of their external claims. Do not invent testimonials, customer logos, adoption figures, financial outcomes, or additional credentials.
 
 ## Product Principles

@@ -9,6 +9,10 @@ if (headings.length === 0) return null;
 
 <aside class="article-toc" data-article-toc aria-label="On this page">
   <details open>
+    <script is:inline>
+      // Preserve the no-JavaScript links, but set the mobile default before paint.
+      if (window.matchMedia('(max-width: 800px)').matches) document.currentScript.parentElement.open = false;
+    </script>
     <summary>On this page <span data-toc-current>Overview</span></summary>
     <p aria-hidden="true">On this page</p>
     <nav aria-label="On this page">

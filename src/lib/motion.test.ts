@@ -1,7 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-import { MOTION_STORAGE_KEY, readMotionPreference, writeMotionPreference } from './motion';
+import { MOTION_STORAGE_KEY, readMotionPreference, supportsMotionPreference, writeMotionPreference } from './motion';
 
-describe('homepage motion preference', () => {
+describe('site motion preference', () => {
+  test('includes articles and project details while keeping other routes outside the motion treatment', () => {
+    for (const route of ['/', '/about', '/projects', '/blog', '/blog/', '/blog/hello-world', '/blog/hello-world/', '/projects/gwela', '/projects/gwela/']) expect(supportsMotionPreference(route)).toBe(true);
+    for (const route of ['/blog/a/b', '/projects/a/b', '/feedback', '/feedback/gwela']) expect(supportsMotionPreference(route)).toBe(false);
+  });
   test('follows the system when storage is missing, invalid, or blocked', () => {
     expect(readMotionPreference(null)).toBe('system');
     expect(readMotionPreference({ getItem: () => 'full' })).toBe('system');

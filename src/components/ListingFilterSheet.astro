@@ -1,0 +1,20 @@
+---
+import '../styles/listing-filter-sheet.css';
+interface Props { resultLabel?: string; }
+const { resultLabel = 'projects' } = Astro.props;
+---
+
+<dialog id="listing-filter-sheet" class="listing-filter-sheet" data-listing-filter-sheet aria-labelledby="listing-filter-sheet-title">
+  <header class="listing-filter-sheet-header">
+    <h2 id="listing-filter-sheet-title">Filters</h2>
+    <button type="button" class="listing-filter-sheet-close" data-filter-sheet-close autofocus>Close</button>
+  </header>
+  <div class="listing-filter-sheet-body" data-filter-sheet-body>
+    <div data-filter-sheet-filters></div>
+    <div data-filter-sheet-sort></div>
+  </div>
+  <footer class="listing-filter-sheet-footer">
+    <button type="button" class="listing-filter-sheet-clear" data-filter-sheet-clear>Clear filters</button>
+    <button type="button" class="listing-filter-sheet-show" data-filter-sheet-close data-filter-sheet-results>Show {resultLabel}</button>
+  </footer>
+</dialog>
