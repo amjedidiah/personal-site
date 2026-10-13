@@ -1,12 +1,21 @@
 ---
 import '../styles/listing-page-header.css';
+import '../styles/listing-motion.css';
+interface Props { collapseOnMobile?: boolean; summary?: string; }
+const { collapseOnMobile = false, summary = '' } = Astro.props;
 ---
 
 <div class="header-controls-sentinel" data-listing-header-sentinel aria-hidden="true"></div>
-<div class="header-controls" data-listing-header>
+<div class="header-controls" data-listing-header data-collapse-on-mobile={collapseOnMobile ? '' : undefined}>
+  {collapseOnMobile && <script is:inline>
+    // Set the responsive default before the controls are painted.
+    if (window.matchMedia('(max-width: 639px)').matches) {
+      document.currentScript?.parentElement?.classList.add('is-collapsed');
+    }
+  </script>}
   <div class="header-bottom">
     <div class="header-controls-compact-meta">
-      <p class="header-controls-summary" data-listing-summary></p>
+      <p class="header-controls-summary" data-listing-summary>{summary}</p>
       <button
         type="button"
         class="header-controls-expand"

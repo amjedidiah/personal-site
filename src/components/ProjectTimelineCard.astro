@@ -25,11 +25,9 @@ const shortType: Record<string, string> = { founder: 'independent', client: 'cli
   <a
     href={href}
     class="timeline-entry project-entry"
-    aria-labelledby={`project-${project.id}-title`}
-    aria-describedby={`project-${project.id}-desc`}
   >
     <time class="timeline-entry-aside" datetime={project.data.dateStart} title={project.data.type === 'oss' ? 'First contribution' : 'First commit'}>{formatProjectDate(project.data.dateStart)}</time>
-    <span class="timeline-entry-copy">
+    <span class="timeline-entry-copy" data-listing-key={project.id}>
       <span class="timeline-entry-type" style={`color: ${typeColor}`}>{shortType[project.data.type]}</span>
       <span class="timeline-entry-title" id={`project-${project.id}-title`}>{project.data.title}</span>
       <span class="timeline-entry-scope">{formatProjectScope(project.data)}</span>

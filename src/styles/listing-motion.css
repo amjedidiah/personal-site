@@ -1,0 +1,75 @@
+/* Shared archive motion keeps text settled and connects browsing states. */
+::view-transition-group(.listing-item) {
+  animation-duration: 250ms;
+  animation-timing-function: cubic-bezier(.16, 1, .3, 1);
+}
+:root.listing-transition::view-transition { pointer-events: none; }
+
+[data-listing-motion] .year-group { view-timeline: --listing-year block; }
+[data-listing-motion] .year-posts { position: relative; }
+[data-listing-motion] .year-posts::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 -1px;
+  width: 1px;
+  background: var(--accent);
+  transform-origin: top;
+  pointer-events: none;
+}
+[data-listing-motion] .year-label::after {
+  content: '';
+  display: block;
+  width: 1.4em;
+  height: 1px;
+  margin-top: .5rem;
+  background: var(--border);
+  transform: scaleX(.5);
+  transform-origin: left;
+  transition: transform 160ms ease-out, background-color 160ms ease-out;
+}
+[data-listing-motion] .year-label.is-active::after { background: var(--accent); transform: scaleX(1); }
+[data-listing-motion] .globe-axis, [data-listing-motion] .paper-globe {
+  transition: transform 420ms cubic-bezier(.16, 1, .3, 1);
+}
+[data-listing-motion] .globe-stage.is-dragging :is(.globe-axis, .paper-globe) { transition: none; }
+
+@media (max-width: 639px) {
+  [data-listing-motion] .header-controls.is-collapsed:not(.is-pinned) {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas: 'summary summary' 'expand actions';
+    column-gap: 8px;
+  }
+  [data-listing-motion] .header-controls.is-collapsed:not(.is-pinned) .header-bottom,
+  [data-listing-motion] .header-controls.is-collapsed:not(.is-pinned) .header-controls-compact-meta { display: contents; }
+  [data-listing-motion] .header-controls-summary { grid-area: summary; }
+  [data-listing-motion] .header-controls-expand { grid-area: expand; padding-inline: 10px; }
+  [data-listing-motion] .header-actions { min-width: 0; max-width: 100%; }
+  [data-listing-motion] .view-switch { width: 100%; max-width: 100%; }
+  [data-listing-motion] .view-switch button { min-width: 0; flex: 1 1 0; padding-inline: 4px; overflow-wrap: anywhere; }
+  [data-listing-motion] .list-sort-nav { flex-wrap: wrap; }
+  [data-listing-motion][data-mobile-filter-sheet][data-view="timeline"] .header-controls.is-collapsed:not(.is-pinned) {
+    grid-template-areas: 'summary summary' 'expand actions' 'toolbar toolbar';
+  }
+  [data-listing-motion][data-mobile-filter-sheet][data-view="timeline"] .header-controls.is-collapsed:not(.is-pinned) .header-toolbar {
+    display: flex;
+    grid-area: toolbar;
+  }
+}
+
+@keyframes listing-year-connect { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) and (view-timeline: --listing-year block) and (animation-range: entry 0% cover 45%) {
+    [data-listing-motion] .year-posts::before {
+      animation: var(--listing-year-animation, listing-year-connect linear both);
+      animation-timeline: --listing-year;
+      animation-range: entry 0% cover 45%;
+    }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-listing-motion] .globe-axis, [data-listing-motion] .paper-globe,
+  [data-listing-motion] .year-label::after { transition: none; }
+}
+@media (forced-colors: active) {
+  [data-listing-motion] .year-posts::before, [data-listing-motion] .year-label::after { background: CanvasText; }
+}

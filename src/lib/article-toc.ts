@@ -1,6 +1,68 @@
 import { applyArticleScrollOffset, getArticleScrollSpyLine, initArticleScrollOffset } from './article-scroll-offset';
+import { prefersReducedMotion } from './motion';
 
 export const ARTICLE_TOC_OVERVIEW_ID = 'overview';
+
+function setLinkActiveState(links: HTMLAnchorElement[], id: string | null) {
+  for (const link of links) {
+    const active = id !== null && link.hash === `#${id}`;
+    link.classList.toggle('is-active', active);
+    if (active) link.setAttribute('aria-current', 'location');
+    else link.removeAttribute('aria-current');
+  }
+}
+
+function updateTocCurrentLabel(links: HTMLAnchorElement[], currentLabel: Element | null) {
+  if (!currentLabel) return;
+  const activeLink = links.find((link) => link.getAttribute('aria-current') === 'location');
+  currentLabel.textContent = activeLink?.textContent ?? 'Overview';
+}
+
+function shouldCloseTocOnEscape(
+  event: KeyboardEvent,
+  compact: MediaQueryList,
+  disclosure: HTMLDetailsElement | null,
+): disclosure is HTMLDetailsElement {
+  if (event.key !== 'Escape') return false;
+  if (!compact.matches) return false;
+  return disclosure?.open === true;
+}
+
+function syncTocHash(id: string | null) {
+  if (!id) {
+    if (location.hash) history.replaceState(null, '', `${location.pathname}${location.search}`);
+    return;
+  }
+  const nextHash = `#${id}`;
+  if (location.hash !== nextHash) {
+    history.replaceState(null, '', `${location.pathname}${location.search}${nextHash}`);
+  }
+}
+
+function visibleNavHeight(): number {
+  const nav = Array.from(document.querySelectorAll<HTMLElement>('.desktop-nav, .mobile-topbar'))
+    .find((element) => element.offsetHeight > 0);
+  return nav?.offsetHeight ?? 56;
+}
+
+function prepareTocTarget(target: HTMLElement) {
+  applyArticleScrollOffset();
+  target.tabIndex = -1;
+  target.focus({ preventScroll: true });
+}
+
+function closeTocDisclosure(compact: MediaQueryList, disclosure: HTMLDetailsElement | null) {
+  if (compact.matches && disclosure) disclosure.open = false;
+}
+
+function navigateToArticleOverview(event: MouseEvent, target: HTMLElement, link: HTMLAnchorElement) {
+  const layout = target.closest<HTMLElement>('.article-layout');
+  if (!layout) return;
+  event.preventDefault();
+  const top = layout.getBoundingClientRect().top + window.scrollY - visibleNavHeight();
+  if (location.hash !== `#${ARTICLE_TOC_OVERVIEW_ID}`) history.pushState(null, '', link.hash);
+  window.scrollTo({ top: Math.max(0, top), behavior: prefersReducedMotion() ? 'instant' : 'smooth' });
+}
 
 let teardownArticleToc: (() => void) | null = null;
 
@@ -24,27 +86,19 @@ export function initArticleToc() {
 
   const onClick = (event: MouseEvent) => {
     const link = (event.target as Element).closest<HTMLAnchorElement>('[data-toc-link]');
-    const target = link ? document.getElementById(decodeURIComponent(link.hash.slice(1))) : null;
+    if (!link) return;
+    const target = document.getElementById(decodeURIComponent(link.hash.slice(1)));
     if (!target) return;
-    if (compact.matches && disclosure) disclosure.open = false;
-    applyArticleScrollOffset();
-    target.tabIndex = -1;
-    target.focus({ preventScroll: true });
+    closeTocDisclosure(compact, disclosure);
+    prepareTocTarget(target);
     if (target.id === ARTICLE_TOC_OVERVIEW_ID) {
       // The headline is sticky: its current rectangle is not its original
       // document position. Anchor Overview to the start of the article grid.
-      const layout = target.closest<HTMLElement>('.article-layout');
-      if (!layout) return;
-      event.preventDefault();
-      const nav = Array.from(document.querySelectorAll<HTMLElement>('.desktop-nav, .mobile-topbar'))
-        .find((element) => element.offsetHeight > 0);
-      const top = layout.getBoundingClientRect().top + window.scrollY - (nav?.offsetHeight ?? 56);
-      if (location.hash !== `#${ARTICLE_TOC_OVERVIEW_ID}`) history.pushState(null, '', link!.hash);
-      window.scrollTo({ top: Math.max(0, top), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+      navigateToArticleOverview(event, target, link);
     }
   };
   const onKeyDown = (event: KeyboardEvent) => {
-    if (event.key !== 'Escape' || !compact.matches || !disclosure?.open) return;
+    if (!shouldCloseTocOnEscape(event, compact, disclosure)) return;
     disclosure.open = false;
     summary?.focus({ preventScroll: true });
   };
@@ -66,26 +120,9 @@ export function initArticleToc() {
   let scrollFrame = 0;
 
   const setActive = (id: string | null, syncHash = false) => {
-    links.forEach((link) => {
-      const active = id !== null && link.hash === `#${id}`;
-      link.classList.toggle('is-active', active);
-      if (active) link.setAttribute('aria-current', 'location');
-      else link.removeAttribute('aria-current');
-    });
-    const activeLink = links.find((link) => link.getAttribute('aria-current') === 'location');
-    if (currentLabel) currentLabel.textContent = activeLink?.textContent ?? 'Overview';
-
-    if (!syncHash) return;
-    if (!id) {
-      if (location.hash) {
-        history.replaceState(null, '', `${location.pathname}${location.search}`);
-      }
-      return;
-    }
-    const nextHash = `#${id}`;
-    if (location.hash !== nextHash) {
-      history.replaceState(null, '', `${location.pathname}${location.search}${nextHash}`);
-    }
+    setLinkActiveState(links, id);
+    updateTocCurrentLabel(links, currentLabel);
+    if (syncHash) syncTocHash(id);
   };
 
   const activeSectionId = () => {
@@ -101,7 +138,9 @@ export function initArticleToc() {
 
     let current = headingSections[0].id;
     for (const section of headingSections) {
-      if (section.getBoundingClientRect().top <= scrollOffset) current = section.id;
+      // Native fragment scrolling rounds to device pixels; keep the chosen
+      // section active when it lands fractionally below the measured line.
+      if (section.getBoundingClientRect().top <= scrollOffset + 1) current = section.id;
     }
     return current;
   };

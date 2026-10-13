@@ -84,8 +84,8 @@ const first = papers[0];
                   tabindex="-1"
                   aria-pressed={index === 0 ? 'true' : 'false'}
                   aria-controls={selectedAsideLabel}
-                  aria-labelledby={`paper-title-${exploreId}-${index}`}
-                  aria-describedby={paper.description ? `paper-desc-${exploreId}-${index}` : undefined}
+                  aria-labelledby={surface === 'module' ? undefined : `paper-title-${exploreId}-${index}`}
+                  aria-describedby={surface !== 'module' && paper.description ? `paper-desc-${exploreId}-${index}` : undefined}
                 >
                   <span class="paper-meta">
                     <span>{paper.cardMetaA}</span>

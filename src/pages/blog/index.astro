@@ -7,6 +7,9 @@ import BlogExplore from '../../components/BlogExplore.astro';
 import ListingTimelineYear from '../../components/ListingTimelineYear.astro';
 import ListingPageControls from '../../components/ListingPageControls.astro';
 import ListingPageIntro from '../../components/ListingPageIntro.astro';
+import ListingFilterSheet from '../../components/ListingFilterSheet.astro';
+import '../../styles/motion.css';
+import '../../styles/blog-motion.css';
 
 const categoryOptions = [
   { id: 'web-mobile', label: 'web & mobile', tags: ['react', 'nextjs', 'javascript', 'html', 'web3', 'wordpress'] },
@@ -67,9 +70,9 @@ const letterKeys = Array.from(postsByLetter.keys()).sort((a, b) => a.localeCompa
 ---
 
 <Base title="Blog — Jedidiah Amaraegbu" description="Writing about payments, security, AI agents, and building in public.">
-  <div class:list={['blog-view', { 'is-empty': allPosts.length === 0 }]} data-view="timeline">
+  <div class:list={['blog-view', { 'is-empty': allPosts.length === 0 }]} data-view="timeline" data-listing-motion data-listing-item-transitions data-listing-viewport-transitions>
     <ListingPageIntro title="Blog" description="Payments, security, AI agents, and building in public." />
-    <ListingPageControls>
+    <ListingPageControls collapseOnMobile summary={`${allPosts.length} articles`}>
       <nav slot="toolbar" class="year-nav" aria-label="Jump to year">
         {Array.from(postsByYear.keys(), (year) => <a href={`#year-${year}`}>{year}</a>)}
       </nav>
@@ -85,7 +88,7 @@ const letterKeys = Array.from(postsByLetter.keys()).sort((a, b) => a.localeCompa
         <button type="button" data-view-choice="list" aria-controls="blog-archive-timeline blog-archive-list" aria-pressed="false">List</button>
         <button type="button" data-view-choice="explore" aria-controls="blog-explore" aria-pressed="false">Explore</button>
       </div>
-      <div slot="filters" class="category-filters">
+      <div slot="filters" class="category-filters" data-listing-filter-controls>
         <nav class="category-nav listing-filter-nav" aria-label="Filter articles by category" hidden>
           <button type="button" data-category-choice="all" aria-pressed="true">all</button>
           {categoryOptions.map((category) => (
@@ -95,6 +98,7 @@ const letterKeys = Array.from(postsByLetter.keys()).sort((a, b) => a.localeCompa
         <span class="category-count listing-filter-count" data-category-count aria-live="polite" aria-atomic="true">{allPosts.length} articles</span>
       </div>
     </ListingPageControls>
+    {allPosts.length > 0 && <ListingFilterSheet resultLabel="articles" />}
     <script is:inline>
       (() => {
         const root = document.currentScript?.parentElement;
@@ -148,7 +152,7 @@ const letterKeys = Array.from(postsByLetter.keys()).sort((a, b) => a.localeCompa
                   <time class="timeline-entry-aside" datetime={post.date.toISOString()}>
                     {post.date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
                   </time>
-                  <span class="timeline-entry-copy post-copy">
+                  <span class="timeline-entry-copy post-copy" data-listing-key={post.href}>
                     <span class="timeline-entry-title post-title">{post.title}</span>
                     {post.description && <span class="timeline-entry-desc post-desc">{post.description}</span>}
                   </span>
@@ -170,7 +174,7 @@ const letterKeys = Array.from(postsByLetter.keys()).sort((a, b) => a.localeCompa
                   <time datetime={post.date.toISOString()}>
                     {post.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </time>
-                  <span class="post-copy">
+                  <span class="post-copy" data-listing-key={post.href}>
                     <span class="post-title">{post.title}</span>
                     {post.description && <span class="post-desc">{post.description}</span>}
                   </span>
@@ -344,23 +348,22 @@ const letterKeys = Array.from(postsByLetter.keys()).sort((a, b) => a.localeCompa
 
 <script>
   import { dispatchListingViewChange, initListingHeaderCollapse } from '../../lib/listing-header-collapse';
-  import { setListingYearStickyTop } from '../../lib/listing-sticky-top';
+  import { initListingTimelineYearSpy } from '../../lib/listing-timeline-year-spy';
   import { focusListingRecovery, transitionListing } from '../../lib/listing-transition';
+  import { initListingFilterSheet } from '../../lib/listing-filter-sheet';
+  import { initListingMotion } from '../../lib/listing-motion';
 
   const yearGroups = Array.from(document.querySelectorAll<HTMLElement>('.year-group'));
   const letterGroups = Array.from(document.querySelectorAll<HTMLElement>('.letter-group'));
-  const yearLabels = yearGroups.map((group) => group.querySelector<HTMLElement>('.year-label'));
-  const yearLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>('.year-nav a'));
   const listArchive = document.getElementById('blog-archive-list');
   const sortButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-list-sort]'));
   const viewRoot = document.querySelector<HTMLElement>('.blog-view');
+  initListingMotion(viewRoot);
   const viewButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-view-choice]'));
   const categoryButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-category-choice]'));
   const categoryCount = document.querySelector<HTMLElement>('[data-category-count]');
   const filterEmpty = document.querySelector<HTMLElement>('.filter-empty');
   const mobileView = window.matchMedia('(max-width: 639px)');
-  let activeFrame = 0;
-  let lastActiveYear: string | undefined;
 
   const buildBlogSummary = () => {
     const parts: string[] = [];
@@ -382,6 +385,12 @@ const letterKeys = Array.from(postsByLetter.keys()).sort((a, b) => a.localeCompa
   };
 
   let headerCollapse: ReturnType<typeof initListingHeaderCollapse>;
+  const yearSpy = initListingTimelineYearSpy({
+    listingRoot: '.blog-view',
+    viewsToSkip: ['list', 'explore'],
+    exploreJumpEvent: 'blogexploreyear',
+    exploreSelectJumpEvent: 'blogexploreselectyear',
+  });
 
   const countVisiblePosts = () => new Set(
     Array.from(document.querySelectorAll<HTMLElement>('[data-blog-post]'))
@@ -456,25 +465,6 @@ const letterKeys = Array.from(postsByLetter.keys()).sort((a, b) => a.localeCompa
     switcher.style.setProperty('--view-highlight-offset', `${active.offsetLeft - 3}px`);
   };
 
-  const syncYearHighlight = () => {
-    const active = yearLinks.find((link) => link.classList.contains('is-active'));
-    const nav = active?.parentElement;
-    if (!active || !nav) return;
-    nav.style.setProperty('--year-highlight-width', `${active.offsetWidth}px`);
-    nav.style.setProperty('--year-highlight-x', `${active.offsetLeft}px`);
-    nav.style.setProperty('--year-highlight-y', `${active.offsetTop + active.offsetHeight - 1}px`);
-  };
-
-  const activateLatestVisibleYear = () => {
-    const latestVisibleGroup = yearGroups.find((group) => !group.hidden);
-    const activeYear = latestVisibleGroup?.querySelector<HTMLElement>('.year-label')?.textContent?.trim();
-    if (!activeYear) return;
-    yearLinks.forEach((link) => {
-      link.classList.toggle('is-active', link.hash === `#year-${activeYear}`);
-    });
-    syncYearHighlight();
-  };
-
   const readView = () => {
     let saved: string | null = null;
     try {
@@ -507,27 +497,25 @@ const letterKeys = Array.from(postsByLetter.keys()).sort((a, b) => a.localeCompa
     };
     syncGroupVisibility(yearGroups);
     syncGroupVisibility(letterGroups);
-    yearLinks.forEach((link) => {
-      const yearGroup = document.querySelector<HTMLElement>(link.hash)?.closest<HTMLElement>('.year-group');
-      const disabled = Boolean(yearGroup?.hidden);
-      link.classList.toggle('is-disabled', disabled);
-      link.setAttribute('aria-disabled', String(disabled));
-      link.tabIndex = disabled ? -1 : 0;
+    yearSpy?.updateYearLinkDisabledState((hash) => {
+      const yearGroup = document.querySelector<HTMLElement>(hash)?.closest<HTMLElement>('.year-group');
+      return Boolean(yearGroup?.hidden);
     });
     const visiblePostCount = countVisiblePosts();
     viewRoot.classList.toggle('is-filter-empty', visiblePostCount === 0);
     if (categoryCount) categoryCount.textContent = `${visiblePostCount} ${visiblePostCount === 1 ? 'article' : 'articles'}`;
     if (filterEmpty) filterEmpty.hidden = selected === 'all' || visiblePostCount > 0;
-    if (viewRoot.dataset.view === 'explore') activateLatestVisibleYear();
+    if (viewRoot.dataset.view === 'explore') yearSpy?.activateLatestVisibleYear();
     if (viewRoot.dataset.view === 'list') setListSort(readListSort());
     viewRoot.dispatchEvent(new CustomEvent('blogcategorychange', { detail: selected }));
+    viewRoot.dispatchEvent(new Event('listingfilterchange'));
     if (remember) {
       const url = new URL(window.location.href);
       if (selected === 'all') url.searchParams.delete('category');
       else url.searchParams.set('category', selected);
       window.history.pushState({}, '', url);
     }
-    requestActiveYearUpdate();
+    yearSpy?.requestActiveYearUpdate();
     headerCollapse?.refreshSummary();
   };
 
@@ -543,7 +531,7 @@ const letterKeys = Array.from(postsByLetter.keys()).sort((a, b) => a.localeCompa
 
     viewRoot.dataset.view = view;
     if (view === 'list') setListSort(readListSort());
-    if (view === 'explore') activateLatestVisibleYear();
+    if (view === 'explore') yearSpy?.activateLatestVisibleYear();
     if (changingExplore) window.scrollTo(0, 0);
     if (view === 'explore') viewRoot.dispatchEvent(new Event('blogexploreenter'));
     viewButtons.forEach((button) => {
@@ -565,10 +553,10 @@ const letterKeys = Array.from(postsByLetter.keys()).sort((a, b) => a.localeCompa
     if (anchor && anchorTop !== undefined) {
       window.requestAnimationFrame(() => {
         window.scrollBy(0, anchor.getBoundingClientRect().top - anchorTop);
-        requestActiveYearUpdate();
+        yearSpy?.requestActiveYearUpdate();
       });
     } else {
-      requestActiveYearUpdate();
+      yearSpy?.requestActiveYearUpdate();
     }
     if (viewRoot) dispatchListingViewChange(viewRoot);
     headerCollapse?.refreshSummary();
@@ -578,7 +566,9 @@ const letterKeys = Array.from(postsByLetter.keys()).sort((a, b) => a.localeCompa
     button.addEventListener('click', () => {
       const view = button.dataset.viewChoice;
       if ((view === 'timeline' || view === 'list' || view === 'explore') && view !== viewRoot?.dataset.view) {
-        transitionListing(viewRoot, () => setView(view, true));
+        transitionListing(viewRoot, () => setView(view, true), {
+          items: view !== 'explore' && viewRoot?.dataset.view !== 'explore',
+        });
       }
     });
   });
@@ -603,24 +593,7 @@ const letterKeys = Array.from(postsByLetter.keys()).sort((a, b) => a.localeCompa
       }
     });
   });
-  yearLinks.forEach((link) => {
-    link.addEventListener('click', (event) => {
-      if (viewRoot?.dataset.view !== 'explore') return;
-      event.preventDefault();
-      const year = link.hash.replace('#year-', '');
-      viewRoot.dispatchEvent(new CustomEvent('blogexploreyear', { detail: year }));
-      yearLinks.forEach((item) => item.classList.toggle('is-active', item === link));
-      syncYearHighlight();
-      window.history.replaceState({}, '', link.hash);
-    });
-  });
-  viewRoot?.addEventListener('blogexploreselectyear', (event) => {
-    if (viewRoot.dataset.view !== 'explore') return;
-    const year = String((event as CustomEvent<string>).detail);
-    yearLinks.forEach((link) => link.classList.toggle('is-active', link.hash === '#year-' + year));
-    syncYearHighlight();
-    headerCollapse?.refreshSummary();
-  });
+  viewRoot?.addEventListener('blogexploreselectyear', () => headerCollapse?.refreshSummary());
   viewRoot?.addEventListener('listingyearchange', () => headerCollapse?.refreshSummary());
   window.addEventListener('popstate', () => {
     setCategory(new URLSearchParams(window.location.search).get('category') ?? 'all');
@@ -632,63 +605,20 @@ const letterKeys = Array.from(postsByLetter.keys()).sort((a, b) => a.localeCompa
     syncSortHighlight();
   }, { passive: true });
 
-  const updateActiveYear = () => {
-    activeFrame = 0;
-    if (!yearGroups.length || viewRoot?.dataset.view === 'explore' || viewRoot?.dataset.view === 'list') return;
-    const visibleYearGroups = yearGroups.filter((group) => !group.hidden);
-    if (!visibleYearGroups.length) return;
-
-    if (!viewRoot) return;
-    const stickyHeader = viewRoot.querySelector<HTMLElement>('[data-listing-header]')
-      ?? document.querySelector<HTMLElement>('.header-controls');
-    if (!stickyHeader) return;
-    const stickyTop = setListingYearStickyTop(viewRoot, stickyHeader, mobileView.matches);
-    const marker = Math.max(stickyHeader.getBoundingClientRect().bottom, stickyTop) + 12;
-    const activeIndex = visibleYearGroups.findIndex((group) => {
-      const bounds = group.getBoundingClientRect();
-      return bounds.top <= marker && bounds.bottom > marker;
-    });
-    const fallbackIndex = visibleYearGroups.findIndex((group) => group.getBoundingClientRect().top > marker);
-    const index = activeIndex >= 0 ? activeIndex : fallbackIndex >= 0 ? fallbackIndex : visibleYearGroups.length - 1;
-    const activeGroup = visibleYearGroups[index];
-    const activeLabel = activeGroup.querySelector<HTMLElement>('.year-label');
-    const activeYear = activeLabel?.textContent?.trim();
-
-    const mobileYears = window.matchMedia('(max-width: 520px)').matches;
-    yearLabels.forEach((label) => {
-      if (!label) return;
-      const group = label.closest<HTMLElement>('.year-group');
-      label.classList.toggle('is-active', group === activeGroup);
-      const labelTop = label.getBoundingClientRect().top;
-      const groupTop = group?.getBoundingClientRect().top ?? 0;
-      label.classList.toggle(
-        'is-stuck',
-        mobileYears && viewRoot?.dataset.view === 'timeline' && groupTop < stickyTop && Math.abs(labelTop - stickyTop) < 1 && group === activeGroup,
-      );
-    });
-    yearLinks.forEach((link) => {
-      link.classList.toggle('is-active', link.hash === `#year-${activeYear}`);
-    });
-    syncYearHighlight();
-    if (activeYear !== lastActiveYear) {
-      lastActiveYear = activeYear;
-      viewRoot.dispatchEvent(new Event('listingyearchange'));
-    }
-  };
-
-  const requestActiveYearUpdate = () => {
-    if (activeFrame) return;
-    activeFrame = window.requestAnimationFrame(updateActiveYear);
-  };
-
-  updateActiveYear();
-  syncYearHighlight();
-  window.addEventListener('scroll', requestActiveYearUpdate, { passive: true });
-  window.addEventListener('resize', requestActiveYearUpdate, { passive: true });
-
+  const filterSheet = initListingFilterSheet(viewRoot, {
+    getResultLabel: () => categoryCount?.textContent?.trim() ?? 'articles',
+    clearFilters: () => setCategory('all', true),
+  });
   headerCollapse = initListingHeaderCollapse({
     listingRoot: '.blog-view',
+    collapseOnMobile: true,
     getSummary: buildBlogSummary,
+    openMobileFilters: () => filterSheet?.open() ?? false,
+    isMobileFiltersOpen: () => filterSheet?.isOpen() ?? false,
+  });
+  viewRoot?.addEventListener('listingheaderlayout', () => {
+    syncViewHighlight();
+    syncSortHighlight();
   });
 
   setListSort(readListSort());

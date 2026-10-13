@@ -5,9 +5,12 @@ import { ArrowRight } from '@lucide/astro';
 import { formatProjectScope } from '../../data/project-scope';
 import ListingPageControls from '../../components/ListingPageControls.astro';
 import ListingPageIntro from '../../components/ListingPageIntro.astro';
+import ListingFilterSheet from '../../components/ListingFilterSheet.astro';
 import ProjectExplore from '../../components/ProjectExplore.astro';
 import ListingTimelineYear from '../../components/ListingTimelineYear.astro';
 import ProjectTimelineCard from '../../components/ProjectTimelineCard.astro';
+import '../../styles/motion.css';
+import '../../styles/projects-motion.css';
 
 const allProjects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
 const numberedProjects = allProjects.map((project, index) => ({ project, number: String(index + 1).padStart(2, '0') }));
@@ -65,10 +68,10 @@ const projectAttrs = (project: (typeof numberedProjects)[number]['project']) => 
 ---
 
 <Base title="Projects — Jedidiah Amaraegbu" description="Selected projects across collaborative AI, payments, open source, mobile apps, and client platforms.">
-  <div class:list={['projects-page', { 'is-empty': allProjects.length === 0 }]} data-view="timeline">
+  <div class:list={['projects-page', { 'is-empty': allProjects.length === 0 }]} data-view="timeline" data-listing-item-transitions data-listing-motion>
     <ListingPageIntro title="Projects" description="Selected products, client work, and open-source contributions." />
     {allProjects.length > 0 && (
-      <ListingPageControls>
+      <ListingPageControls collapseOnMobile summary={`${allProjects.length} projects`}>
         <nav slot="toolbar" class="year-nav" aria-label="Jump to year">
           {timelineYears.map((year) => (
             <a href={`#year-${year}`}>{year}</a>
@@ -86,7 +89,7 @@ const projectAttrs = (project: (typeof numberedProjects)[number]['project']) => 
           <button type="button" data-view-choice="list" aria-controls="projects-archive-timeline projects-archive-list" aria-pressed="false">List</button>
           <button type="button" data-view-choice="explore" aria-controls="projects-explore" aria-pressed="false">Explore</button>
         </div>
-        <div slot="filters" class="project-filters listing-filter-grid listing-filter-nav" role="group" aria-label="Project filters" hidden>
+        <div slot="filters" class="project-filters listing-filter-grid listing-filter-nav" data-listing-filter-controls role="group" aria-label="Project filters" hidden>
           <div class="filter-group" role="group" aria-label="Filter by type">
             <span class="filter-label" aria-hidden="true">Type</span>
             <div class="filter-options">
@@ -108,6 +111,7 @@ const projectAttrs = (project: (typeof numberedProjects)[number]['project']) => 
         </div>
       </ListingPageControls>
     )}
+    {allProjects.length > 0 && <ListingFilterSheet />}
     <script is:inline>
       (() => {
         const root = document.currentScript?.parentElement;
@@ -184,12 +188,12 @@ const projectAttrs = (project: (typeof numberedProjects)[number]['project']) => 
                   data-project-href={attrs.href}
                   data-sort-title={attrs.sortTitle}
                 >
-                  <a href={attrs.href} class="project-row" aria-labelledby={`list-${project.id}-title`}>
+                  <a href={attrs.href} class="project-row">
                     <span class="project-row-meta">
                       <span style={`color: ${typeColor[project.data.type]}`}>{typeLabel[project.data.type]}</span>
                       <span>{formatProjectScope(project.data)}</span>
                     </span>
-                    <span class="project-row-copy">
+                    <span class="project-row-copy" data-listing-key={project.id}>
                       <span class="project-row-title" id={`list-${project.id}-title`}>{project.data.title}</span>
                       {project.data.description && <span class="project-row-desc">{project.data.description}</span>}
                     </span>
@@ -338,6 +342,8 @@ const projectAttrs = (project: (typeof numberedProjects)[number]['project']) => 
   import { dispatchListingViewChange, initListingHeaderCollapse } from '../../lib/listing-header-collapse';
   import { initListingTimelineYearSpy } from '../../lib/listing-timeline-year-spy';
   import { focusListingRecovery, transitionListing } from '../../lib/listing-transition';
+  import { initListingFilterSheet } from '../../lib/listing-filter-sheet';
+  import { initListingMotion } from '../../lib/listing-motion';
 
   const projectNodes = Array.from(document.querySelectorAll<HTMLElement>('[data-project-type]'));
   const projectFilters = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-project-filter]'));
@@ -345,6 +351,7 @@ const projectAttrs = (project: (typeof numberedProjects)[number]['project']) => 
   const projectCount = document.querySelector<HTMLElement>('[data-project-count]');
   const filterEmpty = document.querySelector<HTMLElement>('.filter-empty');
   const projectsPage = document.querySelector<HTMLElement>('.projects-page');
+  initListingMotion(projectsPage, { intro: 340, controls: 380 });
   const yearGroups = Array.from(document.querySelectorAll<HTMLElement>('.year-group'));
   const letterGroups = Array.from(document.querySelectorAll<HTMLElement>('.letter-group'));
   const listArchive = document.getElementById('projects-archive-list');
@@ -394,7 +401,9 @@ const projectAttrs = (project: (typeof numberedProjects)[number]['project']) => 
       window.history.replaceState({}, '', url);
     }
     window.requestAnimationFrame(() => {
-      document.getElementById(yearId)?.scrollIntoView({ block: 'start' });
+      if (!projectsPage?.querySelector('[data-listing-filter-sheet][open]')) {
+        document.getElementById(yearId)?.scrollIntoView({ block: 'start' });
+      }
       yearSpy?.requestActiveYearUpdate();
     });
   };
@@ -438,9 +447,16 @@ const projectAttrs = (project: (typeof numberedProjects)[number]['project']) => 
     return parts.filter(Boolean).join(' · ');
   };
 
+  const filterSheet = initListingFilterSheet(projectsPage, {
+    getResultLabel: () => projectCount?.textContent?.trim() ?? 'projects',
+    clearFilters: () => setProjectFilters('all', 'all', true),
+  });
   const headerCollapse = initListingHeaderCollapse({
     listingRoot: '.projects-page',
+    collapseOnMobile: true,
     getSummary: buildProjectsSummary,
+    openMobileFilters: () => filterSheet?.open() ?? false,
+    isMobileFiltersOpen: () => filterSheet?.isOpen() ?? false,
   });
 
   const countVisibleProjects = () => new Set(
@@ -516,6 +532,11 @@ const projectAttrs = (project: (typeof numberedProjects)[number]['project']) => 
     switcher.style.setProperty('--view-highlight-offset', `${active.offsetLeft - 3}px`);
   };
 
+  projectsPage?.addEventListener('listingheaderlayout', () => {
+    syncViewHighlight();
+    syncSortHighlight();
+  });
+
   const readView = () => {
     let saved: string | null = null;
     try {
@@ -574,6 +595,7 @@ const projectAttrs = (project: (typeof numberedProjects)[number]['project']) => 
     if (projectsPage?.dataset.view === 'explore') yearSpy?.activateLatestVisibleYear();
     if (projectsPage?.dataset.view === 'list') setListSort(readListSort());
     projectsPage?.dispatchEvent(new CustomEvent('projectfilterchange', { detail: { type: activeType, platform: activePlatform } }));
+    projectsPage?.dispatchEvent(new Event('listingfilterchange'));
     syncYearHashAfterFilters();
     headerCollapse?.refreshSummary();
   };
@@ -628,7 +650,9 @@ const projectAttrs = (project: (typeof numberedProjects)[number]['project']) => 
     button.addEventListener('click', () => {
       const view = button.dataset.viewChoice;
       if ((view === 'timeline' || view === 'list' || view === 'explore') && view !== projectsPage?.dataset.view) {
-        transitionListing(projectsPage, () => setView(view, true));
+        transitionListing(projectsPage, () => setView(view, true), {
+          items: view !== 'explore' && projectsPage?.dataset.view !== 'explore',
+        });
       }
     });
   });

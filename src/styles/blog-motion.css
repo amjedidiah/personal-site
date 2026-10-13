@@ -1,0 +1,15 @@
+.blog-view .post-title {
+  text-decoration-line: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: .22em;
+  transition: text-decoration-color 150ms ease-out;
+}
+.blog-view .post:is(:hover, :focus-visible) .post-title { text-decoration-color: var(--accent); }
+.blog-view .post-source svg { transition: transform 150ms ease-out; }
+.blog-view .post:is(:hover, :focus-visible) .post-source svg { transform: translate(2px, -2px); }
+.blog-view .post:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+@media (prefers-reduced-motion: reduce) {
+  .blog-view .post-title, .blog-view .post-source svg { transition: none; }
+  .blog-view .post:is(:hover, :focus-visible) .post-source svg { transform: none; }
+}

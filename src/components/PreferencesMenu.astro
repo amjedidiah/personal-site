@@ -1,6 +1,6 @@
 ---
-// Site preferences, in the header on desktop and mobile. Home pilots a motion
-// group alongside theme; other routes retain their existing theme control.
+// Site preferences, in the header on desktop and mobile. Implemented motion
+// routes share a group alongside theme; other routes retain their theme control.
 // Each group below has a handler with the same id in the script.
 //
 // How this should grow:
@@ -14,6 +14,7 @@
 // - Outgrows a menu: add a /settings page linked from this menu and from the
 //   footer. It still doesn't need a tab; the bottom tabs are for content.
 import { SlidersHorizontal, SunMoon } from '@lucide/astro';
+import { supportsMotionPreference } from '../lib/motion';
 
 interface PreferenceGroup {
   /** Matches a key in the script's `handlers`. */
@@ -38,8 +39,7 @@ const groups: PreferenceGroup[] = [
   },
 ];
 
-// Pilot the immersive experience on Home before extending it to other routes.
-const hasMotionPreference = Astro.url.pathname === '/';
+const hasMotionPreference = supportsMotionPreference(Astro.url.pathname);
 if (hasMotionPreference) groups.push({
   id: 'motion', label: 'Motion', icon: SlidersHorizontal,
   options: [
@@ -54,7 +54,7 @@ const triggerLabel = single ? 'Color theme' : 'Preferences';
 let optionIndex = 0;
 ---
 
-<details class="preferences-menu" data-preferences-menu data-home-motion-preferences={hasMotionPreference ? '' : undefined} data-close-on-select={single ? '' : undefined}>
+<details class="preferences-menu" data-preferences-menu data-motion-preferences={hasMotionPreference ? '' : undefined} data-close-on-select={single ? '' : undefined}>
   <summary aria-label={triggerLabel} data-preferences-trigger data-trigger-label={triggerLabel}>
     <TriggerIcon size={17} stroke-width={2} aria-hidden="true" />
   </summary>
@@ -79,7 +79,7 @@ let optionIndex = 0;
 </details>
 
 <style>
-  :global(:root:not(.has-js)) .preferences-menu[data-home-motion-preferences] { display: none; }
+  :global(:root:not(.has-js)) .preferences-menu[data-motion-preferences] { display: none; }
   .preferences-menu {
     position: relative;
     display: block;

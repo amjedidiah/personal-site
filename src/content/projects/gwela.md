@@ -12,6 +12,9 @@ dateStart: "2026-08-22"
 dateEnd: "2026-09-29"
 role: "Product, architecture, and full-stack engineering"
 evidence: "Working web client with end-to-end coverage"
+videos:
+  - "https://www.loom.com/share/824ac23990e04af496e69f0dc250bfba"
+  - "https://www.loom.com/share/d00ca3a299764585a9b9192ce05be586"
 image: "../../assets/projects/gwela-product.webp"
 imageAlt: "Gwela product landing screen for collaborative AI sessions"
 imageCaption: "Gwela's working web client, captured from a local build."
@@ -45,3 +48,7 @@ The working web client supports session creation, joining, messaging, agent runs
 ## Recent build note
 
 On 26 September 2026, I reduced join-flow network round trips and refined the session entry experience. The same change expanded end-to-end coverage around joining and redirect behavior. This is an engineering update, not a published performance benchmark.
+
+## Walkthrough
+
+Two recordings of the working web client.

@@ -1,0 +1,125 @@
+.listing-filter-sheet {
+  position: fixed;
+  inset: 0;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  height: 100vh;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  overflow: hidden;
+  overscroll-behavior: contain;
+  background: var(--bg);
+  color: var(--fg);
+}
+.listing-filter-sheet[open] {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+.listing-filter-sheet:not([open]) { display: none; }
+.listing-filter-sheet::backdrop {
+  background: var(--bg);
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+.listing-filter-sheet-header,
+.listing-filter-sheet-body,
+.listing-filter-sheet-footer {
+  padding-inline: max(20px, env(safe-area-inset-left)) max(20px, env(safe-area-inset-right));
+  min-width: 0;
+}
+.listing-filter-sheet-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-block: max(16px, env(safe-area-inset-top)) 16px;
+  border-bottom: 1px solid var(--border);
+}
+.listing-filter-sheet-header h2 {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--fg);
+  font: 700 1.5rem/1.2 var(--font-sans);
+  letter-spacing: 0;
+  text-transform: none;
+}
+.listing-filter-sheet-body {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-block: 32px;
+  scrollbar-color: var(--border) var(--bg);
+}
+.listing-filter-sheet .listing-filter-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2rem;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+}
+.listing-filter-sheet .filter-group { display: block; }
+.listing-filter-sheet .filter-label,
+.listing-filter-sheet .sort-label {
+  display: block;
+  margin-bottom: .75rem;
+  font-size: .75rem;
+}
+.listing-filter-sheet .filter-options { gap: .6rem; }
+.listing-filter-sheet .filter-options button { min-height: 44px; padding: .65rem .85rem; font-size: .85rem; }
+.listing-filter-sheet .category-filters { display: grid; gap: 1.5rem; }
+.listing-filter-sheet .category-nav { flex-wrap: wrap; gap: .6rem; padding: 0; margin: 0; overflow: visible; }
+.listing-filter-sheet .category-nav button {
+  min-width: 0;
+  max-width: 100%;
+  min-height: 44px;
+  padding: .65rem .85rem;
+  font-size: .85rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.listing-filter-sheet .category-filters .listing-filter-count { margin: 0; }
+.listing-filter-sheet .listing-filter-count { grid-column: 1; grid-row: auto; padding: 0; font-size: .75rem; }
+.listing-filter-sheet .list-sort-nav { flex-direction: column; align-items: start; gap: 0; margin-top: 2rem; }
+.listing-filter-sheet .sort-options button { min-height: 44px; min-width: 4rem; font-size: .85rem; }
+.listing-filter-sheet-footer {
+  display: grid;
+  gap: 10px;
+  padding-block: 16px max(16px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--border);
+}
+.listing-filter-sheet-header button,
+.listing-filter-sheet-footer button {
+  min-height: 44px;
+  min-width: 0;
+  max-width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--fg);
+  font: 600 .9rem/1.4 var(--font-sans);
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.listing-filter-sheet-footer .listing-filter-sheet-show {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+.listing-filter-sheet-header button:hover,
+.listing-filter-sheet-clear:hover { border-color: var(--accent); color: var(--accent); }
+.listing-filter-sheet-show:hover { background: color-mix(in srgb, var(--accent) 85%, var(--fg)); }
+.listing-filter-sheet button:active { filter: brightness(.92); }
+.listing-filter-sheet button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.listing-filter-sheet-show:focus-visible { outline-offset: 4px; }
+@media (forced-colors: active) {
+  .listing-filter-sheet-footer .listing-filter-sheet-show { background: ButtonFace; color: ButtonText; border-color: ButtonText; }
+}

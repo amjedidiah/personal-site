@@ -1,0 +1,21 @@
+---
+interface Props { value: number; suffix?: string; }
+const { value, suffix = '' } = Astro.props;
+const display = `${value.toLocaleString('en-GB')}${suffix}`;
+---
+
+<strong class="count-up" data-count-final={display}>
+  <span class="visually-hidden">{display}</span>
+  <span class="count-up-value" data-count-up={value} data-count-suffix={suffix} aria-hidden="true">{display}</span>
+</strong>
+
+<style>
+  .count-up { display: inline-grid; justify-self: start; font-variant-numeric: tabular-nums; }
+  /* Reserve the final width so changing digits cannot shift neighbouring text. */
+  .count-up::before { content: attr(data-count-final); visibility: hidden; grid-area: 1 / 1; }
+  .count-up-value { grid-area: 1 / 1; }
+</style>
+
+<script>
+  import '../lib/count-up';
+</script>
