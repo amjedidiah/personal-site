@@ -1,8 +1,10 @@
 ---
 import '../styles/listing-page-header.css';
 import '../styles/listing-motion.css';
+import { useTranslations } from '../i18n/ui';
 interface Props { collapseOnMobile?: boolean; summary?: string; }
 const { collapseOnMobile = false, summary = '' } = Astro.props;
+const t = useTranslations(Astro.currentLocale);
 ---
 
 <div class="header-controls-sentinel" data-listing-header-sentinel aria-hidden="true"></div>
@@ -23,7 +25,7 @@ const { collapseOnMobile = false, summary = '' } = Astro.props;
         aria-expanded="false"
         aria-controls="listing-header-expandable"
       >
-        Filters
+        {t.listing.filters}
       </button>
     </div>
   </div>

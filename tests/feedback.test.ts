@@ -155,3 +155,23 @@ test('an at-limit non-ASCII message is accepted after URL encoding', async () =>
   assert.equal(response.status, 200);
   assert.ok(String(sent?.text).endsWith(message));
 });
+
+test('French submissions get French errors and redirect to the French thank-you page', async () => {
+  process.env.GMAIL_USER = 'sender@gmail.com';
+  process.env.GMAIL_APP_PASSWORD = 'app-password';
+  mock.method(nodemailer, 'createTransport', () => ({ sendMail: async () => {} }));
+
+  const frenchRequest = (body: string, accept: string) => new Request('https://example.com/api/feedback?locale=fr', {
+    method: 'POST',
+    headers: { 'content-type': 'application/x-www-form-urlencoded', accept, origin: 'https://example.com' },
+    body,
+  });
+
+  const invalid = await submitFeedback(frenchRequest('source=site&message=Hi', 'application/json'));
+  assert.equal(invalid.status, 400);
+  assert.equal((await invalid.json()).message, 'Veuillez écrire au moins cinq caractères.');
+
+  const native = await submitFeedback(frenchRequest('source=site&message=Useful+work', 'text/html'));
+  assert.equal(native.status, 303);
+  assert.equal(native.headers.get('location'), 'https://example.com/fr/feedback/thanks');
+});

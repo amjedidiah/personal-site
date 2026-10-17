@@ -2,11 +2,14 @@
 // Status mark beside the wordmark, shown on every page served from cache (grey)
 // and turning accent once the site responds. Not interactive: OfflineNotice's
 // script drives its state and its live region speaks for it.
+import { useTranslations } from '../i18n/ui';
+
+const t = useTranslations(Astro.currentLocale);
 ---
 
 <span class="freshness-dot" data-freshness-dot data-state="offline" aria-hidden="true" hidden>
   <span class="freshness-dot-mark"></span>
-  <span class="freshness-dot-tip" data-freshness-dot-tip>Saved copy</span>
+  <span class="freshness-dot-tip" data-freshness-dot-tip>{t.offline.savedTip}</span>
 </span>
 
 <style>

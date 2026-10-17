@@ -1,0 +1,91 @@
+---
+// Shares the current page through the system share sheet where there is one
+// (phones, and the installed app, which has no URL bar to copy from);
+// elsewhere it copies the link. Takes its font from the surrounding meta row.
+import { Share2 } from '@lucide/astro';
+import { useTranslations } from '../i18n/ui';
+
+interface Props { title: string; }
+const { title } = Astro.props;
+const t = useTranslations(Astro.currentLocale);
+---
+
+<button type="button" class="share-button" data-share-button data-share-title={title}>
+  <Share2 size={13} stroke-width={1.8} aria-hidden="true" />
+  <span data-share-label>{t.share.label}</span>
+</button>
+<span class="visually-hidden" role="status" data-share-status></span>
+
+<style>
+  :global(:root:not(.has-js)) .share-button { display: none; }
+  /* An outlined chip at the end of the row, so it reads as an action rather
+     than another accent-coloured tag or link beside it. */
+  .share-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    margin-left: auto;
+    padding: .4em .75em;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: none;
+    color: var(--fg);
+    font: inherit;
+    line-height: 1.4;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: color .15s, border-color .15s;
+  }
+  /* Keeps a 44px touch target around the smaller chip. */
+  .share-button::before {
+    content: '';
+    position: absolute;
+    inset: 50% 0 auto;
+    height: 44px;
+    transform: translateY(-50%);
+  }
+  .share-button :global(svg) { flex-shrink: 0; }
+  .share-button:hover { color: var(--accent); border-color: var(--accent); }
+  .share-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  @media (prefers-reduced-motion: reduce) { .share-button { transition: none; } }
+</style>
+
+<script>
+  import { clientStrings } from '../i18n/client';
+
+  const resetMs = 2000;
+  const strings = clientStrings().share;
+
+  document.querySelectorAll<HTMLButtonElement>('[data-share-button]').forEach((button) => {
+    const label = button.querySelector<HTMLElement>('[data-share-label]');
+    const status = button.nextElementSibling;
+    let resetTimer = 0;
+
+    button.addEventListener('click', async () => {
+      const url = document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.href ?? window.location.href;
+      const title = button.dataset.shareTitle ?? document.title;
+
+      if (navigator.share) {
+        // Rejects with AbortError when the sheet is dismissed; nothing to report.
+        await navigator.share({ title, url }).catch(() => {});
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        return;
+      }
+      if (label) label.textContent = strings.copied;
+      if (status) status.textContent = strings.announce;
+      window.clearTimeout(resetTimer);
+      resetTimer = window.setTimeout(() => {
+        if (label) label.textContent = strings.idle;
+        if (status) status.textContent = '';
+      }, resetMs);
+    });
+  });
+</script>

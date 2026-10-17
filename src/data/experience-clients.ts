@@ -1,6 +1,9 @@
+import type { Locale } from '../i18n/config';
+
 export type ExperienceClient = {
   name: string;
-  note: string;
+  /** French is a machine draft awaiting review. */
+  note: Record<Locale, string>;
   href: string;
   logo: string;
   logoAlt: string;
@@ -11,7 +14,7 @@ export type ExperienceClient = {
 export const experienceClients: ExperienceClient[] = [
   {
     name: 'Fiverr Pro',
-    note: 'freelance · payments',
+    note: { en: 'freelance · payments', fr: 'freelance · paiements' },
     href: 'https://www.fiverr.com/',
     logo: '/brands/fiverr.svg',
     logoAlt: 'Fiverr',
@@ -19,7 +22,7 @@ export const experienceClients: ExperienceClient[] = [
   },
   {
     name: 'Remotebase',
-    note: 'software engineer',
+    note: { en: 'software engineer', fr: 'ingénieur logiciel' },
     href: 'https://remotebase.com/',
     logo: '/brands/remotebase-mark.png',
     logoAlt: 'Remotebase',
@@ -27,7 +30,7 @@ export const experienceClients: ExperienceClient[] = [
   },
   {
     name: 'GoMyCode',
-    note: 'instructor · 4 cohorts',
+    note: { en: 'instructor · 4 cohorts', fr: 'formateur · 4 promotions' },
     href: 'https://gomycode.com/',
     logo: '/brands/gomycode-mark.png',
     logoAlt: 'GoMyCode',
@@ -35,7 +38,7 @@ export const experienceClients: ExperienceClient[] = [
   },
   {
     name: 'Google DevFest',
-    note: 'speaker',
+    note: { en: 'speaker', fr: 'conférencier' },
     href: 'https://gdg.community.dev/gdg-enugu/',
     logo: '/brands/gdg-mark.png',
     logoAlt: 'Google Developer Groups Enugu',
@@ -43,14 +46,14 @@ export const experienceClients: ExperienceClient[] = [
   },
   {
     name: 'Andela',
-    note: 'mentor',
+    note: { en: 'mentor', fr: 'mentor' },
     href: 'https://www.andela.com/',
     logo: '/brands/andela.svg',
     logoAlt: 'Andela',
   },
   {
     name: 'HackerOne',
-    note: 'bug bounty research',
+    note: { en: 'bug bounty research', fr: 'recherche en bug bounty' },
     href: 'https://hackerone.com/',
     logo: '/brands/hackerone.svg',
     logoAlt: 'HackerOne',

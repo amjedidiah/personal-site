@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
+import { useTranslations } from '../i18n/ui';
 
 interface Props {
   src: ImageMetadata;
@@ -11,6 +12,7 @@ interface Props {
 }
 
 const { src, alt, placeholder, sizes, priority = false } = Astro.props;
+const t = useTranslations(Astro.currentLocale);
 ---
 
 <div
@@ -28,7 +30,7 @@ const { src, alt, placeholder, sizes, priority = false } = Astro.props;
     priority={priority}
     fetchpriority={priority ? 'high' : 'low'}
   />
-  <span class="image-error" aria-hidden="true">Image unavailable</span>
+  <span class="image-error" aria-hidden="true">{t.meta.imageUnavailable}</span>
 </div>
 
 <style>

@@ -1,3 +1,5 @@
+import { clientStrings } from '../i18n/client';
+
 type CodeCopyContext = {
   code: HTMLElement;
   pre: HTMLPreElement;
@@ -28,7 +30,7 @@ function setCopyButtonBusy(button: HTMLButtonElement, busy: boolean) {
   button.disabled = busy;
   if (busy) {
     button.setAttribute('aria-busy', 'true');
-    button.textContent = 'Copying…';
+    button.textContent = clientStrings().article.copying;
     return;
   }
   button.removeAttribute('aria-busy');
@@ -53,7 +55,7 @@ function scheduleCopyReset(
   resetTimer: { id: number },
 ) {
   resetTimer.id = window.setTimeout(() => {
-    button.textContent = 'Copy code';
+    button.textContent = clientStrings().article.copyCode;
     status.textContent = '';
     timers.delete(resetTimer.id);
   }, 2000);
@@ -70,16 +72,16 @@ async function copyArticleCode(context: CodeCopyContext, resetTimer: { id: numbe
     if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
     await navigator.clipboard.writeText(code.textContent ?? '');
     if (signal.aborted) return;
-    button.textContent = 'Copied';
-    status.textContent = 'Code copied.';
+    button.textContent = clientStrings().article.copied;
+    status.textContent = clientStrings().article.codeCopied;
     scheduleCopyReset(button, status, timers, resetTimer);
   } catch {
     if (signal.aborted) return;
-    button.textContent = 'Copy code';
+    button.textContent = clientStrings().article.copyCode;
     const selected = selectCodeForManualCopy(code, pre);
     status.textContent = selected
-      ? 'Copy failed. Code selected for manual copying.'
-      : 'Copy failed. Select the code to copy it manually.';
+      ? clientStrings().article.copyFailedSelected
+      : clientStrings().article.copyFailed;
   } finally {
     if (!signal.aborted) setCopyButtonBusy(button, false);
   }
@@ -101,7 +103,7 @@ function attachHeadingPermalinks(prose: HTMLElement, signal: AbortSignal) {
     const link = document.createElement('a');
     link.className = 'heading-permalink';
     link.href = `#${encodeURIComponent(heading.id)}`;
-    link.setAttribute('aria-label', `Link to section: ${heading.textContent?.trim() ?? ''}`);
+    link.setAttribute('aria-label', clientStrings().article.sectionLink(heading.textContent?.trim() ?? ''));
     link.append(createHeadingPermalinkIcon());
     link.addEventListener('click', () => { heading.tabIndex = -1; heading.focus({ preventScroll: true }); }, { signal });
     heading.append(link);
@@ -122,7 +124,7 @@ function enhanceCodeBlock(pre: HTMLPreElement, signal: AbortSignal, timers: Set<
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'article-code-copy';
-  button.textContent = 'Copy code';
+  button.textContent = clientStrings().article.copyCode;
   toolbar.append(status, button);
   pre.before(wrapper);
   wrapper.append(toolbar, pre);
@@ -142,7 +144,7 @@ function wrapArticleTables(prose: HTMLElement) {
     const wrapper = document.createElement('div');
     wrapper.className = 'article-table-scroll';
     wrapper.setAttribute('role', 'region');
-    wrapper.setAttribute('aria-label', table.caption?.textContent?.trim() || 'Data table');
+    wrapper.setAttribute('aria-label', table.caption?.textContent?.trim() || clientStrings().article.dataTable);
     table.before(wrapper);
     wrapper.append(table);
   }
@@ -154,7 +156,7 @@ function updateScrollableRegions(regions: NodeListOf<HTMLElement>) {
       region.tabIndex = 0;
       if (region.tagName === 'PRE') {
         region.setAttribute('role', 'region');
-        region.setAttribute('aria-label', 'Code example');
+        region.setAttribute('aria-label', clientStrings().article.codeExample);
       }
     } else region.removeAttribute('tabindex');
   }

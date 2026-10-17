@@ -1,8 +1,11 @@
 ---
+import { useTranslations } from '../i18n/ui';
+
 interface Props { projectId: string; }
 const { projectId } = Astro.props;
 const isGwela = projectId === 'gwela';
 const supported = isGwela || projectId === 'cocktail-book-club';
+const t = useTranslations(Astro.currentLocale);
 ---
 
 {supported && <figure class:list={['project-diagram', isGwela ? 'diagram-session' : 'diagram-books']}>
@@ -45,8 +48,8 @@ const supported = isGwela || projectId === 'cocktail-book-club';
     </>}
   </svg>
   <figcaption>
-    <span>{isGwela ? 'One session. Shared context.' : 'Reading becomes a shared experience.'}</span>
-    <span class="diagram-caption-note">Concept diagram</span>
+    <span>{isGwela ? t.diagram.gwela : t.diagram.books}</span>
+    <span class="diagram-caption-note">{t.diagram.note}</span>
   </figcaption>
 </figure>}
 

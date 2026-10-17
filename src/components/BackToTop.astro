@@ -1,10 +1,13 @@
 ---
 import { ArrowUp } from '@lucide/astro';
+import { useTranslations } from '../i18n/ui';
+
+const t = useTranslations(Astro.currentLocale);
 ---
 
-<a class="back-to-top" href="#page-top" aria-label="Back to top">
+<a class="back-to-top" href="#page-top" aria-label={t.backToTop.label}>
   <ArrowUp size={16} stroke-width={2} aria-hidden="true" />
-  <span>top</span>
+  <span>{t.backToTop.short}</span>
 </a>
 
 <style>

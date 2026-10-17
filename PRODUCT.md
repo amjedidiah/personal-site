@@ -41,6 +41,7 @@ The durable promise is apps and payments that hold up in production. Primary rol
 - Production offline support serves saved content with a connection/freshness notice and a recovery action. Preserve the distinction between a saved copy and current content.
 - Feedback is sent by email through `/api/feedback`; the site does not store submissions in a database. Delivery requires environment configuration. Failed submissions retain the draft and offer recovery.
 - Core browsing and reading remain usable without JavaScript. Interactive views and preferences enhance the rendered content.
+- The site is bilingual: English at `/`, French at `/fr/` for Francophone clients. Interface copy lives in `src/i18n/` and page markup in `src/views/`, so `src/pages/` and `src/pages/fr/` are thin wrappers. French case studies in `src/content/projects-fr/` hold only translatable fields and merge over the English facts. On-site posts are translated in `src/content/blog-fr/`; Hashnode articles stay in English on Hashnode, with French titles and summaries in `src/data/hashnode-fr.ts` (add one there when a new Hashnode post is scraped, or it lists in English). French copy began as a machine draft: files marked `reviewed: false` (and `ui.ts`) await native review. When English copy changes, update the French alongside it.
 - Development uses `astro dev --background`, managed with `astro dev stop`, `astro dev status`, and `astro dev logs`, as required by `AGENTS.md`.
 
 ## Brand Commitments
@@ -53,7 +54,7 @@ The durable promise is apps and payments that hold up in production. Primary rol
 
 - Project case studies and their explicit role/evidence fields: `src/content/projects/`.
 - Local articles and the external writing archive: `src/content/blog/` and `src/data/hashnode.ts`.
-- Experience, credential references, speaking links, and contact information: `src/pages/about.astro`.
+- Experience, credential references, speaking links, and contact information: `src/views/AboutPage.astro` with copy in `src/i18n/ui.ts`.
 - Project imagery: `src/assets/projects/`, with optional captions and alt text in project records. Some preview images are intentionally disabled pending readiness.
 - Identity and social-preview assets: the face favicon and installed-app icons in `public/`, plus `public/og.png`.
 - These are repository-provided records and references, not an independent verification of their external claims. Do not invent testimonials, customer logos, adoption figures, financial outcomes, or additional credentials.

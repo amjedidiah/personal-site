@@ -1,5 +1,6 @@
 import { applyArticleScrollOffset, getArticleScrollSpyLine, initArticleScrollOffset } from './article-scroll-offset';
 import { prefersReducedMotion } from './motion';
+import { clientStrings } from '../i18n/client';
 
 export const ARTICLE_TOC_OVERVIEW_ID = 'overview';
 
@@ -15,7 +16,7 @@ function setLinkActiveState(links: HTMLAnchorElement[], id: string | null) {
 function updateTocCurrentLabel(links: HTMLAnchorElement[], currentLabel: Element | null) {
   if (!currentLabel) return;
   const activeLink = links.find((link) => link.getAttribute('aria-current') === 'location');
-  currentLabel.textContent = activeLink?.textContent ?? 'Overview';
+  currentLabel.textContent = activeLink?.textContent ?? clientStrings().article.overview;
 }
 
 function shouldCloseTocOnEscape(

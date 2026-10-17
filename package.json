@@ -7,9 +7,10 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "prebuild": "node --experimental-strip-types scripts/generate-profile-assets.mjs && node scripts/generate-lqip.mjs",
+    "prebuild": "node --experimental-strip-types scripts/generate-profile-assets.mjs && node scripts/generate-lqip.mjs && node scripts/french-spacing.mjs",
     "build": "astro build",
     "images:lqip": "node scripts/generate-lqip.mjs",
+    "i18n:spacing": "node scripts/french-spacing.mjs",
     "preview": "astro preview",
     "astro": "astro"
   },

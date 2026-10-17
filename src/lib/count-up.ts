@@ -1,4 +1,5 @@
 import { observeReducedMotion, prefersReducedMotion } from './motion';
+import { pageIntlLocale } from '../i18n/client';
 
 const values = Array.from(document.querySelectorAll<HTMLElement>('[data-count-up]'));
 
@@ -7,7 +8,7 @@ if (values.length && typeof IntersectionObserver === 'function' && !prefersReduc
   const completed = new Set<HTMLElement>();
   const active = new Map<HTMLElement, { target: number; suffix: string; start: number }>();
   const finalText = new Map(values.map((value) => [value, value.textContent ?? '']));
-  const formatter = new Intl.NumberFormat('en-GB');
+  const formatter = new Intl.NumberFormat(pageIntlLocale());
   let frame = 0;
 
   const finish = (value: HTMLElement) => {

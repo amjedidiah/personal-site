@@ -20,7 +20,8 @@ const card = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" 
   </g>
   <rect y="626" width="1200" height="4" fill="#4da3ff"/>
 </svg>`;
-const image = await sharp(Buffer.from(card)).composite([{ input: portrait, left: 302, top: 180 }]).png().toBuffer();
+const image = await sharp(Buffer.from(card)).composite([{ input: portrait, left: 302, top: 180 }])
+  .png({ palette: true, quality: 90, effort: 10, compressionLevel: 9 }).toBuffer();
 const output = new URL('../public/og.png', import.meta.url);
 const existing = await readFile(output).catch((error) => { if (error.code !== 'ENOENT') throw error; });
 if (!existing?.equals(image)) await writeFile(output, image);

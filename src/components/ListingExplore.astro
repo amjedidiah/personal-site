@@ -2,6 +2,7 @@
 import { ArrowUpRight } from '@lucide/astro';
 import '../styles/explore-globe.css';
 import type { ListingExploreWire } from '../lib/listing-explore';
+import { useTranslations } from '../i18n/ui';
 
 export interface ListingExplorePaper {
   title: string;
@@ -14,6 +15,8 @@ export interface ListingExplorePaper {
   metaLine?: string;
   exploreJump: string;
   external?: boolean;
+  /** Set when the item's text is in another language than the page. */
+  lang?: string;
   /** Extra attributes for listing-page filters (e.g. data-blog-post, data-project-type). */
   filterAttrs?: Record<string, string | undefined>;
 }
@@ -45,6 +48,7 @@ const {
   surface = 'paper',
 } = Astro.props;
 const first = papers[0];
+const t = useTranslations(Astro.currentLocale);
 ---
 
 <section
@@ -57,7 +61,7 @@ const first = papers[0];
 >
   <div class="explore-scene">
     <div class="globe-stage" tabindex="0" role="group" aria-label={stageAriaLabel} aria-describedby={`${exploreId}-keyboard`}>
-      <button class="explore-reset" type="button">Reset globe</button>
+      <button class="explore-reset" type="button">{t.listing.resetGlobe}</button>
       <p class="globe-hint">
         <span class="globe-hint-desktop">{hintDesktop}</span>
         <span class="globe-hint-mobile">{hintMobile}</span>
@@ -75,6 +79,7 @@ const first = papers[0];
               data-explore-meta-a={paper.detailMetaA}
               data-explore-meta-b={paper.detailMetaB}
               data-external={paper.external ? 'true' : 'false'}
+              lang={paper.lang}
               {...paper.filterAttrs}
             >
               <div class="paper-surface">
@@ -104,9 +109,9 @@ const first = papers[0];
       </div>
     </div>
 
-    <aside class="selected-paper" id={selectedAsideLabel} aria-label={`Selected ${wire.itemNoun}`}>
+    <aside class="selected-paper" id={selectedAsideLabel} aria-label={wire.selectedLabel}>
       <p class="selected-label">
-        <span data-detail-label>Selected {wire.itemNoun}</span>
+        <span data-detail-label>{wire.selectedLabel}</span>
         <span data-paper-position>{first ? `01 / ${String(papers.length).padStart(2, '0')}` : '00 / 00'}</span>
       </p>
       <div class="selected-content">

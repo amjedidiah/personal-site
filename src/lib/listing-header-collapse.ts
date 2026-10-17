@@ -1,4 +1,5 @@
 import { setListingYearStickyTop } from './listing-sticky-top';
+import { clientStrings } from '../i18n/client';
 
 export type ListingHeaderCollapseOptions = {
   listingRoot: string;
@@ -111,7 +112,7 @@ export function initListingHeaderCollapse(options: ListingHeaderCollapseOptions)
     header.classList.toggle('is-collapsed', collapsed);
     header.classList.toggle('is-pinned', panelOpen);
     expandBtn.setAttribute('aria-expanded', String(panelOpen || Boolean(options.isMobileFiltersOpen?.())));
-    expandBtn.textContent = panelOpen ? 'Close' : 'Filters';
+    expandBtn.textContent = panelOpen ? clientStrings().listing.close : clientStrings().listing.filters;
 
     syncScrollSpacer();
     lastHeaderHeight = headerHeight();

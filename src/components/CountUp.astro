@@ -1,7 +1,9 @@
 ---
+import { intlLocale, toLocale } from '../i18n/config';
+
 interface Props { value: number; suffix?: string; }
 const { value, suffix = '' } = Astro.props;
-const display = `${value.toLocaleString('en-GB')}${suffix}`;
+const display = `${value.toLocaleString(intlLocale[toLocale(Astro.currentLocale)])}${suffix}`;
 ---
 
 <strong class="count-up" data-count-final={display}>

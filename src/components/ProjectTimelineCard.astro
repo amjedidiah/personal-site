@@ -3,6 +3,8 @@ import { ArrowRight } from '@lucide/astro';
 import { formatProjectScope } from '../data/project-scope';
 import { formatProjectDate } from '../data/project-timeline';
 import type { CollectionEntry } from 'astro:content';
+import { localePath, toLocale } from '../i18n/config';
+import { useTranslations } from '../i18n/ui';
 
 interface Props {
   project: CollectionEntry<'projects'>;
@@ -10,9 +12,10 @@ interface Props {
 }
 
 const { project, typeColor } = Astro.props;
-const href = `/projects/${project.id}`;
+const locale = toLocale(Astro.currentLocale);
+const t = useTranslations(locale);
+const href = localePath(locale, `/projects/${project.id}`);
 const platforms = project.data.platforms.join(' ');
-const shortType: Record<string, string> = { founder: 'independent', client: 'client', oss: 'OSS' };
 ---
 
 <li
@@ -26,15 +29,15 @@ const shortType: Record<string, string> = { founder: 'independent', client: 'cli
     href={href}
     class="timeline-entry project-entry"
   >
-    <time class="timeline-entry-aside" datetime={project.data.dateStart} title={project.data.type === 'oss' ? 'First contribution' : 'First commit'}>{formatProjectDate(project.data.dateStart)}</time>
+    <time class="timeline-entry-aside" datetime={project.data.dateStart} title={project.data.type === 'oss' ? t.projectMeta.firstContribution : t.projectMeta.firstCommit}>{formatProjectDate(project.data.dateStart, locale)}</time>
     <span class="timeline-entry-copy" data-listing-key={project.id}>
-      <span class="timeline-entry-type" style={`color: ${typeColor}`}>{shortType[project.data.type]}</span>
+      <span class="timeline-entry-type" style={`color: ${typeColor}`}>{t.projectTypes.short[project.data.type]}</span>
       <span class="timeline-entry-title" id={`project-${project.id}-title`}>{project.data.title}</span>
-      <span class="timeline-entry-scope">{formatProjectScope(project.data)}</span>
+      <span class="timeline-entry-scope">{formatProjectScope(project.data, locale)}</span>
       <span class="timeline-entry-desc" id={`project-${project.id}-desc`}>{project.data.description}</span>
     </span>
     <span class="timeline-entry-action view-cue">
-      View project <ArrowRight size={13} strokeWidth={1.7} aria-hidden="true" />
+      {t.listing.viewProject} <ArrowRight size={13} strokeWidth={1.7} aria-hidden="true" />
     </span>
   </a>
 </li>

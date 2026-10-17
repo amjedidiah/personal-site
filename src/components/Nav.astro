@@ -2,21 +2,29 @@
 import { FileText, House, LayoutGrid, Mail, MessageCircle, Phone, PhoneCall, UserRound } from '@lucide/astro';
 import FreshnessDot from './FreshnessDot.astro';
 import PreferencesMenu from './PreferencesMenu.astro';
+import { localePath, stripLocale, toLocale, type Locale } from '../i18n/config';
+import { useTranslations } from '../i18n/ui';
 
-const pathname = Astro.url.pathname;
-const links = [
-  { href: '/', label: 'home' },
-  { href: '/projects', label: 'projects' },
-  { href: '/blog', label: 'blog' },
-  { href: '/about', label: 'about' },
-];
-const isActive = (href: string) => pathname === href || (href !== '/' && pathname.startsWith(`${href}/`));
+interface Props { alternates: Record<Locale, string>; }
+const { alternates } = Astro.props;
+const locale = toLocale(Astro.currentLocale);
+const t = useTranslations(locale);
+// Active state compares unprefixed paths so /fr/projects/x highlights "projects".
+const pathname = stripLocale(Astro.url.pathname).replace(/(.)\/$/, '$1');
+const href = (path: string) => localePath(locale, path);
+const links = (['home', 'projects', 'blog', 'about'] as const).map((key) => ({
+  key,
+  path: key === 'home' ? '/' : `/${key}`,
+  label: t.nav.links[key],
+}));
+const isActive = (path: string) => pathname === path || (path !== '/' && pathname.startsWith(`${path}/`));
+const emailHref = `mailto:imunacode@gmail.com?subject=${encodeURIComponent(t.nav.emailSubject)}`;
 const brandLetters = ['a', 'm', 'j', 'e', 'd', 'i', 'd', 'i', 'a', 'h'];
 ---
 
 <header class="mobile-topbar">
   <div class="brand-group">
-    <a href="/" class="mobile-brand" aria-label="amjedidiah, home">
+    <a href={href('/')} class="mobile-brand" aria-label={t.nav.brandHome}>
       <span class="brand-wordmark" aria-hidden="true">
         {brandLetters.map((letter, index) => (
           <span class:list={['brand-letter', { 'brand-letter--am': index < 2 }]}>{letter}</span>
@@ -25,7 +33,7 @@ const brandLetters = ['a', 'm', 'j', 'e', 'd', 'i', 'd', 'i', 'a', 'h'];
     </a>
     <FreshnessDot />
   </div>
-  <div class="mobile-social" role="group" aria-label="Social and contact links">
+  <div class="mobile-social" role="group" aria-label={t.nav.social}>
     <a href="https://github.com/amjedidiah" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.084-.73.084-.73 1.205.084 1.84 1.237 1.84 1.237 1.07 1.835 2.809 1.305 3.495.998.108-.776.418-1.305.762-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
@@ -42,7 +50,7 @@ const brandLetters = ['a', 'm', 'j', 'e', 'd', 'i', 'd', 'i', 'a', 'h'];
       </svg>
     </a>
     <details class="mobile-contact">
-      <summary aria-label="Phone or WhatsApp" title="Phone or WhatsApp">
+      <summary aria-label={t.nav.phoneOrWhatsApp} title={t.nav.phoneOrWhatsApp}>
         <Phone size={19} stroke-width={2} aria-hidden="true" />
       </summary>
       <div class="contact-options">
@@ -51,18 +59,18 @@ const brandLetters = ['a', 'm', 'j', 'e', 'd', 'i', 'd', 'i', 'a', 'h'];
           <MessageCircle size={18} stroke-width={2} aria-hidden="true" /> WhatsApp
         </a>
         <a href="tel:+2348165972229">
-          <PhoneCall size={18} stroke-width={2} aria-hidden="true" /> Phone call
+          <PhoneCall size={18} stroke-width={2} aria-hidden="true" /> {t.nav.phoneCall}
         </a>
       </div>
     </details>
-    <PreferencesMenu />
+    <PreferencesMenu alternates={alternates} />
   </div>
 </header>
 
-<nav class="desktop-nav" aria-label="Primary navigation">
+<nav class="desktop-nav" aria-label={t.nav.label}>
   <div class="nav-inner">
     <div class="brand-group">
-      <a href="/" class="nav-name" aria-label="amjedidiah, home">
+      <a href={href('/')} class="nav-name" aria-label={t.nav.brandHome}>
         <span class="brand-wordmark" aria-hidden="true">
           {brandLetters.map((letter, index) => (
             <span class:list={['brand-letter', { 'brand-letter--am': index < 2 }]}>{letter}</span>
@@ -72,8 +80,8 @@ const brandLetters = ['a', 'm', 'j', 'e', 'd', 'i', 'd', 'i', 'a', 'h'];
       <FreshnessDot />
     </div>
     <div class="nav-links">
-      {links.map(({ href, label }) => (
-        <a href={href} class:list={[{ active: isActive(href) }]} aria-current={isActive(href) ? 'page' : undefined}>
+      {links.map(({ path, label }) => (
+        <a href={href(path)} class:list={[{ active: isActive(path) }]} aria-current={isActive(path) ? 'page' : undefined}>
           <span class="desktop-selection" aria-hidden="true"></span>{label}
         </a>
       ))}
@@ -94,34 +102,34 @@ const brandLetters = ['a', 'm', 'j', 'e', 'd', 'i', 'd', 'i', 'a', 'h'];
           <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V8.999h3.414v1.561h.046c.476-.9 1.637-1.85 3.37-1.85 3.601 0 4.266 2.37 4.266 5.455v6.287zM5.337 7.433a2.062 2.062 0 1 1 0-4.124 2.062 2.062 0 0 1 0 4.124zM7.119 20.452H3.555V8.999h3.564v11.453zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.225 0z"/>
         </svg>
       </a>
-      <a href="mailto:imunacode@gmail.com?subject=Project%20inquiry" aria-label="Email Jedidiah" title="Email Jedidiah">
+      <a href={emailHref} aria-label={t.nav.email} title={t.nav.email}>
         <Mail size={17} stroke-width={2} aria-hidden="true" />
       </a>
-      <PreferencesMenu />
+      <PreferencesMenu alternates={alternates} />
     </div>
   </div>
 </nav>
 
-<nav class="mobile-nav" aria-label="Primary navigation">
-  <a href="/" class:list={[{ active: isActive('/') }]} aria-current={isActive('/') ? 'page' : undefined}>
+<nav class="mobile-nav" aria-label={t.nav.label}>
+  <a href={href('/')} class:list={[{ active: isActive('/') }]} aria-current={isActive('/') ? 'page' : undefined}>
     <span class="mobile-selection" aria-hidden="true"></span>
     <House size={22} stroke-width={2} aria-hidden="true" />
-    <span>Home</span>
+    <span>{t.nav.tabs.home}</span>
   </a>
-  <a href="/projects" class:list={[{ active: isActive('/projects') }]} aria-current={isActive('/projects') ? 'page' : undefined}>
+  <a href={href('/projects')} class:list={[{ active: isActive('/projects') }]} aria-current={isActive('/projects') ? 'page' : undefined}>
     <span class="mobile-selection" aria-hidden="true"></span>
     <LayoutGrid size={22} stroke-width={2} aria-hidden="true" />
-    <span>Projects</span>
+    <span>{t.nav.tabs.projects}</span>
   </a>
-  <a href="/blog" class:list={[{ active: isActive('/blog') }]} aria-current={isActive('/blog') ? 'page' : undefined}>
+  <a href={href('/blog')} class:list={[{ active: isActive('/blog') }]} aria-current={isActive('/blog') ? 'page' : undefined}>
     <span class="mobile-selection" aria-hidden="true"></span>
     <FileText size={22} stroke-width={2} aria-hidden="true" />
-    <span>Blog</span>
+    <span>{t.nav.tabs.blog}</span>
   </a>
-  <a href="/about" class:list={[{ active: isActive('/about') }]} aria-current={isActive('/about') ? 'page' : undefined}>
+  <a href={href('/about')} class:list={[{ active: isActive('/about') }]} aria-current={isActive('/about') ? 'page' : undefined}>
     <span class="mobile-selection" aria-hidden="true"></span>
     <UserRound size={22} stroke-width={2} aria-hidden="true" />
-    <span>About</span>
+    <span>{t.nav.tabs.about}</span>
   </a>
 </nav>
 

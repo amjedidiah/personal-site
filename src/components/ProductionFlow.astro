@@ -1,4 +1,7 @@
 ---
+import { useTranslations } from '../i18n/ui';
+
+const t = useTranslations(Astro.currentLocale);
 const flowPath = 'M38 36H150L170 16H180L200 36H300L320 56H380L400 36H562';
 ---
 
@@ -18,9 +21,9 @@ const flowPath = 'M38 36H150L170 16H180L200 36H300L320 56H380L400 36H562';
     </g>
   </svg>
   <figcaption>
-    <span class="flow-context">Payment flow · illustration</span>
-    <span>Request</span><span>Validate</span><span>Payment</span><span>Confirm</span>
-    <span class="visually-hidden">This is not a live transaction.</span>
+    <span class="flow-context">{t.productionFlow.context}</span>
+    {t.productionFlow.steps.map((step) => <span>{step}</span>)}
+    <span class="visually-hidden">{t.productionFlow.note}</span>
   </figcaption>
 </figure>
 

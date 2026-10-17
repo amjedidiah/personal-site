@@ -5,7 +5,11 @@ const PRECACHE_ENTRIES = self.__SW_PRECACHE__;
 
 const CACHE_PREFIX = 'amjed-';
 const PRECACHE = `${CACHE_PREFIX}precache-${VERSION}`;
-const OFFLINE_KEY = '/offline';
+// Not versioned: images are cached as they're viewed and kept across deploys.
+const IMAGE_CACHE = `${CACHE_PREFIX}images`;
+const IMAGE_CACHE_LIMIT = 60;
+// Offline fallback per locale; keep in sync with LOCALE_PRECACHED in index.mjs.
+const offlineKey = (pathname) => (/^\/fr(\/|$)/.test(pathname) ? '/fr/offline' : '/offline');
 const NAVIGATION_TIMEOUT_MS = 3000;
 const TIMED_OUT = Symbol('timed-out');
 const MATCH_OPTIONS = { ignoreVary: true };
@@ -43,8 +47,13 @@ self.addEventListener('install', (event) => {
       if (!response.ok) throw new Error(`Precache failed for ${url}: ${response.status}`);
       await cache.put(key, await cacheable(response));
     }));
-    await self.skipWaiting();
+    // No skipWaiting here: an update waits until the page asks for it on
+    // navigation (see Base.astro), so open tabs keep their precache meanwhile.
   })());
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
@@ -52,7 +61,7 @@ self.addEventListener('activate', (event) => {
     const keys = await caches.keys();
     await Promise.all(
       keys
-        .filter((key) => key.startsWith(CACHE_PREFIX) && key !== PRECACHE)
+        .filter((key) => key.startsWith(CACHE_PREFIX) && key !== PRECACHE && key !== IMAGE_CACHE)
         .map((key) => caches.delete(key)),
     );
     await self.registration.navigationPreload?.enable();
@@ -74,10 +83,37 @@ self.addEventListener('fetch', (event) => {
 
   // Precached files are exact for this build (the version hashes their
   // contents), so serve them straight from cache and fall back to network.
-  event.respondWith(
-    caches.match(request, MATCH_OPTIONS).then((cached) => cached ?? fetch(request)),
-  );
+  event.respondWith((async () => {
+    const precached = await caches.match(request, { ...MATCH_OPTIONS, cacheName: PRECACHE });
+    if (precached) return precached;
+    if (request.destination === 'image') return handleImage(event);
+    return fetch(request);
+  })());
 });
+
+// Stale-while-revalidate: show the saved copy at once and refresh it in the
+// background, so unhashed files like /hero-portrait.webp still pick up changes.
+async function handleImage(event) {
+  const { request } = event;
+  const cache = await caches.open(IMAGE_CACHE);
+  const cached = await cache.match(request, MATCH_OPTIONS);
+  const network = fetch(request).then(async (response) => {
+    if (response.ok) {
+      await cache.put(request, response.clone());
+      await trimImageCache(cache);
+    }
+    return response;
+  });
+  if (!cached) return network;
+  event.waitUntil(network.catch(() => {}));
+  return cached;
+}
+
+// Cache keys come back in insertion order, so the oldest go first.
+async function trimImageCache(cache) {
+  const keys = await cache.keys();
+  await Promise.all(keys.slice(0, -IMAGE_CACHE_LIMIT).map((key) => cache.delete(key)));
+}
 
 // Network-first: fresh HTML when online, cached copy when the network fails
 // or stalls, and the offline page for routes that were never cached.
@@ -107,5 +143,8 @@ async function handleNavigation(event, url) {
 
   // Slow network and nothing cached: keep waiting rather than give up early.
   const late = first === TIMED_OUT ? await network : null;
-  return late ?? (await caches.match(OFFLINE_KEY, MATCH_OPTIONS)) ?? Response.error();
+  return late
+    ?? (await caches.match(offlineKey(url.pathname), MATCH_OPTIONS))
+    ?? (await caches.match('/offline', MATCH_OPTIONS))
+    ?? Response.error();
 }

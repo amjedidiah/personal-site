@@ -1,5 +1,8 @@
 ---
 import { RotateCw, X } from '@lucide/astro';
+import { useTranslations } from '../i18n/ui';
+
+const t = useTranslations(Astro.currentLocale);
 ---
 
 <div
@@ -8,17 +11,17 @@ import { RotateCw, X } from '@lucide/astro';
   data-cached-notice
   data-state="offline"
   role="region"
-  aria-label="Connection status"
+  aria-label={t.offline.region}
   hidden
 >
   <div class="cached-notice-inner">
     <span class="cached-notice-dot" aria-hidden="true"></span>
-    <p class="cached-notice-text" data-cached-notice-text>Showing a saved copy</p>
+    <p class="cached-notice-text" data-cached-notice-text>{t.offline.savedCopy}</p>
     <button class="cached-notice-action" type="button" data-cached-notice-reload hidden>
       <RotateCw size={13} aria-hidden="true" />
-      <span>load latest</span>
+      <span>{t.offline.loadLatest}</span>
     </button>
-    <button class="cached-notice-dismiss" type="button" data-cached-notice-dismiss aria-label="Dismiss connection notice">
+    <button class="cached-notice-dismiss" type="button" data-cached-notice-dismiss aria-label={t.offline.dismiss}>
       <X size={14} aria-hidden="true" />
     </button>
   </div>
@@ -29,22 +32,13 @@ import { RotateCw, X } from '@lucide/astro';
   // The service worker adds data-cached-copy to <html> when it serves a page from
   // cache. This script drives the notice and the status dot beside the wordmark
   // (FreshnessDot in the nav), which stays visible for as long as the page is a saved copy.
+  import { clientStrings } from '../i18n/client';
+
   type State = 'offline' | 'online';
 
   const DISMISSED_KEY = 'amjed-cached-notice-dismissed';
   const PROBE_INTERVAL_MS = 15000;
-  const COPY: Record<State, { text: string; tip: string; announce: string }> = {
-    offline: {
-      text: 'Showing a saved copy',
-      tip: 'Saved copy',
-      announce: 'Showing a saved copy of this page.',
-    },
-    online: {
-      text: "You're back online",
-      tip: 'Back online',
-      announce: "You're back online. The latest version can be loaded.",
-    },
-  };
+  const COPY: Record<State, { text: string; tip: string; announce: string }> = clientStrings().offline;
 
   const session = (() => {
     try {
