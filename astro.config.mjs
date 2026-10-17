@@ -24,6 +24,8 @@ export default defineConfig({
     allowedHosts: ['prepituitary-chasidy-phonesthemic.ngrok-free.dev'],
   },
   devToolbar: { enabled: false },
+  // github-dark-default keeps comments at AA contrast (github-dark's are 3:1).
+  markdown: { shikiConfig: { theme: 'github-dark-default' } },
   // Content Security Policy, emitted as a <meta> on every page with a hash for
   // each inline script and style. The site loads nothing from other origins
   // except the GitHub API (availability status). Inline style *attributes*

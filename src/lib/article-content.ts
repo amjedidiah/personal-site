@@ -133,7 +133,41 @@ function enhanceCodeBlock(pre: HTMLPreElement, signal: AbortSignal, timers: Set<
   button.addEventListener('click', () => { void copyArticleCode(copyContext, resetTimer); }, { signal });
 }
 
+const CODE_LANGUAGES: Record<string, string> = {
+  bash: 'Shell', sh: 'Shell', shell: 'Shell', zsh: 'Shell', css: 'CSS', html: 'HTML',
+  javascript: 'JavaScript', js: 'JavaScript', jsx: 'JSX', json: 'JSON', python: 'Python',
+  sql: 'SQL', tsx: 'TSX', ts: 'TypeScript', typescript: 'TypeScript', yaml: 'YAML', yml: 'YAML',
+};
+
+/**
+ * Names each code block by its language and section ("TypeScript example —
+ * Embedded Onboarding"), numbered when a section has several, so screen
+ * readers can tell the scrollable code regions apart.
+ */
+export function labelCodeBlocks(prose: HTMLElement) {
+  const strings = clientStrings().article;
+  const blocks: { pre: HTMLPreElement; section: string }[] = [];
+  let section = '';
+  for (const element of prose.querySelectorAll<HTMLElement>('h2, h3, pre')) {
+    if (element.tagName === 'PRE') blocks.push({ pre: element as HTMLPreElement, section });
+    else section = element.textContent?.trim() ?? '';
+  }
+  const perSection = new Map<string, number>();
+  for (const { section: name } of blocks) perSection.set(name, (perSection.get(name) ?? 0) + 1);
+  const seen = new Map<string, number>();
+  for (const { pre, section: name } of blocks) {
+    const raw = pre.dataset.language?.toLowerCase() ?? '';
+    const language = raw && raw !== 'plaintext' && raw !== 'text'
+      ? CODE_LANGUAGES[raw] ?? raw.charAt(0).toUpperCase() + raw.slice(1) : '';
+    const index = (seen.get(name) ?? 0) + 1;
+    seen.set(name, index);
+    const label = strings.codeBlock(language, name);
+    pre.dataset.codeLabel = (perSection.get(name) ?? 0) > 1 ? `${label} (${index})` : label;
+  }
+}
+
 function attachCodeCopyBlocks(prose: HTMLElement, signal: AbortSignal, timers: Set<number>) {
+  labelCodeBlocks(prose);
   for (const pre of prose.querySelectorAll<HTMLPreElement>('pre')) {
     enhanceCodeBlock(pre, signal, timers);
   }
@@ -156,7 +190,7 @@ function updateScrollableRegions(regions: NodeListOf<HTMLElement>) {
       region.tabIndex = 0;
       if (region.tagName === 'PRE') {
         region.setAttribute('role', 'region');
-        region.setAttribute('aria-label', clientStrings().article.codeExample);
+        region.setAttribute('aria-label', region.dataset.codeLabel || clientStrings().article.codeExample);
       }
     } else region.removeAttribute('tabindex');
   }

@@ -41,9 +41,11 @@ const flowPath = 'M38 36H150L170 16H180L200 36H300L320 56H380L400 36H562';
   @keyframes flow-connect { from { --flow-position: 0%; } to { --flow-position: 100%; } }
   @keyframes flow-signal { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -100; } }
   @media (prefers-reduced-motion: no-preference) {
+    /* Two passes, then rest at the start: animating stroke-dashoffset repaints
+       every frame, so an endless loop kept the page rendering while idle. */
     .production-flow[data-ambient] .flow-signal {
       display: block;
-      animation: flow-signal 8s linear infinite;
+      animation: flow-signal 8s linear 2;
       animation-play-state: paused;
     }
     .production-flow[data-ambient="running"] .flow-signal { animation-play-state: running; }

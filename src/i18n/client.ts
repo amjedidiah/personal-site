@@ -45,6 +45,8 @@ const en = {
     sectionLink: (heading: string) => `Link to section: ${heading}`,
     dataTable: 'Data table',
     codeExample: 'Code example',
+    codeBlock: (language: string, section: string) =>
+      [language ? `${language} example` : 'Code example', section].filter(Boolean).join(' — '),
   },
   feedback: {
     sending: 'Sending…',
@@ -101,6 +103,8 @@ const fr: ClientStrings = {
     sectionLink: (heading) => `Lien vers la section\u00a0: ${heading}`,
     dataTable: 'Tableau de données',
     codeExample: 'Exemple de code',
+    codeBlock: (language, section) =>
+      [language ? `Exemple ${language}` : 'Exemple de code', section].filter(Boolean).join(' — '),
   },
   feedback: {
     sending: 'Envoi…',

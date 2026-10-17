@@ -56,6 +56,8 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
   fullBleed
   structuredData={Astro.site ? [serviceNode(Astro.site, locale)] : []}
 >
+  <!-- The availability status is fetched from GitHub as the page loads. -->
+  <link slot="head" rel="preconnect" href="https://api.github.com" crossorigin="anonymous" />
   <!-- HERO -->
   <section class="hero hero-frame" aria-labelledby="hero-title">
     <div class="hero-frame-inner">

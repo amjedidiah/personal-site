@@ -175,6 +175,7 @@
   margin-left: -50px;
   opacity: var(--depth-alpha, 1);
   transform: rotateY(var(--lon, 0deg)) rotateX(var(--neg-lat, 0deg)) translateZ(var(--radius));
+  -webkit-backface-visibility: hidden; /* Safari before 15.4 */
   backface-visibility: hidden;
   transition: opacity 0.16s ease;
 }
@@ -192,11 +193,19 @@
   display: none !important;
 }
 
-.paper-globe:not(.is-ready) .paper {
+/* .explore raises specificity above the per-variant and phone-width card sizes. */
+.explore .paper-globe:not(.is-ready) .paper {
   position: relative;
   width: 100%;
+  height: auto;
+  min-height: 124px;
   margin: 0;
   transform: none;
+}
+
+/* The flat fallback has nothing to turn, so the globe chrome goes. */
+.globe-stage:not(.is-ready) :is(.explore-reset, .globe-hint, .globe-orbit) {
+  display: none;
 }
 
 .paper-surface {

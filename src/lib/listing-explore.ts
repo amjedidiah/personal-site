@@ -351,6 +351,8 @@ export function initListingExplore(explore: HTMLElement, wire: ListingExploreWir
   };
 
   const updateDepth = () => {
+    // Without 3D support the papers sit in a flat grid: all readable and clickable.
+    if (!stage.classList.contains('is-ready')) return;
     const toRadians = Math.PI / 180;
     const rotation = pitch * toRadians;
     for (const paper of papers) {

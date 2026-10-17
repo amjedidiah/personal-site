@@ -20,8 +20,7 @@
     "@astrojs/vercel": "11.0.15",
     "@lucide/astro": "^1.52.0",
     "astro": "^7.3.6",
-    "nodemailer": "^10.0.16",
-    "three": "^0.186.1"
+    "nodemailer": "^10.0.16"
   },
   "devDependencies": {
     "@types/bun": "^1.4.3",

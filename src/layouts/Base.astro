@@ -137,6 +137,7 @@ const socialImageAlt = `${profile.name}, ${profile.roles.replace(' · ', locale 
   <meta name="twitter:image" content={socialImageURL} />
   <meta name="twitter:image:alt" content={socialImageAlt} />
   {jsonLd && <script type="application/ld+json" set:html={jsonLd} />}
+  <slot name="head" />
 </head>
 <body id="page-top">
   <a class="skip-link" href="#main-content">{t.meta.skipLink}</a>
@@ -154,8 +155,7 @@ const socialImageAlt = `${profile.name}, ${profile.roles.replace(' · ', locale 
       <slot />
     </main>
   )}
-  <Footer />
-  <BackToTop />
+  <Footer><BackToTop /></Footer>
   <script>
     import { initPageProgress } from '../lib/page-progress';
     initPageProgress();

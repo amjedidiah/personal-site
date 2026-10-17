@@ -17,6 +17,8 @@ const year = new Date().getFullYear();
       <span class="feedback-link"><span aria-hidden="true">&middot;</span><a href={localePath(locale, '/feedback')}>{t.footer.feedback}</a></span>
     </div>
   </div>
+  <!-- Fixed-position page controls (back to top) belong to the footer landmark. -->
+  <slot />
 </footer>
 
 <style>
@@ -46,6 +48,8 @@ const year = new Date().getFullYear();
   .footer-meta a { color: inherit; text-decoration: underline; text-underline-offset: .2em; }
   .footer-meta a:hover { color: var(--accent); opacity: 1; }
   .feedback-link { display: inline-flex; align-items: center; gap: .8em; white-space: nowrap; }
+  /* WCAG 2.5.8: at least 24px tall to tap. */
+  .feedback-link a { display: inline-flex; align-items: center; min-height: 24px; }
 
   @media (max-width: 639px) {
     .footer-inner {
