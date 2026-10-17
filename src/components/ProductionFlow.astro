@@ -21,8 +21,8 @@ const flowPath = 'M38 36H150L170 16H180L200 36H300L320 56H380L400 36H562';
     </g>
   </svg>
   <figcaption>
-    <span class="flow-context">{t.productionFlow.context}</span>
     {t.productionFlow.steps.map((step) => <span>{step}</span>)}
+    <span class="flow-context">{t.productionFlow.context}</span>
     <span class="visually-hidden">{t.productionFlow.note}</span>
   </figcaption>
 </figure>
@@ -37,7 +37,7 @@ const flowPath = 'M38 36H150L170 16H180L200 36H300L320 56H380L400 36H562';
   .flow-terminals { stroke: currentColor; stroke-width: 1.5; fill: var(--bg); }
   .flow-terminals path { fill: none; }
   figcaption { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .4rem .7rem; color: var(--dim); color: color-mix(in srgb, var(--dim) 65%, var(--fg)); font: 500 .7rem/1.5 var(--font-sans); }
-  .flow-context { flex-basis: 100%; color: var(--fg); margin-bottom: .15rem; }
+  .flow-context { flex-basis: 100%; color: var(--fg); margin-top: .15rem; }
   @keyframes flow-connect { from { --flow-position: 0%; } to { --flow-position: 100%; } }
   @keyframes flow-signal { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -100; } }
   @media (prefers-reduced-motion: no-preference) {

@@ -1,6 +1,6 @@
 ---
 title: "Gwela"
-description: "A shared AI session where teammates can join, catch up, and steer one live agent run."
+description: "A shared AI session where teammates can join, catch up, and steer one live agent run. Think ChatGPT, but with multiple people in the chat instead of just you."
 tech: ["TypeScript", "React.js", "TailwindCSS", "Python", "FastAPI", "Cloudflare Workers", "WebSockets", "OpenRouter", "Ollama", "Playwright", "Git"]
 platforms: ["web"]
 disciplines: ["front-end", "back-end"]
@@ -43,12 +43,12 @@ Shared state is easier to reason about when every participant derives it from th
 
 ## Evidence and status
 
-The working web client supports session creation, joining, messaging, agent runs, redirects, and presence. It is in active development; there are no published user or adoption metrics yet.
+The working web client supports session creation, joining, messaging, agent runs, redirects, and presence.
 
 ## Recent build note
 
-On 26 September 2026, I reduced join-flow network round trips and refined the session entry experience. The same change expanded end-to-end coverage around joining and redirect behavior. This is an engineering update, not a published performance benchmark.
+Reduced join-flow network round trips and refined the session entry experience. The same change expanded end-to-end coverage around joining and redirect behavior.
 
 ## Walkthrough
 
-Two recordings of the working web client.
+Two recordings of the working web client as at September 2026.

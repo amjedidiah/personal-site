@@ -18,7 +18,8 @@ import { useTranslations } from '../i18n/ui';
 import { serviceNode } from '../lib/structured-data';
 import Testimonials from '../components/Testimonials.astro';
 import { clientTestimonials } from '../data/testimonials';
-import { ArrowRight, ArrowUpRight } from '@lucide/astro';
+import { ArrowRight, ArrowUpRight, CreditCard, MonitorSmartphone, Smartphone, Sparkles } from '@lucide/astro';
+import { capabilities } from '../data/capabilities';
 
 const locale = toLocale(Astro.currentLocale);
 const t = useTranslations(locale);
@@ -40,6 +41,7 @@ const featuredArticles = pickHomeFeaturedArticles(await getPosts(locale), await 
   .map((article) => (article.external ? article : { ...article, href: href(article.href) }));
 
 const caseFocus = home.caseFocus;
+const capabilityIcons = { 'monitor-smartphone': MonitorSmartphone, smartphone: Smartphone, 'credit-card': CreditCard, sparkles: Sparkles };
 
 const projectInquirySubject = home.inquirySubject;
 const projectInquiryMessage = home.inquiryMessage;
@@ -78,6 +80,60 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
         </a>
         <a class="btn-ghost" href={href('/projects/gwela')}>{home.exploreGwela}</a>
       </div>
+    </div>
+  </section>
+
+  <!-- WHERE I'VE WORKED: a quick credibility read before the detail below. -->
+  <section class="logo-strip" aria-labelledby="logo-strip-title">
+    <div class="constrained logo-strip-inner">
+      <h2 id="logo-strip-title" class="logo-strip-label">{home.logoStrip}</h2>
+      <ul class="logo-strip-list">
+        {experienceClients.map((c) => (
+          <li>
+            <img
+              class:list={[
+                'experience-logo',
+                c.logoShape === 'wordmark' && 'experience-logo--wordmark',
+                c.logoShape === 'mark' && 'experience-logo--mark',
+                c.logoShape === 'gdg' && 'experience-logo--gdg',
+              ]}
+              src={c.logo}
+              alt=""
+              width="112"
+              height="28"
+              decoding="async"
+            />
+            <span>{c.name}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- WHAT I BUILD: what someone can hire for, in plain words, with proof. -->
+  <section class="build-section home-band" aria-labelledby="build-title">
+    <div class="constrained">
+      <div class="section-label section-label--plain">
+        <h2 id="build-title">{home.sections.build}</h2>
+      </div>
+      <ul class="build-grid">
+        {capabilities.map((capability) => {
+          const Icon = capabilityIcons[capability.icon];
+          return (
+            <li class="build-card">
+              <Icon class="build-icon" size={22} strokeWidth={1.7} aria-hidden="true" />
+              <h3>{capability.title[locale]}</h3>
+              <p>{capability.summary[locale]}</p>
+              <p class="build-proof">
+                <span>{home.seenIn}</span>{' '}
+                {capability.proof.map((item, index) => (
+                  <>{index > 0 && <span aria-hidden="true"> · </span>}<a href={href(item.path)}>{item.label[locale]}</a></>
+                ))}
+              </p>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   </section>
 
@@ -545,6 +601,131 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
   .current-signals[data-state="loading"] .availability-dot { background: var(--home-muted); }
   .current-reviewed[data-state="error"], .current-reviewed[data-state="offline"] {
     color: var(--fg);
+  }
+
+  /* where I've worked */
+  .logo-strip {
+    padding: clamp(1rem, 2vw, 1.35rem) 0;
+    border-top: 1px solid var(--border);
+  }
+  .logo-strip-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .85rem 2rem;
+  }
+  .logo-strip-label {
+    flex: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    color: var(--home-muted);
+    font: 500 .68rem/1.4 var(--font-mono);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  .logo-strip-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .75rem 1.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .logo-strip-list li {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    color: var(--fg);
+    font: 600 .82rem/1.2 var(--font-sans);
+    white-space: nowrap;
+  }
+  .logo-strip .experience-logo { --experience-logo-height: 1.1rem; }
+  @media (max-width: 639px) {
+    .logo-strip {
+      padding-top: .85rem;
+      padding-bottom: .95rem;
+    }
+    .logo-strip-inner {
+      flex-direction: column;
+      align-items: stretch;
+      gap: .6rem;
+    }
+    .logo-strip-label {
+      width: 100%;
+      line-height: 1.35;
+    }
+    .logo-strip-list {
+      flex-wrap: nowrap;
+      align-items: center;
+      gap: 1.1rem;
+      margin-inline: calc(-1 * var(--gutter));
+      padding-inline: var(--gutter);
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      scroll-snap-type: x proximity;
+    }
+    .logo-strip-list::-webkit-scrollbar { display: none; }
+    .logo-strip-list li {
+      flex: none;
+      scroll-snap-align: start;
+    }
+    .logo-strip-list li span:not(:empty) {
+      font-size: .78rem;
+    }
+  }
+
+  /* what I build */
+  .build-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(.875rem, 1.5vw, 1.25rem);
+    margin: .25rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .build-card {
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+    padding: clamp(1.1rem, 2vw, 1.4rem);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--surface) 30%, var(--bg));
+  }
+  .build-card :global(.build-icon) { color: var(--accent); }
+  .build-card h3 {
+    margin: .2rem 0 0;
+    color: var(--fg);
+    font: 600 1.02rem/1.3 var(--font-sans);
+    letter-spacing: -.01em;
+  }
+  .build-card p {
+    margin: 0;
+    color: var(--home-muted);
+    font-size: .88rem;
+    line-height: 1.6;
+  }
+  .build-card .build-proof {
+    margin-top: auto;
+    padding-top: .35rem;
+    font: .72rem/1.7 var(--font-mono);
+  }
+  .build-proof a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent);
+    text-underline-offset: .2em;
+  }
+  .build-proof a:is(:hover, :focus-visible) { text-decoration-color: currentColor; }
+  @media (max-width: 1000px) {
+    .build-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 560px) {
+    .build-grid { grid-template-columns: minmax(0, 1fr); }
   }
 
   /* homepage bands — shared vertical rhythm (work had 6rem/4rem + section margin; trimmed) */

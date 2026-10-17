@@ -8,6 +8,7 @@ import { getProfile } from '../data/profile';
 import { localePath, toLocale } from '../i18n/config';
 import { fill, useTranslations } from '../i18n/ui';
 import { profilePageNode } from '../lib/structured-data';
+import ContactMenu from '../components/ContactMenu.astro';
 import Testimonials from '../components/Testimonials.astro';
 import { testimonials } from '../data/testimonials';
 import { ArrowUpRight } from '@lucide/astro';
@@ -37,6 +38,24 @@ const newTab = t.meta.newTab;
     <h1 class="visually-hidden">{about.heading}</h1>
     <p class="about-title"><span class="visually-hidden">{about.heroLabel}</span><span aria-hidden="true"><span class="typewriter-prefix">{about.heroPrefix} <span data-typewriter-article>{heroFirst.article}</span></span>{' '}<span class="typewriter-text" data-typewriter-text>{heroFirst.role}</span></span></p>
     <p class="about-deck">{profile.introduction}</p>
+    {/* For recruiters and anyone skimming: the essentials in plain words, with the CV. */}
+    <section class="about-facts" aria-labelledby="about-facts-title">
+      <h2 id="about-facts-title">{about.factsTitle}</h2>
+      <dl>
+        <div><dt>{about.facts.role}</dt><dd>{about.facts.roleValue}</dd></div>
+        <div><dt>{about.facts.experience}</dt><dd>{about.facts.experienceValue(profile.yearsExperience)}</dd></div>
+        <div><dt>{about.facts.location}</dt><dd>{about.facts.locationValue}</dd></div>
+        <div><dt>{about.facts.availability}</dt><dd>{current.availability}</dd></div>
+        <div><dt>{about.facts.languages}</dt><dd>{about.facts.languagesValue}</dd></div>
+        <div><dt>{about.facts.education}</dt><dd>{about.credentials.degree}, {about.credentials.university}</dd></div>
+        <div><dt>{about.facts.certification}</dt><dd>{about.credentials.developer}</dd></div>
+      </dl>
+      <div class="about-facts-actions">
+        <a class="about-facts-cv" href={profile.cvUrl} download>{about.facts.downloadCv}</a>
+        <a class="about-facts-email" href="mailto:imunacode@gmail.com">{about.facts.emailMe}</a>
+        <ContactMenu variant="facts" />
+      </div>
+    </section>
   </header>
 
   <div class="about-intro">
@@ -109,7 +128,7 @@ const newTab = t.meta.newTab;
       <div>
         <h3>{about.capabilities.ai}</h3>
         <p>{about.capabilities.aiDescription}</p>
-        <p class="workflow-tools">Python · LangChain · Codex CLI</p>
+        <p class="workflow-tools">Python · FastAPI · LangChain · OpenRouter · Ollama · WebSockets</p>
       </div>
       <div>
         <h3>{about.capabilities.quality}</h3>
@@ -150,7 +169,7 @@ const newTab = t.meta.newTab;
       <a href="https://www.linkedin.com/in/am-jedidiah/" target="_blank" rel="noopener noreferrer">linkedin<span class="visually-hidden">{newTab}</span></a>
       <a class="about-email-link" href="mailto:imunacode@gmail.com">{about.contactLinks.email}</a>
       <a class="about-phone-link" href="tel:+2348165972229">{about.contactLinks.call}</a>
-      <a href="https://docs.google.com/document/d/1_6ohHcb4bY9K7168NzdT5_nF9qKQSTtr70kRpAQrN6o/edit?usp=sharing" target="_blank" rel="noopener noreferrer">{about.contactLinks.resume}<span class="visually-hidden">{newTab}</span></a>
+      <a href={profile.cvUrl} download>{about.contactLinks.resume}</a>
     </div>
   </section>
   <script type="application/json" data-typewriter-messages set:html={JSON.stringify({ hero: about.heroMessages, contact: about.contactMessages }).replace(/</g, '\\u003c')} />
@@ -211,6 +230,52 @@ const newTab = t.meta.newTab;
     margin-top: 1.5rem;
     color: var(--about-muted);
     font: 1.1rem/1.65 var(--font-sans);
+  }
+
+  .about-facts {
+    max-width: 42rem;
+    margin-top: 2rem;
+    padding: clamp(1.1rem, 2.5vw, 1.5rem);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--surface) 35%, var(--bg));
+  }
+  .about-facts h2 {
+    margin: 0 0 .9rem;
+    padding: 0;
+    border: 0;
+    color: var(--about-muted);
+    font: 500 .7rem/1.4 var(--font-mono);
+    letter-spacing: .14em;
+    text-transform: uppercase;
+  }
+  .about-facts dl { display: grid; gap: .55rem; margin: 0; }
+  .about-facts dl > div { display: grid; grid-template-columns: 8.5rem minmax(0, 1fr); gap: .25rem 1rem; }
+  .about-facts dt { color: var(--about-muted); font: .72rem/1.6 var(--font-mono); text-transform: uppercase; letter-spacing: .06em; }
+  .about-facts dd { margin: 0; color: var(--fg); font: .95rem/1.5 var(--font-sans); }
+  .about-facts-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.25rem; }
+  .about-facts-actions a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: .6em 1.15em;
+    border-radius: 2px;
+    font: 600 .8rem/1.3 var(--font-mono);
+    touch-action: manipulation;
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+  }
+  .about-facts-cv { background: var(--accent); color: var(--bg); }
+  .about-facts-cv:is(:hover, :focus-visible) { background: color-mix(in srgb, var(--accent) 85%, var(--fg)); color: var(--bg); opacity: 1; }
+  .about-facts-email { border: 1px solid var(--border); color: var(--fg); font-weight: 400; }
+  .about-facts-email:is(:hover, :focus-visible) { border-color: var(--accent); color: var(--accent); opacity: 1; }
+  @media (max-width: 639px) {
+    .about-facts-actions .about-facts-email { display: none; }
+  }
+  @media (max-width: 520px) {
+    .about-facts dl > div { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .about-facts-actions a { transition: none; }
   }
 
   .about-intro {

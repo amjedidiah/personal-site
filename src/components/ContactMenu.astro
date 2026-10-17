@@ -1,0 +1,172 @@
+---
+import { MessageCircle, Phone, PhoneCall } from '@lucide/astro';
+import { toLocale } from '../i18n/config';
+import { useTranslations } from '../i18n/ui';
+
+interface Props {
+  variant?: 'toolbar' | 'facts';
+  class?: string;
+}
+
+const { variant = 'toolbar', class: className } = Astro.props;
+const locale = toLocale(Astro.currentLocale);
+const t = useTranslations(locale);
+---
+
+<details class:list={['contact-menu', `contact-menu--${variant}`, className]}>
+  <summary aria-label={t.nav.phoneOrWhatsApp} title={t.nav.phoneOrWhatsApp}>
+    <Phone size={variant === 'toolbar' ? 19 : 18} stroke-width={2} aria-hidden="true" />
+  </summary>
+  <div class="contact-options">
+    <p>+234 816 597 2229</p>
+    <a href="https://wa.me/2348165972229" target="_blank" rel="noopener">
+      <MessageCircle size={18} stroke-width={2} aria-hidden="true" /> WhatsApp
+    </a>
+    <a href="tel:+2348165972229">
+      <PhoneCall size={18} stroke-width={2} aria-hidden="true" /> {t.nav.phoneCall}
+    </a>
+  </div>
+</details>
+
+<style>
+  .contact-menu {
+    position: relative;
+    flex: none;
+  }
+  .contact-menu > summary {
+    list-style: none;
+    cursor: pointer;
+  }
+  .contact-menu > summary::-webkit-details-marker { display: none; }
+  .contact-menu > summary::marker { content: ''; }
+  .contact-menu > summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  .contact-options {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 20;
+    width: 192px;
+    padding: 6px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg);
+    box-shadow: 0 12px 28px rgb(0 0 0 / .14);
+  }
+  .contact-options p {
+    margin: 0;
+    padding: 5px 9px 7px;
+    color: var(--dim);
+    font: 500 .7rem/1.3 var(--font-mono);
+    white-space: nowrap;
+  }
+  .contact-options a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 6px 9px;
+    border-radius: 4px;
+    color: var(--fg);
+    font: 500 .85rem/1.2 var(--font-sans);
+    text-decoration: none;
+  }
+  .contact-options a:is(:hover, :focus-visible) {
+    color: var(--accent);
+    background: transparent;
+    opacity: 1;
+  }
+
+  .contact-menu--toolbar {
+    width: 44px;
+    height: 44px;
+  }
+  .contact-menu--toolbar > summary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    color: var(--dim);
+    border-radius: 4px;
+    transition: color .15s, background-color .15s;
+    touch-action: manipulation;
+  }
+  .contact-menu--toolbar > summary:hover {
+    color: var(--fg);
+  }
+  .contact-menu--toolbar:is([open], :focus-within) > summary,
+  .contact-menu--toolbar > summary:active {
+    color: var(--accent);
+    background: transparent;
+  }
+  .contact-menu--toolbar > summary :global(svg) {
+    transition: transform .12s ease-out;
+  }
+  .contact-menu--toolbar > summary:active :global(svg) {
+    transform: scale(.9);
+  }
+
+  .contact-menu--facts {
+    display: none;
+  }
+  .contact-menu--facts > summary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    min-height: 44px;
+    color: var(--fg);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    touch-action: manipulation;
+    transition: border-color 150ms ease, color 150ms ease;
+  }
+  .contact-menu--facts:is(:hover, [open]) > summary,
+  .contact-menu--facts > summary:focus-visible {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  @media (max-width: 639px) {
+    .contact-menu--facts { display: block; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .contact-menu--toolbar > summary,
+    .contact-menu--toolbar > summary :global(svg),
+    .contact-menu--facts > summary {
+      transition: none;
+    }
+    .contact-menu--toolbar > summary:active :global(svg) {
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  const menus = document.querySelectorAll<HTMLDetailsElement>('.contact-menu');
+  if (menus.length) {
+    document.addEventListener('pointerdown', (event) => {
+      if (!(event.target instanceof Node)) return;
+      menus.forEach((menu) => {
+        if (menu.open && !menu.contains(event.target)) menu.open = false;
+      });
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape') return;
+      menus.forEach((menu) => {
+        if (!menu.open) return;
+        menu.open = false;
+        menu.querySelector<HTMLElement>('summary')?.focus();
+      });
+    });
+    menus.forEach((menu) => {
+      menu.querySelectorAll('a').forEach((link) => {
+        link.addEventListener('click', () => { menu.open = false; });
+      });
+    });
+  }
+</script>

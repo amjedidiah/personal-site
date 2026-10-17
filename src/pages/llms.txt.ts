@@ -25,6 +25,7 @@ export const GET: APIRoute = async ({ site }) => {
     '- Credential: Stripe Professional Payments Developer (2022): https://stripecertifications.credential.net/efcd44b0-6e66-4262-89c2-5a513bdec126',
     '- Location: Lagos, Nigeria; works remotely worldwide',
     '- Contact: imunacode@gmail.com, WhatsApp +234 816 597 2229',
+    `- CV (PDF): ${profile.cvUrl}`,
     `- Languages: English; French site at ${url('/fr')}`,
     '',
     '## Pages',

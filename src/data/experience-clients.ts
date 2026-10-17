@@ -13,7 +13,7 @@ export type ExperienceClient = {
 
 export const experienceClients: ExperienceClient[] = [
   {
-    name: 'Fiverr Pro',
+    name: '',
     note: { en: 'freelance · payments', fr: 'freelance · paiements' },
     href: 'https://www.fiverr.com/',
     logo: '/brands/fiverr.svg',

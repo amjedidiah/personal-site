@@ -1,6 +1,6 @@
 ---
 title: "Resume Tailor"
-description: "An app that uses AI to tailor resumes to job descriptions and delivers formatted PDFs by email."
+description: "A web app that uses AI to tailor resumes to job descriptions and delivers formatted PDFs by email."
 tech: ["TypeScript", "React.js", "Next.js", "Node.js", "Express.js", "REST APIs", "AWS Lambda", "AWS SQS", "AWS S3", "AWS DynamoDB", "AWS Cognito", "Vercel", "Paystack", "Customer.io", "Git"]
 platforms: ["web"]
 disciplines: ["front-end", "back-end"]

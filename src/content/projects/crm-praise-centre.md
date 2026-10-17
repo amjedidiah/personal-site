@@ -1,6 +1,6 @@
 ---
 title: "CRM Praise Centre"
-description: "A church website that brings together ministries, events, devotionals, and visitor information."
+description: "A US church website that brings together ministries, events, devotionals, and visitor information."
 tech: ["TypeScript", "React.js", "Next.js", "TailwindCSS", "GraphQL", "Vercel", "Docker", "WordPress CMS", "Git"]
 platforms: ["web"]
 disciplines: ["front-end", "back-end"]

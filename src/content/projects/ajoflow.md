@@ -44,4 +44,4 @@ When AI influences a financial decision, the inputs and explanation need to stay
 
 ## Evidence and status
 
-[Working demo](https://ajo-flow.vercel.app/) including seeded accounts for exploring the dashboard and trust-scoring flow. The screenshot above uses that demo data; it is not a claim about live customer volume or transaction performance.
+[Working demo](https://ajo-flow.vercel.app/) including seeded accounts for exploring the dashboard and trust-scoring flow. The screenshot above uses that demo data.

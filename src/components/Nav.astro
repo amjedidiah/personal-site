@@ -1,5 +1,6 @@
 ---
-import { FileText, House, LayoutGrid, Mail, MessageCircle, Phone, PhoneCall, UserRound } from '@lucide/astro';
+import { FileText, House, LayoutGrid, Mail, UserRound } from '@lucide/astro';
+import ContactMenu from './ContactMenu.astro';
 import FreshnessDot from './FreshnessDot.astro';
 import PreferencesMenu from './PreferencesMenu.astro';
 import { localePath, stripLocale, toLocale, type Locale } from '../i18n/config';
@@ -49,20 +50,7 @@ const brandLetters = ['a', 'm', 'j', 'e', 'd', 'i', 'd', 'i', 'a', 'h'];
         <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V8.999h3.414v1.561h.046c.476-.9 1.637-1.85 3.37-1.85 3.601 0 4.266 2.37 4.266 5.455v6.287zM5.337 7.433a2.062 2.062 0 1 1 0-4.124 2.062 2.062 0 0 1 0 4.124zM7.119 20.452H3.555V8.999h3.564v11.453zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.225 0z"/>
       </svg>
     </a>
-    <details class="mobile-contact">
-      <summary aria-label={t.nav.phoneOrWhatsApp} title={t.nav.phoneOrWhatsApp}>
-        <Phone size={19} stroke-width={2} aria-hidden="true" />
-      </summary>
-      <div class="contact-options">
-        <p>+234 816 597 2229</p>
-        <a href="https://wa.me/2348165972229" target="_blank" rel="noopener">
-          <MessageCircle size={18} stroke-width={2} aria-hidden="true" /> WhatsApp
-        </a>
-        <a href="tel:+2348165972229">
-          <PhoneCall size={18} stroke-width={2} aria-hidden="true" /> {t.nav.phoneCall}
-        </a>
-      </div>
-    </details>
+    <ContactMenu variant="toolbar" />
     <PreferencesMenu alternates={alternates} />
   </div>
 </header>
@@ -269,8 +257,7 @@ const brandLetters = ['a', 'm', 'j', 'e', 'd', 'i', 'd', 'i', 'a', 'h'];
     }
     .mobile-brand:active { opacity: .65; }
     .mobile-social { display: flex; align-items: center; gap: 2px; margin-inline-start: auto; }
-    .mobile-contact { position: relative; width: 44px; height: 44px; }
-    .mobile-social > a, .mobile-contact > summary {
+    .mobile-social > a {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -281,50 +268,19 @@ const brandLetters = ['a', 'm', 'j', 'e', 'd', 'i', 'd', 'i', 'a', 'h'];
       transition: color .15s, background-color .15s;
       touch-action: manipulation;
     }
-    .mobile-contact > summary { list-style: none; cursor: pointer; }
-    .mobile-contact > summary::-webkit-details-marker { display: none; }
-    .mobile-contact > summary::marker { content: ''; }
-    .mobile-contact > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-    .mobile-social > a:hover, .mobile-contact > summary:hover {
+    .mobile-social > a:hover {
       color: var(--fg); background: transparent; opacity: 1;
     }
-    .mobile-contact[open] > summary,
-    .mobile-social > a:active, .mobile-contact > summary:active {
+    .mobile-social > a:active {
       color: var(--accent); background: transparent;
     }
     .mobile-social :global(svg) { width: 18px; height: 18px; fill: currentColor; }
     .mobile-social :global(svg.lucide) { fill: none; }
-    .mobile-social > a :global(svg), .mobile-contact > summary :global(svg) { transition: transform .12s ease-out; }
-    .mobile-social > a:active :global(svg), .mobile-contact > summary:active :global(svg) { transform: scale(.9); }
-    .contact-options {
-      position: absolute;
-      top: calc(100% + 8px);
-      right: 0;
-      z-index: 1;
-      width: 192px;
-      padding: 6px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      background: var(--bg);
-      box-shadow: 0 12px 28px rgb(0 0 0 / .14);
-    }
-    .contact-options p {
-      padding: 5px 9px 7px;
-      color: var(--dim);
-      font: 500 .7rem/1.3 var(--font-mono);
-      white-space: nowrap;
-    }
-    .contact-options a {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-height: 44px;
-      padding: 6px 9px;
-      border-radius: 4px;
+    .mobile-social > a :global(svg) { transition: transform .12s ease-out; }
+    .mobile-social > a:active :global(svg) { transform: scale(.9); }
+    .mobile-social .contact-menu--toolbar > summary:hover {
       color: var(--fg);
-      font: 500 .85rem/1.2 var(--font-sans);
     }
-    .contact-options a:hover { color: var(--accent); background: transparent; opacity: 1; }
     .mobile-nav {
       position: fixed;
       inset: auto 0 0;
@@ -386,9 +342,9 @@ const brandLetters = ['a', 'm', 'j', 'e', 'd', 'i', 'd', 'i', 'a', 'h'];
     .mobile-nav.breakpoint-entering { animation: none; }
     .mobile-topbar { transition: none; }
     .mobile-brand { transition: none; }
-    .mobile-social > a, .mobile-contact > summary { transition: none; }
-    .mobile-social > a :global(svg), .mobile-contact > summary :global(svg) { transition: none; }
-    .mobile-social > a:active :global(svg), .mobile-contact > summary:active :global(svg) { transform: none; }
+    .mobile-social > a { transition: none; }
+    .mobile-social > a :global(svg) { transition: none; }
+    .mobile-social > a:active :global(svg) { transform: none; }
     .mobile-nav a { transition: none; }
     .mobile-nav a :global(svg) { transition: none; }
     .mobile-nav a:active :global(svg) { transform: none; }
@@ -437,25 +393,6 @@ const brandLetters = ['a', 'm', 'j', 'e', 'd', 'i', 'd', 'i', 'a', 'h'];
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) cancelWordmarkAnimations();
   });
-
-  const mobileContact = document.querySelector<HTMLDetailsElement>('.mobile-contact');
-  if (mobileContact) {
-    const trigger = mobileContact.querySelector<HTMLElement>('summary');
-    document.addEventListener('pointerdown', (event) => {
-      if (mobileContact.open && event.target instanceof Node && !mobileContact.contains(event.target)) {
-        mobileContact.open = false;
-      }
-    });
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && mobileContact.open) {
-        mobileContact.open = false;
-        trigger?.focus();
-      }
-    });
-    mobileContact.querySelectorAll('a').forEach((link) => {
-      link.addEventListener('click', () => { mobileContact.open = false; });
-    });
-  }
 
   const headers = document.querySelectorAll<HTMLElement>('.desktop-nav, .mobile-topbar');
 
