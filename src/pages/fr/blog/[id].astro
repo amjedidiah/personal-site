@@ -1,0 +1,10 @@
+---
+import BlogPostPage from '../../../views/BlogPostPage.astro';
+import { getBlogPaths } from '../../../lib/blog';
+
+export function getStaticPaths() {
+  return getBlogPaths('fr');
+}
+---
+
+<BlogPostPage {...Astro.props} />

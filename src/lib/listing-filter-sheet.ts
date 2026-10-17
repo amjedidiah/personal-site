@@ -1,4 +1,5 @@
 import { observeReducedMotion, prefersReducedMotion } from './motion';
+import { clientStrings } from '../i18n/client';
 
 type FilterSheetOptions = {
   getResultLabel: () => string;
@@ -65,7 +66,7 @@ export function initListingFilterSheet(initialRoot: HTMLElement | null, options:
 
   const notifyLayout = () => root.dispatchEvent(new Event('listingheaderlayout'));
   const refreshResults = () => {
-    results.textContent = `Show ${options.getResultLabel()}`;
+    results.textContent = clientStrings().listing.showResults(options.getResultLabel());
   };
   const syncTrigger = () => {
     trigger.setAttribute('aria-controls', mobile.matches ? dialog.id : inlineControls);

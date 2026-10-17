@@ -15,6 +15,17 @@
 //   footer. It still doesn't need a tab; the bottom tabs are for content.
 import { SlidersHorizontal, SunMoon } from '@lucide/astro';
 import { supportsMotionPreference } from '../lib/motion';
+import { localeNames, locales, toLocale, type Locale } from '../i18n/config';
+import { useTranslations } from '../i18n/ui';
+
+interface Props {
+  /** Each language's version of the current page (from Base). */
+  alternates: Record<Locale, string>;
+}
+
+const { alternates } = Astro.props;
+const locale = toLocale(Astro.currentLocale);
+const t = useTranslations(locale);
 
 interface PreferenceGroup {
   /** Matches a key in the script's `handlers`. */
@@ -29,28 +40,30 @@ interface PreferenceGroup {
 const groups: PreferenceGroup[] = [
   {
     id: 'theme',
-    label: 'Theme',
+    label: t.preferences.theme.label,
     icon: SunMoon,
     options: [
-      { value: 'system', label: 'System' },
-      { value: 'light', label: 'Light' },
-      { value: 'dark', label: 'Dark' },
+      { value: 'system', label: t.preferences.theme.system },
+      { value: 'light', label: t.preferences.theme.light },
+      { value: 'dark', label: t.preferences.theme.dark },
     ],
   },
 ];
 
 const hasMotionPreference = supportsMotionPreference(Astro.url.pathname);
 if (hasMotionPreference) groups.push({
-  id: 'motion', label: 'Motion', icon: SlidersHorizontal,
+  id: 'motion', label: t.preferences.motion.label, icon: SlidersHorizontal,
   options: [
-    { value: 'system', label: 'Follow system' },
-    { value: 'reduce', label: 'Reduce motion' },
+    { value: 'system', label: t.preferences.motion.system },
+    { value: 'reduce', label: t.preferences.motion.reduce },
   ],
 });
 
-const single = groups.length === 1;
+// Language is a group too (links, not settings), so with more than one locale
+// the menu always takes its multi-group form.
+const single = groups.length === 1 && locales.length < 2;
 const TriggerIcon = single ? groups[0].icon : SlidersHorizontal;
-const triggerLabel = single ? 'Color theme' : 'Preferences';
+const triggerLabel = single ? t.preferences.single : t.preferences.multiple;
 let optionIndex = 0;
 ---
 
@@ -60,7 +73,7 @@ let optionIndex = 0;
   </summary>
   <div class="preferences-panel">
     {groups.map((group) => (
-      <div class="preferences-group" role="group" aria-label={`${group.label} options`} data-preference-group={group.id}>
+      <div class="preferences-group" role="group" aria-label={t.preferences.groupOptions(group.label)} data-preference-group={group.id}>
         {!single && <p class="preferences-group-label" aria-hidden="true">{group.label}</p>}
         {group.options.map((option) => (
           <button
@@ -75,6 +88,30 @@ let optionIndex = 0;
         ))}
       </div>
     ))}
+    {locales.length > 1 && (
+      <div class="preferences-group" role="group" aria-label={t.preferences.groupOptions(t.preferences.language)}>
+        <p class="preferences-group-label" aria-hidden="true">{t.preferences.language}</p>
+        {locales.map((code) => (
+          <a
+            href={alternates[code]}
+            hreflang={code}
+            lang={code}
+            aria-current={code === locale ? 'true' : undefined}
+            style={`--option-index: ${optionIndex++}`}
+          >
+            {localeNames[code]}
+          </a>
+        ))}
+      </div>
+    )}
+    {/* An action rather than a setting, so it doesn't count toward `single`.
+        Shown by the script only where installing is possible. */}
+    <div class="preferences-group" data-install-group hidden>
+      <button type="button" data-install-app style={`--option-index: ${optionIndex++}`}>{t.preferences.install}</button>
+      <p class="preferences-install-hint" data-install-hint hidden>
+        {t.preferences.installHint}
+      </p>
+    </div>
   </div>
 </details>
 
@@ -132,6 +169,13 @@ let optionIndex = 0;
     padding-top: .3rem;
     border-top: 1px solid var(--border);
   }
+  .preferences-group[hidden] { display: none; }
+  .preferences-install-hint {
+    max-width: 12rem;
+    padding: .2rem .6rem .45rem;
+    color: var(--dim);
+    font: 400 .72rem/1.4 var(--font-sans);
+  }
   .preferences-group-label {
     padding: .35rem .6rem .2rem;
     color: var(--dim);
@@ -145,7 +189,9 @@ let optionIndex = 0;
   .preferences-menu[open][data-closing] .preferences-panel {
     animation: preferences-menu-out .18s cubic-bezier(.7, 0, .84, 0) both;
   }
-  .preferences-panel button {
+  .preferences-panel :is(button, a) {
+    display: flex;
+    align-items: center;
     min-height: 36px;
     padding: .35rem .6rem;
     border: 0;
@@ -154,18 +200,20 @@ let optionIndex = 0;
     color: var(--dim);
     font: 500 .75rem/1.2 var(--font-sans);
     text-align: left;
+    text-decoration: none;
     cursor: pointer;
   }
-  .preferences-menu[open]:not([data-closing]) .preferences-panel button {
+  .preferences-menu[open]:not([data-closing]) .preferences-panel :is(button, a) {
     animation: preferences-option-in .2s cubic-bezier(.16, 1, .3, 1) both;
     animation-delay: calc(var(--option-index, 0) * 30ms);
   }
-  .preferences-panel button:hover,
-  .preferences-panel button[aria-pressed="true"] {
+  .preferences-panel :is(button, a):hover,
+  .preferences-panel button[aria-pressed="true"],
+  .preferences-panel a[aria-current] {
     background: transparent;
     color: var(--accent);
   }
-  .preferences-panel button:focus-visible {
+  .preferences-panel :is(button, a):focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: -2px;
   }
@@ -174,7 +222,7 @@ let optionIndex = 0;
     .preferences-menu summary { transition: none; }
     .preferences-menu[open] .preferences-panel,
     .preferences-menu[open][data-closing] .preferences-panel,
-    .preferences-menu[open]:not([data-closing]) .preferences-panel button {
+    .preferences-menu[open]:not([data-closing]) .preferences-panel :is(button, a) {
       animation: none;
     }
   }
@@ -357,6 +405,55 @@ let optionIndex = 0;
       });
     });
   });
+
+  // Install: Chromium hands over a prompt (captured in Base.astro); iOS has no
+  // prompt API, so the button shows the Share-sheet steps instead.
+  interface InstallPromptEvent extends Event {
+    prompt(): Promise<void>;
+    userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+  }
+  const installWindow = window as Window & { __installPrompt?: InstallPromptEvent | null };
+  const standaloneMedia = window.matchMedia('(display-mode: standalone)');
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent)
+    || (navigator.userAgent.includes('Macintosh') && navigator.maxTouchPoints > 1);
+  const isInstalled = () => standaloneMedia.matches || (navigator as Navigator & { standalone?: boolean }).standalone === true;
+
+  function syncInstall() {
+    const available = !isInstalled() && (Boolean(installWindow.__installPrompt) || isIOS);
+    menus.forEach((menu) => {
+      const group = menu.querySelector<HTMLElement>('[data-install-group]');
+      if (group) group.hidden = !available;
+    });
+  }
+
+  menus.forEach((menu, index) => {
+    const button = menu.querySelector<HTMLButtonElement>('[data-install-app]');
+    const hint = menu.querySelector<HTMLElement>('[data-install-hint]');
+    if (!button || !hint) return;
+    if (isIOS) {
+      hint.id = `install-hint-${index}`;
+      button.setAttribute('aria-controls', hint.id);
+      button.setAttribute('aria-expanded', 'false');
+    }
+
+    button.addEventListener('click', async () => {
+      const promptEvent = installWindow.__installPrompt;
+      if (promptEvent) {
+        closeMenu(menu, true);
+        await promptEvent.prompt();
+        // A prompt can only be shown once; Chrome fires a fresh event if it's dismissed.
+        installWindow.__installPrompt = null;
+        syncInstall();
+        return;
+      }
+      hint.hidden = !hint.hidden;
+      button.setAttribute('aria-expanded', String(!hint.hidden));
+    });
+  });
+
+  window.addEventListener('amjed:install-change', syncInstall);
+  standaloneMedia.addEventListener('change', syncInstall);
+  syncInstall();
 
   applyTheme(themePreference, false);
   applyMotion(motionPreference);

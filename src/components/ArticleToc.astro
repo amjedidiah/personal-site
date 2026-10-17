@@ -1,22 +1,25 @@
 ---
+import { useTranslations } from '../i18n/ui';
+
 interface Props {
   headings: { slug: string; text: string }[];
 }
 
 const { headings } = Astro.props;
 if (headings.length === 0) return null;
+const t = useTranslations(Astro.currentLocale);
 ---
 
-<aside class="article-toc" data-article-toc aria-label="On this page">
+<aside class="article-toc" data-article-toc aria-label={t.toc.label}>
   <details open>
     <script is:inline>
       // Preserve the no-JavaScript links, but set the mobile default before paint.
       if (window.matchMedia('(max-width: 800px)').matches) document.currentScript.parentElement.open = false;
     </script>
-    <summary>On this page <span data-toc-current>Overview</span></summary>
-    <p aria-hidden="true">On this page</p>
-    <nav aria-label="On this page">
-      <a href="#overview" data-toc-link>Overview</a>
+    <summary>{t.toc.label} <span data-toc-current>{t.toc.overview}</span></summary>
+    <p aria-hidden="true">{t.toc.label}</p>
+    <nav aria-label={t.toc.label}>
+      <a href="#overview" data-toc-link>{t.toc.overview}</a>
       {headings.map((heading) => (
         <a href={`#${heading.slug}`} data-toc-link>{heading.text}</a>
       ))}

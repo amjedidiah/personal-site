@@ -1,0 +1,639 @@
+---
+import Base from '../layouts/Base.astro';
+import { ArrowUpRight } from '@lucide/astro';
+import { getHashnodePosts } from '../data/hashnode-fr';
+import { getPosts } from '../lib/blog';
+import { intlLocale, localePath, toLocale } from '../i18n/config';
+import { useTranslations } from '../i18n/ui';
+import BlogExplore from '../components/BlogExplore.astro';
+import ListingTimelineYear from '../components/ListingTimelineYear.astro';
+import ListingPageControls from '../components/ListingPageControls.astro';
+import ListingPageIntro from '../components/ListingPageIntro.astro';
+import ListingFilterSheet from '../components/ListingFilterSheet.astro';
+import '../styles/motion.css';
+import '../styles/blog-motion.css';
+
+const locale = toLocale(Astro.currentLocale);
+const t = useTranslations(locale);
+const copy = t.blog;
+// Hashnode articles stay in English; their listing text is translated and the
+// source label says so. Anything still untranslated carries lang="en".
+
+const categoryOptions = [
+  { id: 'web-mobile', label: copy.categories['web-mobile'], tags: ['react', 'nextjs', 'javascript', 'html', 'web3', 'wordpress'] },
+  { id: 'backend-payments', label: copy.categories['backend-payments'], tags: ['stripe', 'payments', 'postgres', 'database', 'node', 'devops', 'docker'] },
+  { id: 'ai', label: copy.categories.ai, tags: ['ai', 'productivity', 'tools'] },
+  { id: 'quality', label: copy.categories.quality, tags: ['git', 'workflow', 'engineering', 'debugging', 'patterns', 'state-management', 'redux', 'career', 'mentorship', 'interviews', 'learning', 'testing', 'streaming'] },
+] as const;
+
+const categoriesForTags = (tags: string[] = []) => {
+  const normalized = tags.map((tag) => tag.toLowerCase());
+  const categories = categoryOptions
+    .filter((category) => category.tags.some((tag) => normalized.includes(tag)))
+    .map((category) => category.id);
+  return categories.length ? categories : ['quality'];
+};
+
+const localPosts = (await getPosts(locale)).map((p) => ({
+  title: p.data.title,
+  description: p.data.description,
+  date: p.data.date,
+  href: localePath(locale, `/blog/${p.id}`),
+  external: false,
+  lang: p.translated ? undefined : 'en',
+  categories: categoriesForTags(p.data.tags),
+}));
+
+const externalPosts = getHashnodePosts(locale).map((p) => ({
+  title: p.title,
+  description: p.brief,
+  date: new Date(p.date),
+  href: p.url,
+  external: true,
+  lang: p.lang,
+  categories: categoriesForTags(p.tags),
+}));
+
+const allPosts = [...localPosts, ...externalPosts].sort(
+  (a, b) => b.date.valueOf() - a.date.valueOf()
+);
+
+const postsByYear = new Map<number, typeof allPosts>();
+for (const post of allPosts) {
+  const year = post.date.getFullYear();
+  if (!postsByYear.has(year)) postsByYear.set(year, []);
+  postsByYear.get(year)!.push(post);
+}
+
+const letterForTitle = (title: string) => {
+  const match = title.match(/[A-Za-z0-9]/);
+  return match ? match[0].toUpperCase() : '#';
+};
+
+const postsByLetter = new Map<string, typeof allPosts>();
+for (const post of [...allPosts].sort((a, b) => a.title.localeCompare(b.title, undefined, { sensitivity: 'base' }))) {
+  const letter = letterForTitle(post.title);
+  if (!postsByLetter.has(letter)) postsByLetter.set(letter, []);
+  postsByLetter.get(letter)!.push(post);
+}
+const letterKeys = Array.from(postsByLetter.keys()).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+---
+
+<Base title={`${copy.title}${t.meta.titleSuffix}`} description={copy.metaDescription}>
+  <div class:list={['blog-view', { 'is-empty': allPosts.length === 0 }]} data-view="timeline" data-listing-motion data-listing-item-transitions data-listing-viewport-transitions>
+    <ListingPageIntro title={copy.title} description={copy.description} />
+    <ListingPageControls collapseOnMobile summary={copy.count(allPosts.length)}>
+      <nav slot="toolbar" class="year-nav" aria-label={t.listing.jumpToYear}>
+        {Array.from(postsByYear.keys(), (year) => <a href={`#year-${year}`}>{year}</a>)}
+      </nav>
+      <nav slot="toolbar" class="list-sort-nav" aria-label={copy.sortLabel}>
+        <span class="sort-label" aria-hidden="true">{t.listing.sort}</span>
+        <div class="sort-options" role="group" aria-label={t.listing.sortDirection}>
+          <button type="button" data-list-sort="asc" aria-pressed="true">A–Z</button>
+          <button type="button" data-list-sort="desc" aria-pressed="false">Z–A</button>
+        </div>
+      </nav>
+      <div slot="actions" class="view-switch" role="group" aria-label={copy.viewLabel} hidden>
+        <button type="button" data-view-choice="timeline" aria-controls="blog-archive-timeline blog-archive-list" aria-pressed="true">{t.listing.views.timeline}</button>
+        <button type="button" data-view-choice="list" aria-controls="blog-archive-timeline blog-archive-list" aria-pressed="false">{t.listing.views.list}</button>
+        <button type="button" data-view-choice="explore" aria-controls="blog-explore" aria-pressed="false">{t.listing.views.explore}</button>
+      </div>
+      <div slot="filters" class="category-filters" data-listing-filter-controls>
+        <nav class="category-nav listing-filter-nav" aria-label={copy.filterLabel} hidden>
+          <button type="button" data-category-choice="all" aria-pressed="true">{t.listing.all}</button>
+          {categoryOptions.map((category) => (
+            <button type="button" data-category-choice={category.id} aria-pressed="false">{category.label}</button>
+          ))}
+        </nav>
+        <span class="category-count listing-filter-count" data-category-count data-count-one={copy.countOne} data-count-other={copy.countOther} aria-live="polite" aria-atomic="true">{copy.count(allPosts.length)}</span>
+      </div>
+    </ListingPageControls>
+    {allPosts.length > 0 && <ListingFilterSheet resultLabel={copy.resultLabel} />}
+    <script is:inline>
+      (() => {
+        const root = document.currentScript?.parentElement;
+        if (!root) return;
+        const mobile = window.matchMedia('(max-width: 639px)').matches;
+        let saved;
+        try {
+          saved = window.localStorage.getItem(mobile ? 'amjed-blog-view-mobile' : 'amjed-blog-view-desktop');
+        } catch {
+          // Browsing still works when storage is unavailable.
+        }
+        const view = /^#year-\d+$/.test(window.location.hash)
+          ? 'timeline'
+          : saved === 'timeline' || saved === 'list' || saved === 'explore' ? saved : mobile ? 'list' : 'timeline';
+        root.dataset.view = view;
+        root.querySelectorAll('[data-view-choice]').forEach((button) => {
+          button.setAttribute('aria-pressed', String(button.dataset.viewChoice === view));
+        });
+        const category = new URLSearchParams(window.location.search).get('category');
+        const categoryIds = new Set(['all', ...Array.from(root.querySelectorAll('[data-category-choice]'), (button) => button.dataset.categoryChoice)]);
+        const selectedCategory = category && categoryIds.has(category) ? category : 'all';
+        root.dataset.category = selectedCategory;
+        root.querySelectorAll('[data-category-choice]').forEach((button) => {
+          button.setAttribute('aria-pressed', String(button.dataset.categoryChoice === selectedCategory));
+        });
+        root.querySelector('.view-switch').hidden = false;
+        root.querySelector('.category-nav').hidden = false;
+      })();
+    </script>
+
+    <div class="listing-results" data-listing-results>
+    {allPosts.length === 0 && (
+      <div class="archive-empty" role="status">
+        <p>{copy.empty}</p>
+        <span>{copy.emptyDetail}</span>
+      </div>
+    )}
+    {allPosts.length > 0 && (
+      <div class="filter-empty" role="status" hidden>
+        <p>{copy.filterEmpty}</p>
+        <span>{copy.filterEmptyDetail}</span>
+        <button type="button" data-clear-category>{copy.showAll}</button>
+      </div>
+    )}
+    <div class="timeline year-timeline" id="blog-archive-timeline">
+      {Array.from(postsByYear, ([year, posts]) => (
+        <ListingTimelineYear year={year} entriesClass="year-posts">
+          {posts.map((post) => (
+            <li class="timeline-item post-item" data-blog-post data-post-href={post.href} data-categories={post.categories.join(' ')}>
+                <a href={post.href} class="post timeline-entry" target={post.external ? '_blank' : undefined} rel={post.external ? 'noopener noreferrer' : undefined}>
+                  <time class="timeline-entry-aside" datetime={post.date.toISOString()}>
+                    {post.date.toLocaleDateString(intlLocale[locale], { day: '2-digit', month: 'short' })}
+                  </time>
+                  <span class="timeline-entry-copy post-copy" data-listing-key={post.href} lang={post.lang}>
+                    <span class="timeline-entry-title post-title">{post.title}</span>
+                    {post.description && <span class="timeline-entry-desc post-desc">{post.description}</span>}
+                  </span>
+                  {post.external && <span class="timeline-entry-action post-source">{copy.externalSource} <ArrowUpRight size={13} strokeWidth={1.7} aria-hidden="true" /><span class="visually-hidden">{t.meta.newTab}</span></span>}
+                </a>
+            </li>
+          ))}
+        </ListingTimelineYear>
+      ))}
+    </div>
+    <div class="list-archive" id="blog-archive-list">
+      {letterKeys.map((letter) => (
+        <section class="letter-group" aria-labelledby={`letter-${letter}`}>
+          <h2 id={`letter-${letter}`} class="letter-label">{letter}</h2>
+          <ol class="letter-posts">
+            {postsByLetter.get(letter)!.map((post) => (
+              <li class="post-item" data-blog-post data-post-href={post.href} data-sort-title={post.title} data-categories={post.categories.join(' ')}>
+                <a href={post.href} class="post" target={post.external ? '_blank' : undefined} rel={post.external ? 'noopener noreferrer' : undefined}>
+                  <time datetime={post.date.toISOString()}>
+                    {post.date.toLocaleDateString(intlLocale[locale], { day: 'numeric', month: 'short', year: 'numeric' })}
+                  </time>
+                  <span class="post-copy" data-listing-key={post.href} lang={post.lang}>
+                    <span class="post-title">{post.title}</span>
+                    {post.description && <span class="post-desc">{post.description}</span>}
+                  </span>
+                  {post.external && <span class="post-source">{copy.externalSource} <ArrowUpRight size={13} strokeWidth={1.7} aria-hidden="true" /><span class="visually-hidden">{t.meta.newTab}</span></span>}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ))}
+    </div>
+    <div class="explore-panel" id="blog-explore">
+      <BlogExplore groups={Array.from(postsByYear)} />
+    </div>
+    </div>
+  </div>
+</Base>
+
+<style>
+  :global(#main-content) { width: 100%; }
+  .blog-view {
+    width: 100%;
+    --year-sticky-top: 17.5rem;
+    --blog-muted: color-mix(in srgb, var(--dim) 65%, var(--fg));
+    --listing-muted: var(--blog-muted);
+  }
+  .blog-view.is-empty .header-controls,
+  .blog-view.is-empty .timeline,
+  .blog-view.is-empty .list-archive,
+  .blog-view.is-empty .explore-panel,
+  .blog-view.is-empty[data-view="explore"] .explore-panel { display: none; }
+  .list-archive { display: none; }
+  .blog-view[data-view="list"] .timeline { display: none; }
+  .blog-view[data-view="list"] .list-archive { display: block; }
+  .blog-view[data-view="list"] .list-sort-nav { display: flex; }
+  .blog-view[data-view="list"] .year-nav { display: none; }
+  .archive-empty, .filter-empty {
+    max-width: 38rem;
+    padding: 2rem 0 3rem;
+    border-top: 1px solid var(--border);
+  }
+  .archive-empty p, .filter-empty p { margin-bottom: .3rem; color: var(--fg); font: 600 1.1rem/1.4 var(--font-sans); }
+  .archive-empty span { color: var(--blog-muted); font-size: .85rem; }
+  .filter-empty span { color: var(--blog-muted); font-size: .85rem; }
+  .filter-empty[hidden] { display: none; }
+  .filter-empty button {
+    min-height: 44px;
+    margin-top: 1rem;
+    padding: .5rem 0;
+    border: 0;
+    background: transparent;
+    color: var(--accent);
+    font: 600 .85rem/1.4 var(--font-sans);
+    cursor: pointer;
+  }
+  .filter-empty button:hover { text-decoration: underline; text-underline-offset: .2em; }
+  .filter-empty button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .explore-panel { display: none; }
+  .blog-view[data-view="explore"] .timeline { display: none; }
+  .blog-view[data-view="explore"] .list-archive { display: none; }
+  .blog-view[data-view="explore"] .list-sort-nav { display: none; }
+  .blog-view[data-view="explore"]:not(.is-filter-empty) .explore-panel { display: block; }
+  .blog-view.is-filter-empty .explore-panel { display: none; }
+
+  .blog-view[data-view="list"] .timeline-item::before { display: none; }
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .blog-view[data-view="list"] .list-archive { max-width: 780px; }
+  .blog-view[data-view="list"] .post-item::before { display: none; }
+  .blog-view .letter-group[hidden] { display: none !important; }
+  .blog-view[data-view="list"] .letter-group {
+    display: block;
+    margin-bottom: 1.8rem;
+  }
+  .blog-view[data-view="list"] .letter-label {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    color: var(--blog-muted);
+    font-size: .9rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    background: var(--bg);
+  }
+  .blog-view[data-view="list"] .letter-posts {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .blog-view[data-view="list"] .list-archive .post,
+  .blog-view[data-view="list"] .list-archive .post-item:last-child .post {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: .3rem .75rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border);
+    color: inherit;
+  }
+  .blog-view[data-view="list"] .list-archive .post-item:last-child .post {
+    border-bottom: 0;
+  }
+  .blog-view[data-view="list"] .list-archive .post time {
+    position: static;
+    grid-column: 1;
+    grid-row: 1;
+    width: auto;
+    padding: 0;
+    text-align: left;
+    opacity: .7;
+  }
+  .blog-view[data-view="list"] .list-archive .post-source {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    padding: 0;
+  }
+  .blog-view[data-view="list"] .list-archive .post-copy { grid-column: 1 / -1; grid-row: 2; }
+  .blog-view[data-view="list"] .list-archive .post-desc {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+  }
+
+  @media (max-width: 760px) {
+    .blog-view[data-view="list"] .list-archive .post {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: .2rem .75rem;
+    }
+    .blog-view[data-view="list"] .list-archive .post time {
+      position: static;
+      width: auto;
+      text-align: left;
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .blog-view[data-view="list"] .list-archive .post-copy { grid-column: 1 / -1; grid-row: 2; }
+    .blog-view[data-view="list"] .list-archive .post-source {
+      grid-column: 2;
+      grid-row: 1;
+      justify-self: end;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .blog-view[data-view="list"] .list-archive .post { padding: .8rem 0 1.05rem; }
+    .blog-view[data-view="list"] .list-archive .post-title { font-size: .98rem; }
+    .blog-view[data-view="list"] .list-archive .post-desc { font-size: .78rem; }
+    .blog-view[data-view="list"] .list-archive .post-source {
+      align-self: start;
+      padding-top: .05rem;
+      font-size: .62rem;
+    }
+  }
+
+</style>
+
+<script>
+  import { dispatchListingViewChange, initListingHeaderCollapse } from '../lib/listing-header-collapse';
+  import { initListingTimelineYearSpy } from '../lib/listing-timeline-year-spy';
+  import { focusListingRecovery, transitionListing } from '../lib/listing-transition';
+  import { initListingFilterSheet } from '../lib/listing-filter-sheet';
+  import { initListingMotion } from '../lib/listing-motion';
+
+  const yearGroups = Array.from(document.querySelectorAll<HTMLElement>('.year-group'));
+  const letterGroups = Array.from(document.querySelectorAll<HTMLElement>('.letter-group'));
+  const listArchive = document.getElementById('blog-archive-list');
+  const sortButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-list-sort]'));
+  const viewRoot = document.querySelector<HTMLElement>('.blog-view');
+  initListingMotion(viewRoot);
+  const viewButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-view-choice]'));
+  const categoryButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-category-choice]'));
+  const categoryCount = document.querySelector<HTMLElement>('[data-category-count]');
+  const filterEmpty = document.querySelector<HTMLElement>('.filter-empty');
+  const mobileView = window.matchMedia('(max-width: 639px)');
+
+  const buildBlogSummary = () => {
+    const parts: string[] = [];
+    const view = viewRoot?.dataset.view ?? 'timeline';
+    if (view === 'list') {
+      const sort = sortButtons.find((button) => button.getAttribute('aria-pressed') === 'true');
+      parts.push(sort?.textContent?.trim() ?? 'A–Z');
+    } else {
+      const year = document.querySelector<HTMLAnchorElement>('.blog-view .year-nav a.is-active')?.textContent?.trim();
+      if (year) parts.push(year);
+    }
+    const categoryBtn = categoryButtons.find((button) => button.getAttribute('aria-pressed') === 'true');
+    if (categoryBtn && categoryBtn.dataset.categoryChoice !== 'all') {
+      parts.push(categoryBtn.textContent?.trim() ?? '');
+    }
+    const count = categoryCount?.textContent?.trim();
+    if (count) parts.push(count);
+    return parts.filter(Boolean).join(' · ');
+  };
+
+  let headerCollapse: ReturnType<typeof initListingHeaderCollapse>;
+  const yearSpy = initListingTimelineYearSpy({
+    listingRoot: '.blog-view',
+    viewsToSkip: ['list', 'explore'],
+    exploreJumpEvent: 'blogexploreyear',
+    exploreSelectJumpEvent: 'blogexploreselectyear',
+  });
+
+  const countVisiblePosts = () => new Set(
+    Array.from(document.querySelectorAll<HTMLElement>('[data-blog-post]'))
+      .filter((post) => !post.hidden)
+      .map((post) => post.dataset.postHref ?? post.querySelector<HTMLAnchorElement>('a.post')?.href ?? '')
+      .filter(Boolean),
+  ).size;
+
+  const readListSort = () => {
+    try {
+      const saved = window.localStorage.getItem('amjed-blog-list-sort');
+      if (saved === 'asc' || saved === 'desc') return saved;
+    } catch {
+      // Keep the default sort when storage is unavailable.
+    }
+    return 'asc';
+  };
+
+  const applyListSort = (direction: 'asc' | 'desc') => {
+    if (!listArchive) return;
+    const groups = Array.from(listArchive.querySelectorAll<HTMLElement>('.letter-group'));
+    groups.sort((a, b) => {
+      const left = a.querySelector<HTMLElement>('.letter-label')?.textContent?.trim() ?? '';
+      const right = b.querySelector<HTMLElement>('.letter-label')?.textContent?.trim() ?? '';
+      return direction === 'asc'
+        ? left.localeCompare(right, undefined, { sensitivity: 'base' })
+        : right.localeCompare(left, undefined, { sensitivity: 'base' });
+    });
+    groups.forEach((group) => {
+      const list = group.querySelector<HTMLElement>('.letter-posts');
+      const items = Array.from(group.querySelectorAll<HTMLElement>('.post-item'));
+      items.sort((a, b) => {
+        const left = a.dataset.sortTitle ?? '';
+        const right = b.dataset.sortTitle ?? '';
+        return direction === 'asc'
+          ? left.localeCompare(right, undefined, { sensitivity: 'base' })
+          : right.localeCompare(left, undefined, { sensitivity: 'base' });
+      });
+      items.forEach((item) => list?.appendChild(item));
+      listArchive.appendChild(group);
+    });
+  };
+
+  const syncSortHighlight = () => {
+    const active = sortButtons.find((button) => button.getAttribute('aria-pressed') === 'true');
+    const switcher = active?.parentElement;
+    if (!active || !switcher) return;
+    switcher.style.setProperty('--sort-highlight-width', `${active.offsetWidth}px`);
+    switcher.style.setProperty('--sort-highlight-offset', `${active.offsetLeft - 3}px`);
+  };
+
+  const setListSort = (direction: 'asc' | 'desc', remember = false) => {
+    sortButtons.forEach((button) => {
+      button.setAttribute('aria-pressed', String(button.dataset.listSort === direction));
+    });
+    syncSortHighlight();
+    applyListSort(direction);
+    if (remember) {
+      try {
+        window.localStorage.setItem('amjed-blog-list-sort', direction);
+      } catch {
+        // The current sort still works without storage.
+      }
+    }
+  };
+
+  const syncViewHighlight = () => {
+    const active = viewButtons.find((button) => button.getAttribute('aria-pressed') === 'true');
+    const switcher = active?.parentElement;
+    if (!active || !switcher) return;
+    switcher.style.setProperty('--view-highlight-width', `${active.offsetWidth}px`);
+    switcher.style.setProperty('--view-highlight-offset', `${active.offsetLeft - 3}px`);
+  };
+
+  const readView = () => {
+    let saved: string | null = null;
+    try {
+      saved = window.localStorage.getItem(mobileView.matches ? 'amjed-blog-view-mobile' : 'amjed-blog-view-desktop');
+    } catch {
+      // Keep the responsive default if storage is unavailable.
+    }
+    return saved === 'timeline' || saved === 'list' || saved === 'explore'
+      ? saved
+      : mobileView.matches ? 'list' : 'timeline';
+  };
+
+  const setCategory = (category: string, remember = false) => {
+    if (!viewRoot) return;
+    const valid = category === 'all' || categoryButtons.some((button) => button.dataset.categoryChoice === category);
+    const selected = valid ? category : 'all';
+    viewRoot.dataset.category = selected;
+    categoryButtons.forEach((button) => {
+      button.setAttribute('aria-pressed', String(button.dataset.categoryChoice === selected));
+    });
+    document.querySelectorAll<HTMLElement>('[data-blog-post]').forEach((post) => {
+      const categories = post.dataset.categories?.split(' ') ?? [];
+      post.hidden = selected !== 'all' && !categories.includes(selected);
+    });
+    const syncGroupVisibility = (groups: HTMLElement[]) => {
+      groups.forEach((group) => {
+        group.hidden = !Array.from(group.querySelectorAll<HTMLElement>('[data-blog-post]'))
+          .some((post) => !post.hidden);
+      });
+    };
+    syncGroupVisibility(yearGroups);
+    syncGroupVisibility(letterGroups);
+    yearSpy?.updateYearLinkDisabledState((hash) => {
+      const yearGroup = document.querySelector<HTMLElement>(hash)?.closest<HTMLElement>('.year-group');
+      return Boolean(yearGroup?.hidden);
+    });
+    const visiblePostCount = countVisiblePosts();
+    viewRoot.classList.toggle('is-filter-empty', visiblePostCount === 0);
+    if (categoryCount) {
+      const template = (visiblePostCount === 1 ? categoryCount.dataset.countOne : categoryCount.dataset.countOther) ?? '{count}';
+      categoryCount.textContent = template.replace('{count}', String(visiblePostCount));
+    }
+    if (filterEmpty) filterEmpty.hidden = selected === 'all' || visiblePostCount > 0;
+    if (viewRoot.dataset.view === 'explore') yearSpy?.activateLatestVisibleYear();
+    if (viewRoot.dataset.view === 'list') setListSort(readListSort());
+    viewRoot.dispatchEvent(new CustomEvent('blogcategorychange', { detail: selected }));
+    viewRoot.dispatchEvent(new Event('listingfilterchange'));
+    if (remember) {
+      const url = new URL(window.location.href);
+      if (selected === 'all') url.searchParams.delete('category');
+      else url.searchParams.set('category', selected);
+      window.history.pushState({}, '', url);
+    }
+    yearSpy?.requestActiveYearUpdate();
+    headerCollapse?.refreshSummary();
+  };
+
+  const setView = (view: 'timeline' | 'list' | 'explore', remember = false, preservePosition = false) => {
+    if (!viewRoot) return;
+    const changingExplore = view === 'explore' || viewRoot.dataset.view === 'explore';
+    const anchor = !changingExplore && preservePosition && window.scrollY > 200
+      ? Array.from(document.querySelectorAll<HTMLElement>('.post-item')).find(
+          (item) => item.getBoundingClientRect().bottom > 80,
+        )
+      : undefined;
+    const anchorTop = anchor?.getBoundingClientRect().top;
+
+    viewRoot.dataset.view = view;
+    if (view === 'list') setListSort(readListSort());
+    if (view === 'explore') yearSpy?.activateLatestVisibleYear();
+    if (changingExplore) window.scrollTo(0, 0);
+    if (view === 'explore') viewRoot.dispatchEvent(new Event('blogexploreenter'));
+    viewButtons.forEach((button) => {
+      button.setAttribute('aria-pressed', String(button.dataset.viewChoice === view));
+    });
+    syncViewHighlight();
+
+    if (remember) {
+      try {
+        window.localStorage.setItem(
+          mobileView.matches ? 'amjed-blog-view-mobile' : 'amjed-blog-view-desktop',
+          view,
+        );
+      } catch {
+        // The current choice still works without storage.
+      }
+    }
+
+    if (anchor && anchorTop !== undefined) {
+      window.requestAnimationFrame(() => {
+        window.scrollBy(0, anchor.getBoundingClientRect().top - anchorTop);
+        yearSpy?.requestActiveYearUpdate();
+      });
+    } else {
+      yearSpy?.requestActiveYearUpdate();
+    }
+    if (viewRoot) dispatchListingViewChange(viewRoot);
+    headerCollapse?.refreshSummary();
+  };
+
+  viewButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const view = button.dataset.viewChoice;
+      if ((view === 'timeline' || view === 'list' || view === 'explore') && view !== viewRoot?.dataset.view) {
+        transitionListing(viewRoot, () => setView(view, true), {
+          items: view !== 'explore' && viewRoot?.dataset.view !== 'explore',
+        });
+      }
+    });
+  });
+  mobileView.addEventListener('change', () => setView(readView(), false, true));
+  categoryButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      transitionListing(viewRoot, () => setCategory(button.dataset.categoryChoice ?? 'all', true));
+    });
+  });
+  document.querySelector<HTMLButtonElement>('[data-clear-category]')?.addEventListener('click', () => {
+    focusListingRecovery(viewRoot, '[data-category-choice="all"]');
+    transitionListing(viewRoot, () => setCategory('all', true));
+  });
+  sortButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const direction = button.dataset.listSort;
+      if (direction === 'asc' || direction === 'desc') {
+        transitionListing(viewRoot, () => {
+          setListSort(direction, true);
+          headerCollapse?.refreshSummary();
+        });
+      }
+    });
+  });
+  viewRoot?.addEventListener('blogexploreselectyear', () => headerCollapse?.refreshSummary());
+  viewRoot?.addEventListener('listingyearchange', () => headerCollapse?.refreshSummary());
+  window.addEventListener('popstate', () => {
+    setCategory(new URLSearchParams(window.location.search).get('category') ?? 'all');
+  });
+  syncViewHighlight();
+  syncSortHighlight();
+  window.addEventListener('resize', () => {
+    syncViewHighlight();
+    syncSortHighlight();
+  }, { passive: true });
+
+  const filterSheet = initListingFilterSheet(viewRoot, {
+    getResultLabel: () => categoryCount?.textContent?.trim() ?? 'articles',
+    clearFilters: () => setCategory('all', true),
+  });
+  headerCollapse = initListingHeaderCollapse({
+    listingRoot: '.blog-view',
+    collapseOnMobile: true,
+    getSummary: buildBlogSummary,
+    openMobileFilters: () => filterSheet?.open() ?? false,
+    isMobileFiltersOpen: () => filterSheet?.isOpen() ?? false,
+  });
+  viewRoot?.addEventListener('listingheaderlayout', () => {
+    syncViewHighlight();
+    syncSortHighlight();
+  });
+
+  setListSort(readListSort());
+  setCategory(viewRoot?.dataset.category ?? new URLSearchParams(window.location.search).get('category') ?? 'all');
+</script>

@@ -1,0 +1,110 @@
+---
+import Base from '../layouts/Base.astro';
+import { useTranslations } from '../i18n/ui';
+
+// The host serves this one page for every unknown URL, so it can't be built per
+// locale. It renders in English and switches its own copy for /fr/ paths.
+const en = useTranslations('en');
+const fr = useTranslations('fr');
+const copy = en.notFound;
+const frCopy = fr.notFound;
+---
+
+<Base
+  title={`${copy.title}${en.meta.titleSuffix}`}
+  description={copy.description}
+  fullBleed
+  hreflang={false}
+>
+  <section
+    class="missing-page hero-frame"
+    aria-labelledby="missing-title"
+    data-missing-page
+    data-fr-title={`${frCopy.title}${fr.meta.titleSuffix}`}
+  >
+    <div class="missing-inner hero-frame-inner">
+      <p class="missing-code" data-fr={frCopy.code}>{copy.code}</p>
+      <h1 id="missing-title" data-fr={frCopy.heading}>{copy.heading}</h1>
+      <p class="missing-copy" data-fr={frCopy.copy}>{copy.copy}</p>
+      <div class="missing-actions">
+        <a class="missing-primary" href="/" data-fr={frCopy.home} data-fr-href="/fr">{copy.home}</a>
+        <a class="missing-secondary" href="/projects" data-fr={frCopy.projects} data-fr-href="/fr/projects">{copy.projects}</a>
+      </div>
+    </div>
+  </section>
+  <script is:inline>
+    (() => {
+      if (!/^\/fr(\/|$)/.test(window.location.pathname)) return;
+      const page = document.querySelector('[data-missing-page]');
+      if (!page) return;
+      document.documentElement.lang = 'fr';
+      document.title = page.dataset.frTitle || document.title;
+      page.querySelectorAll('[data-fr]').forEach((node) => { node.textContent = node.dataset.fr; });
+      page.querySelectorAll('[data-fr-href]').forEach((link) => { link.href = link.dataset.frHref; });
+    })();
+  </script>
+</Base>
+
+<style>
+  .missing-code {
+    color: var(--accent);
+    font-size: .7rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  h1 {
+    max-width: 15ch;
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: clamp(2.2rem, 6vw, 4.1rem);
+    line-height: 1.08;
+    letter-spacing: -.04em;
+    margin-bottom: 1rem;
+  }
+
+  .missing-copy {
+    max-width: 38ch;
+    color: var(--dim);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 1.75rem;
+  }
+
+  .missing-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .8rem;
+  }
+
+  .missing-actions a {
+    border-radius: 6px;
+    font-size: .8rem;
+    padding: .65em 1.3em;
+  }
+
+  .missing-primary {
+    color: var(--bg);
+    background: var(--accent);
+    font-weight: 600;
+  }
+
+  .missing-primary:hover {
+    color: var(--bg);
+    opacity: .85;
+  }
+
+  .missing-secondary {
+    color: var(--dim);
+    border: 1px solid var(--border);
+  }
+
+  .missing-secondary:hover {
+    color: var(--fg);
+    border-color: var(--fg);
+    opacity: 1;
+  }
+
+</style>

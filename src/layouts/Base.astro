@@ -5,26 +5,48 @@ import OfflineNotice from '../components/OfflineNotice.astro';
 import BackToTop from '../components/BackToTop.astro';
 import { Font } from 'astro:assets';
 import '../styles/global.css';
-import { profile } from '../data/profile';
+import { getProfile } from '../data/profile';
 import { supportsMotionPreference } from '../lib/motion';
+import { locales, localePath, ogLocale, toLocale, type Locale } from '../i18n/config';
+import { useTranslations } from '../i18n/ui';
 
 interface Props {
   title: string;
   description?: string;
   fullBleed?: boolean;
   noindex?: boolean;
+  /**
+   * Where each language's version of this page lives. Defaults to the same path
+   * in every locale; pages that exist in one language only point elsewhere.
+   */
+  alternates?: Record<Locale, string>;
+  /** False for pages without a true translation, so search engines aren't told otherwise. */
+  hreflang?: boolean;
 }
 
-const { title, description = profile.description, fullBleed = false, noindex = false } = Astro.props;
+const locale = toLocale(Astro.currentLocale);
+const t = useTranslations(locale);
+const profile = getProfile(locale);
+const {
+  title,
+  description = profile.description,
+  fullBleed = false,
+  noindex = false,
+  alternates = Object.fromEntries(locales.map((code) => [code, localePath(code, Astro.url.pathname)])) as Record<Locale, string>,
+  hreflang = true,
+} = Astro.props;
 // SW_KILL_SWITCH=1 builds ship a self-unregistering sw.js, so pages must stop registering it.
 const registerServiceWorker = import.meta.env.PROD && process.env.SW_KILL_SWITCH !== '1';
 const canonicalURL = Astro.site ? new URL(Astro.url.pathname, Astro.site) : undefined;
+const alternateURLs = hreflang && Astro.site
+  ? locales.map((code) => ({ hreflang: code, href: new URL(alternates[code], Astro.site) }))
+  : [];
 const socialImageURL = Astro.site ? new URL('/og.png', Astro.site) : '/og.png';
-const socialImageAlt = `${profile.name}, ${profile.roles.replace(' · ', ' and ')}`;
+const socialImageAlt = `${profile.name}, ${profile.roles.replace(' · ', locale === 'fr' ? ' et ' : ' and ')}`;
 ---
 
 <!doctype html>
-<html lang="en" data-motion-preferences={supportsMotionPreference(Astro.url.pathname) ? '' : undefined}>
+<html lang={locale} data-motion-preferences={supportsMotionPreference(Astro.url.pathname) ? '' : undefined}>
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -58,6 +80,20 @@ const socialImageAlt = `${profile.name}, ${profile.roles.replace(' · ', ' and '
       );
     })();
   </script>
+  <script is:inline>
+    // Chrome can fire this before module scripts run, so hold on to it here.
+    // preventDefault stops the automatic mini-infobar; PreferencesMenu offers
+    // "Install app" instead.
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault();
+      window.__installPrompt = event;
+      window.dispatchEvent(new Event('amjed:install-change'));
+    });
+    window.addEventListener('appinstalled', () => {
+      window.__installPrompt = null;
+      window.dispatchEvent(new Event('amjed:install-change'));
+    });
+  </script>
   <title>{title}</title>
   <meta name="description" content={description} />
   {noindex && <meta name="robots" content="noindex" />}
@@ -72,7 +108,11 @@ const socialImageAlt = `${profile.name}, ${profile.roles.replace(' · ', ' and '
   <meta name="apple-mobile-web-app-title" content="amjed" />
   <Font cssVariable="--font-plex" preload={[{ weight: 400 }]} />
   {canonicalURL && <link rel="canonical" href={canonicalURL} />}
+  {alternateURLs.map((alternate) => <link rel="alternate" hreflang={alternate.hreflang} href={alternate.href} />)}
+  {alternateURLs.length > 0 && <link rel="alternate" hreflang="x-default" href={alternateURLs[0].href} />}
   <meta property="og:type" content="website" />
+  <meta property="og:locale" content={ogLocale[locale]} />
+  {hreflang && locales.filter((code) => code !== locale).map((code) => <meta property="og:locale:alternate" content={ogLocale[code]} />)}
   {canonicalURL && <meta property="og:url" content={canonicalURL} />}
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
@@ -89,12 +129,12 @@ const socialImageAlt = `${profile.name}, ${profile.roles.replace(' · ', ' and '
   <meta name="twitter:image:alt" content={socialImageAlt} />
 </head>
 <body id="page-top">
-  <a class="skip-link" href="#main-content">Skip to content</a>
+  <a class="skip-link" href="#main-content">{t.meta.skipLink}</a>
   <div class="page-progress" data-page-progress aria-hidden="true">
     <span></span>
   </div>
   <OfflineNotice />
-  <Nav />
+  <Nav alternates={alternates} />
   {fullBleed ? (
     <main id="main-content">
       <slot />
@@ -147,9 +187,15 @@ const socialImageAlt = `${profile.name}, ${profile.roles.replace(' · ', ' and '
   {registerServiceWorker ? (
     <script is:inline>
       if ('serviceWorker' in navigator) {
+        let registration;
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').catch(() => {});
+          navigator.serviceWorker.register('/sw.js').then((result) => { registration = result; }, () => {});
         }, { once: true });
+        // Pages are network-first, so an update only swaps the offline cache.
+        // Apply it between pages rather than under the one being read.
+        window.addEventListener('pagehide', () => {
+          registration?.waiting?.postMessage({ type: 'SKIP_WAITING' });
+        });
       }
     </script>
   ) : (

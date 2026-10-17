@@ -6,7 +6,16 @@ import { fileURLToPath } from 'node:url';
 const templateDir = path.dirname(fileURLToPath(import.meta.url));
 
 // 404.html is served by the host for unknown routes; offline misses use /offline instead.
-const EXCLUDED_FILES = new Set(['sw.js', '404.html']);
+// og.png is only fetched by social crawlers, never by the page.
+const EXCLUDED_FILES = new Set(['sw.js', '404.html', 'og.png']);
+// Photos (and every srcset width of them) are cached on first view by sw.js
+// instead, so a visit doesn't download images the visitor never looks at.
+const LAZY_EXTENSIONS = new Set(['.webp', '.avif', '.jpg', '.jpeg', '.gif']);
+// Most visitors read the English pages, so only those are precached. Translated
+// pages (/fr/...) are cached as they're visited; their offline page is kept so
+// a French reader never falls back to English.
+const LOCALE_PAGE = /^fr\/.*index\.html$/;
+const LOCALE_PRECACHED = new Set(['fr/offline/index.html']);
 
 async function listFiles(root, dir = root) {
   const entries = await readdir(dir, { withFileTypes: true });
@@ -18,8 +27,12 @@ async function listFiles(root, dir = root) {
   return nested.flat();
 }
 
-function isPrecacheable(file) {
-  return !EXCLUDED_FILES.has(file) && !path.posix.basename(file).startsWith('.') && !file.endsWith('.map');
+export function isPrecacheable(file) {
+  return !EXCLUDED_FILES.has(file)
+    && !path.posix.basename(file).startsWith('.')
+    && !file.endsWith('.map')
+    && !LAZY_EXTENSIONS.has(path.posix.extname(file).toLowerCase())
+    && (!LOCALE_PAGE.test(file) || LOCALE_PRECACHED.has(file));
 }
 
 /**

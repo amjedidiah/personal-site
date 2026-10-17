@@ -1,5 +1,6 @@
 import { currentIssueUrls, parseAvailabilityIssue } from './current-feed';
 import { prefersReducedMotion, observeReducedMotion } from './motion';
+import { clientStrings, pageIntlLocale, pageLocale } from '../i18n/client';
 
 type CachedIssue = { savedAt: number; raw: unknown };
 type FeedCache = { availability?: CachedIssue; retryAt?: number };
@@ -12,7 +13,7 @@ const cacheKey = 'jed-current-feed-v1';
 const refreshInterval = 5 * 60 * 1000;
 const mounts = new Map<HTMLElement, () => void>();
 
-async function readIssue(signal: AbortSignal): Promise<FeedResult> {
+async function readIssue(signal: AbortSignal, locale = pageLocale()): Promise<FeedResult> {
   const controller = new AbortController();
   const abort = () => controller.abort();
   signal.addEventListener('abort', abort, { once: true });
@@ -34,7 +35,7 @@ async function readIssue(signal: AbortSignal): Promise<FeedResult> {
     }
     if (!response.ok) return { kind: 'error' };
     const raw: unknown = await response.json();
-    const value = parseAvailabilityIssue(raw);
+    const value = parseAvailabilityIssue(raw, locale);
     // An invalid response is a refresh failure, not evidence that availability is unpublished.
     return value ? { kind: 'data', value, raw } : { kind: 'error' };
   } catch {
@@ -56,8 +57,10 @@ function mountCurrent(host: HTMLElement): () => void {
   if (!signals || !card || !availability || !label || !detail || !status || !button) return () => {};
 
   const listeners = new AbortController();
-  const format = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-  const fallbackStatus = host.dataset.reviewedStatus ?? `${status.textContent?.trim() ?? 'Showing the last reviewed status'}.`;
+  const locale = pageLocale();
+  const copy = clientStrings(locale).status;
+  const format = new Intl.DateTimeFormat(pageIntlLocale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  const fallbackStatus = host.dataset.reviewedStatus ?? `${status.textContent?.trim() ?? copy.fallback}.`;
   host.dataset.reviewedStatus = fallbackStatus;
   let lastKnownStatus = host.dataset.lastKnownStatus ?? fallbackStatus;
   let lastCheck = 0;
@@ -72,7 +75,7 @@ function mountCurrent(host: HTMLElement): () => void {
       const now = Date.now();
       const entry = stored.availability;
       if (entry && typeof entry.savedAt === 'number' && entry.savedAt <= now && now - entry.savedAt < 60 * 60 * 1000
-        && parseAvailabilityIssue(entry.raw)) cache.availability = entry;
+        && parseAvailabilityIssue(entry.raw, locale)) cache.availability = entry;
       if (typeof stored.retryAt === 'number' && Number.isFinite(stored.retryAt) && stored.retryAt > now) {
         cache.retryAt = Math.min(stored.retryAt, now + 24 * 60 * 60 * 1000);
       }
@@ -93,23 +96,23 @@ function mountCurrent(host: HTMLElement): () => void {
     card.setAttribute('aria-busy', String(state === 'loading'));
     const blocked = state === 'loading' || state === 'rate-limited' || state === 'offline';
     button.setAttribute('aria-disabled', String(blocked));
-    button.textContent = state === 'loading' ? 'Checking…' : state === 'rate-limited' ? 'Retry later'
-      : state === 'offline' ? 'Offline' : state === 'error' ? 'Retry status' : 'Refresh status';
+    button.textContent = state === 'loading' ? copy.button.loading : state === 'rate-limited' ? copy.button.rateLimited
+      : state === 'offline' ? copy.button.offline : state === 'error' ? copy.button.error : copy.button.idle;
   };
   const showCooldown = () => {
-    setState('rate-limited', `Live refresh is paused until ${format.format(new Date(cache.retryAt!))}. ${lastKnownStatus}`);
+    setState('rate-limited', copy.paused(format.format(new Date(cache.retryAt!)), lastKnownStatus));
     window.clearTimeout(cooldown);
     cooldown = window.setTimeout(() => {
       if (disposed) return;
-      if (!navigator.onLine) setState('offline', `You’re offline. ${lastKnownStatus} Refresh will resume when you reconnect.`);
-      else setState('cached', `Refresh is available again. ${lastKnownStatus}`);
+      if (!navigator.onLine) setState('offline', copy.offline(lastKnownStatus));
+      else setState('cached', copy.available(lastKnownStatus));
     }, Math.max(0, cache.retryAt! - Date.now()));
   };
 
   if (cache.availability) {
-    showAvailability(parseAvailabilityIssue(cache.availability.raw)!);
+    showAvailability(parseAvailabilityIssue(cache.availability.raw, locale)!);
     lastCheck = cache.availability.savedAt;
-    lastKnownStatus = `Saved status from ${format.format(new Date(lastCheck))}.`;
+    lastKnownStatus = copy.saved(format.format(new Date(lastCheck)));
     setState('cached', lastKnownStatus);
   }
   button.hidden = false;
@@ -117,39 +120,39 @@ function mountCurrent(host: HTMLElement): () => void {
   const refresh = async (manual = false) => {
     if (disposed || pending) return;
     if (!navigator.onLine) {
-      setState('offline', `You’re offline. ${lastKnownStatus} Refresh will resume when you reconnect.`);
+      setState('offline', copy.offline(lastKnownStatus));
       return;
     }
     if (cache.retryAt && cache.retryAt > Date.now()) { showCooldown(); return; }
     pending = true;
     lastCheck = Date.now();
-    setState('loading', `Checking availability… ${lastKnownStatus}`);
-    const result = await readIssue(listeners.signal);
+    setState('loading', copy.checking(lastKnownStatus));
+    const result = await readIssue(listeners.signal, locale);
     pending = false;
     if (disposed) return;
     if (!navigator.onLine) {
-      setState('offline', `You’re offline. ${lastKnownStatus} Refresh will resume when you reconnect.`);
+      setState('offline', copy.offline(lastKnownStatus));
       return;
     }
     if (result.kind === 'data') {
       showAvailability(result.value);
       cache.availability = { savedAt: Date.now(), raw: result.raw };
       delete cache.retryAt;
-      lastKnownStatus = `Last checked ${format.format(new Date())}.`;
-      setState('data', `Live availability checked ${format.format(new Date())}.`);
+      lastKnownStatus = copy.lastChecked(format.format(new Date()));
+      setState('data', copy.live(format.format(new Date())));
     } else if (result.kind === 'empty') {
       availability.dataset.available = 'false';
-      label.textContent = 'Availability not published';
-      detail.textContent = 'Please get in touch to ask about timing.';
+      label.textContent = copy.unpublishedLabel;
+      detail.textContent = copy.unpublishedDetail;
       delete cache.availability;
       delete cache.retryAt;
-      lastKnownStatus = 'No availability published. Get in touch to ask about timing.';
+      lastKnownStatus = copy.unpublished;
       setState('empty', lastKnownStatus);
     } else if (result.kind === 'rate-limited') {
       cache.retryAt = result.retryAt;
       showCooldown();
     } else {
-      setState('error', `Couldn’t refresh availability. ${lastKnownStatus} Retry or get in touch to ask about timing.`);
+      setState('error', copy.error(lastKnownStatus));
     }
     host.dataset.lastKnownStatus = lastKnownStatus;
     saveCache();
@@ -167,7 +170,7 @@ function mountCurrent(host: HTMLElement): () => void {
   document.addEventListener('visibilitychange', checkWhenDue, { signal: listeners.signal });
   window.addEventListener('online', () => { void refresh(); }, { signal: listeners.signal });
   window.addEventListener('offline', () => {
-    setState('offline', `You’re offline. ${lastKnownStatus} Refresh will resume when you reconnect.`);
+    setState('offline', copy.offline(lastKnownStatus));
   }, { signal: listeners.signal });
   observeReducedMotion(() => { if (prefersReducedMotion()) feedback?.cancel(); }, listeners.signal);
   if (!navigator.onLine || cache.retryAt || !cache.availability || Date.now() - lastCheck >= refreshInterval) void refresh();

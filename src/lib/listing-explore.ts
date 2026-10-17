@@ -1,3 +1,4 @@
+import { clientStrings } from '../i18n/client';
 import { observeReducedMotion, prefersReducedMotion } from './motion';
 
 function shouldActivateExploreRead(key: string, selectedPaper: HTMLElement | null): selectedPaper is HTMLElement {
@@ -175,6 +176,9 @@ export type ListingExploreWire = {
   eventJump: string;
   eventSelectJump: string;
   itemNoun: string;
+  /** Full phrases, since word order differs by language ("Selected project", "Projet sélectionné"). */
+  selectedLabel: string;
+  previewLabel: string;
   readLabel: string;
   fallbackHref: string;
   emptyTitle: string;
@@ -253,7 +257,7 @@ function syncExploreReadLink(
   const external = paper.dataset.external === 'true';
   selectedRead.setAttribute(
     'aria-label',
-    `${wire.readLabel} ${readTarget}${external ? ' (opens in a new tab)' : ''}`,
+    `${wire.readLabel} ${readTarget}${external ? clientStrings().newTab : ''}`,
   );
   if (external) {
     selectedRead.target = '_blank';
@@ -275,7 +279,7 @@ type WriteExploreDetailPanelsOptions = {
 function writeExploreDetailPanels(options: WriteExploreDetailPanelsOptions) {
   const { panels, paper, papers, wire, preview } = options;
   const visible = visibleExplorePapers(papers);
-  panels.detailLabel.textContent = preview ? `Preview ${wire.itemNoun}` : `Selected ${wire.itemNoun}`;
+  panels.detailLabel.textContent = preview ? wire.previewLabel : wire.selectedLabel;
   panels.selectedPosition.textContent = `${String(visible.indexOf(paper) + 1).padStart(2, '0')} / ${String(visible.length).padStart(2, '0')}`;
   panels.selectedTitle.textContent = paper.dataset.title ?? '';
   panels.selectedDescription.textContent = paper.dataset.description ?? '';
@@ -429,7 +433,7 @@ export function initListingExplore(explore: HTMLElement, wire: ListingExploreWir
     } else {
       selected = null;
       previewed = null;
-      detailPanels.detailLabel.textContent = `Selected ${wire.itemNoun}`;
+      detailPanels.detailLabel.textContent = wire.selectedLabel;
       detailPanels.selectedPosition.textContent = '00 / 00';
       detailPanels.selectedTitle.textContent = wire.emptyTitle;
       detailPanels.selectedDescription.textContent = wire.emptyDescription;

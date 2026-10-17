@@ -10,6 +10,12 @@ export default defineConfig({
     allowedHosts: ['prepituitary-chasidy-phonesthemic.ngrok-free.dev'],
   },
   devToolbar: { enabled: false },
+  // English stays at the root; French lives under /fr/. Keep in sync with src/i18n/config.ts.
+  i18n: {
+    locales: ['en', 'fr'],
+    defaultLocale: 'en',
+    routing: { prefixDefaultLocale: false },
+  },
   fonts: [{
     provider: fontProviders.google(),
     name: 'IBM Plex Sans',

@@ -1,9 +1,18 @@
 ---
-import { current } from '../data/current';
+import { getCurrent } from '../data/current';
+import { toLocale } from '../i18n/config';
+import { useTranslations } from '../i18n/ui';
 
 interface Props {
   class?: string;
 }
+
+const locale = toLocale(Astro.currentLocale);
+const current = getCurrent(locale);
+// Split around a marker so the work name can be a link inside translated text.
+const [before, after] = useTranslations(locale)
+  .currentWork('\u0000', current.work.description, current.work.research)
+  .split('\u0000');
 ---
 
-<p class={Astro.props.class}>I’m building <a href={current.work.href}>{current.work.name}</a>, {current.work.description}, and researching {current.work.research}.</p>
+<p class={Astro.props.class}>{before}<a href={current.work.href}>{current.work.name}</a>{after}</p>

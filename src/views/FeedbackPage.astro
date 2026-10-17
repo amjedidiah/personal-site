@@ -1,0 +1,16 @@
+---
+import Base from '../layouts/Base.astro';
+import FeedbackForm from '../components/FeedbackForm.astro';
+import type { LocalizedProject } from '../lib/projects';
+import { useTranslations } from '../i18n/ui';
+
+interface Props { project?: LocalizedProject; }
+const { project } = Astro.props;
+const t = useTranslations(Astro.currentLocale);
+const title = project ? t.feedback.projectTitle(project.data.title) : t.feedback.title;
+const description = project ? t.feedback.projectDescription(project.data.title) : t.feedback.metaDescription;
+---
+
+<Base title={`${title}${t.meta.titleSuffix}`} description={description} noindex>
+  <FeedbackForm project={project && { id: project.id, title: project.data.title }} />
+</Base>

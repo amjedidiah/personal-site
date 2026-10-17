@@ -7,6 +7,12 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "launch_handler": {
+    "client_mode": [
+      "navigate-existing",
+      "auto"
+    ]
+  },
   "categories": [
     "portfolio",
     "business",
@@ -52,6 +58,36 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/home-wide.webp",
+      "sizes": "1280x720",
+      "type": "image/webp",
+      "form_factor": "wide",
+      "label": "Home: apps and payments that hold up in production"
+    },
+    {
+      "src": "/screenshots/projects-wide.webp",
+      "sizes": "1280x720",
+      "type": "image/webp",
+      "form_factor": "wide",
+      "label": "Projects: independent builds, client work and open source"
+    },
+    {
+      "src": "/screenshots/home-narrow.webp",
+      "sizes": "390x844",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Home on mobile"
+    },
+    {
+      "src": "/screenshots/projects-narrow.webp",
+      "sizes": "390x844",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Projects on mobile"
     }
   ]
 }

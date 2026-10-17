@@ -59,6 +59,7 @@
 .article-table-scroll th { color: var(--fg); font-weight: 600; background: var(--surface); }
 :is(.article-table-scroll, .prose pre):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .article-empty { padding-block: 1.5rem; border-top: 1px solid var(--border); color: var(--reading-muted); }
+.article-language-note { margin-block: 0 1.5rem; color: var(--reading-muted); font-size: .85rem; font-style: italic; }
 .article-empty a { display: inline-flex; align-items: center; min-height: 44px; }
 
 /* The sticky items must share the full article grid as their containing block.

@@ -1,6 +1,8 @@
 ---
 import ListingExplore, { type ListingExplorePaper } from './ListingExplore.astro';
 import type { ListingExploreWire } from '../lib/listing-explore';
+import { intlLocale, toLocale } from '../i18n/config';
+import { useTranslations } from '../i18n/ui';
 
 interface Post {
   title: string;
@@ -8,6 +10,7 @@ interface Post {
   date: Date;
   href: string;
   external: boolean;
+  lang?: string;
   categories: string[];
 }
 
@@ -16,6 +19,9 @@ interface Props {
 }
 
 const { groups } = Astro.props;
+const locale = toLocale(Astro.currentLocale);
+const t = useTranslations(locale);
+const copy = t.blog.explore;
 
 const papers: ListingExplorePaper[] = groups.flatMap(([year, posts]) =>
   posts.map((post) => ({
@@ -23,12 +29,13 @@ const papers: ListingExplorePaper[] = groups.flatMap(([year, posts]) =>
     description: post.description,
     href: post.href,
     cardMetaA: String(year),
-    cardMetaB: post.external ? 'HASHNODE' : 'JOURNAL',
-    detailMetaA: post.date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-    detailMetaB: post.external ? 'Hashnode' : 'Journal',
-    metaLine: post.date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }),
+    cardMetaB: post.external ? 'HASHNODE' : t.blog.journal.toUpperCase(),
+    detailMetaA: post.date.toLocaleDateString(intlLocale[locale], { day: '2-digit', month: 'short', year: 'numeric' }),
+    detailMetaB: post.external ? t.blog.externalSource : t.blog.journal,
+    metaLine: post.date.toLocaleDateString(intlLocale[locale], { day: '2-digit', month: 'short' }),
     exploreJump: String(year),
     external: post.external,
+    lang: post.lang,
     filterAttrs: {
       'data-blog-post': '',
       'data-post-href': post.href,
@@ -45,21 +52,23 @@ const wire: ListingExploreWire = {
   eventJump: 'blogexploreyear',
   eventSelectJump: 'blogexploreselectyear',
   itemNoun: 'paper',
-  readLabel: 'Read article',
+  selectedLabel: copy.selected,
+  previewLabel: copy.preview,
+  readLabel: t.listing.readArticle,
   fallbackHref: '#blog-archive-timeline',
-  emptyTitle: 'No papers in this category',
-  emptyDescription: 'Choose another category to keep exploring.',
-  previewNote: 'Click the paper to select it',
+  emptyTitle: copy.emptyTitle,
+  emptyDescription: copy.emptyDescription,
+  previewNote: copy.previewNote,
 };
 ---
 
 <ListingExplore
   exploreId="blog-explore-globe"
-  ariaLabel="Explore blog posts"
-  stageAriaLabel="Paper globe. Use left and right arrows to browse papers, up and down arrows to tilt. Tab reaches Reset globe, then Read article."
-  hintDesktop="drag to turn · click to select"
-  hintMobile="swipe to turn · tap a paper"
-  keyboardHint="With the globe focused, use left and right arrows to browse papers. Tab reaches Reset globe, then Read article."
+  ariaLabel={copy.label}
+  stageAriaLabel={copy.stage}
+  hintDesktop={copy.hintDesktop}
+  hintMobile={copy.hintMobile}
+  keyboardHint={copy.keyboard}
   selectedAsideLabel="selected-paper"
   papers={papers}
   wire={wire}

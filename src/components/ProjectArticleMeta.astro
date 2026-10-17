@@ -2,37 +2,42 @@
 import type { CollectionEntry } from 'astro:content';
 import { ArrowUpRight } from '@lucide/astro';
 import { formatProjectScope } from '../data/project-scope';
+import ShareButton from './ShareButton.astro';
+import { toLocale } from '../i18n/config';
+import { useTranslations } from '../i18n/ui';
 import { formatProjectDate } from '../data/project-timeline';
 
 interface Props { project: CollectionEntry<'projects'>; }
 const { project } = Astro.props;
-const typeLabel = { founder: 'independent build', client: 'client work', oss: 'OSS contributor' };
+const locale = toLocale(Astro.currentLocale);
+const t = useTranslations(locale);
 ---
 
 <div class="project-details" data-reading-meta>
   <div class="meta">
-    <span class="badge">{typeLabel[project.data.type]}</span>
+    <span class="badge">{t.projectTypes.long[project.data.type]}</span>
     {project.data.url && (
       <a href={project.data.url} target="_blank" rel="noopener noreferrer" class="ext external-link">
-        {project.data.urlLabel ?? 'view source'}
+        {project.data.urlLabel ?? t.projectMeta.viewSource}
         <ArrowUpRight size={13} strokeWidth={1.8} aria-hidden="true" />
-        <span class="visually-hidden"> (opens in a new tab)</span>
+        <span class="visually-hidden">{t.meta.newTab}</span>
       </a>
     )}
     {project.data.urlSecondary && (
       <a href={project.data.urlSecondary} target="_blank" rel="noopener noreferrer" class="ext external-link">
-        {project.data.urlSecondaryLabel ?? 'view project'}
+        {project.data.urlSecondaryLabel ?? t.projectMeta.viewProject}
         <ArrowUpRight size={13} strokeWidth={1.8} aria-hidden="true" />
-        <span class="visually-hidden"> (opens in a new tab)</span>
+        <span class="visually-hidden">{t.meta.newTab}</span>
       </a>
     )}
+    <span class="share"><ShareButton title={project.data.title} /></span>
   </div>
-  <p class="project-scope">{formatProjectScope(project.data)}</p>
+  <p class="project-scope">{formatProjectScope(project.data, locale)}</p>
   <p class="project-dates">
-    <span>{project.data.type === 'oss' ? 'First contribution' : 'Started'}</span>{' '}
-    <time datetime={project.data.dateStart}>{formatProjectDate(project.data.dateStart)}</time>
+    <span>{project.data.type === 'oss' ? t.projectMeta.firstContribution : t.projectMeta.started}</span>{' '}
+    <time datetime={project.data.dateStart}>{formatProjectDate(project.data.dateStart, locale)}</time>
   </p>
-  {project.data.role && <p class="project-role"><strong>My role</strong> {project.data.role}</p>}
+  {project.data.role && <p class="project-role"><strong>{t.projectMeta.role}</strong> {project.data.role}</p>}
   {project.data.evidence && <p class="project-evidence">{project.data.evidence}</p>}
   <p class="tech">{project.data.tech.join(' · ')}</p>
 </div>
@@ -45,6 +50,7 @@ const typeLabel = { founder: 'independent build', client: 'client work', oss: 'O
   .ext :global(svg) { flex-shrink: 0; transition: transform 150ms ease-out; }
   .ext:is(:hover, :focus-visible) { opacity: 1; text-decoration: underline; text-underline-offset: .2em; }
   .ext:is(:hover, :focus-visible) :global(svg) { transform: translate(2px, -2px); }
+  .share { display: contents; font-size: .75rem; }
   .project-details p { margin-bottom: 0; }
   .project-scope { margin-top: .8rem; color: var(--project-muted); font: .7rem/1.5 var(--font-mono); letter-spacing: .05em; text-transform: uppercase; }
   .project-dates { margin-top: .5rem; color: var(--project-muted); font: .75rem/1.6 var(--font-mono); font-variant-numeric: tabular-nums; }

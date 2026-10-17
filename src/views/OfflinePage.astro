@@ -1,0 +1,97 @@
+---
+import Base from '../layouts/Base.astro';
+import { localePath, toLocale } from '../i18n/config';
+import { useTranslations } from '../i18n/ui';
+
+const locale = toLocale(Astro.currentLocale);
+const t = useTranslations(locale);
+const copy = t.offlinePage;
+---
+
+<Base
+  title={`${copy.title}${t.meta.titleSuffix}`}
+  description={copy.description}
+  fullBleed
+  noindex
+>
+  <section class="offline-page hero-frame" aria-labelledby="offline-title">
+    <div class="offline-inner hero-frame-inner">
+      <p class="offline-code">{copy.code}</p>
+      <h1 id="offline-title">{copy.heading}</h1>
+      <p class="offline-copy">{copy.copy}</p>
+      <div class="offline-actions">
+        <button class="offline-primary" type="button" data-offline-retry>{copy.retry}</button>
+        <a class="offline-secondary" href={localePath(locale, '/')}>{copy.home}</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script is:inline>
+  document.querySelector('[data-offline-retry]')?.addEventListener('click', () => window.location.reload());
+</script>
+
+<style>
+  .offline-code {
+    color: var(--accent);
+    font-size: .7rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  h1 {
+    max-width: 15ch;
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: clamp(2.2rem, 6vw, 4.1rem);
+    line-height: 1.08;
+    letter-spacing: -.04em;
+    margin-bottom: 1rem;
+  }
+
+  .offline-copy {
+    max-width: 38ch;
+    color: var(--dim);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 1.75rem;
+  }
+
+  .offline-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .8rem;
+  }
+
+  .offline-actions > * {
+    border-radius: 6px;
+    font: inherit;
+    font-size: .8rem;
+    padding: .65em 1.3em;
+  }
+
+  .offline-primary {
+    color: var(--bg);
+    background: var(--accent);
+    border: 0;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .offline-primary:hover {
+    opacity: .85;
+  }
+
+  .offline-secondary {
+    color: var(--dim);
+    border: 1px solid var(--border);
+  }
+
+  .offline-secondary:hover {
+    color: var(--fg);
+    border-color: var(--fg);
+    opacity: 1;
+  }
+</style>

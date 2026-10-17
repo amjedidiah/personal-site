@@ -1,4 +1,9 @@
 ---
+import { localePath, toLocale } from '../i18n/config';
+import { useTranslations } from '../i18n/ui';
+
+const locale = toLocale(Astro.currentLocale);
+const t = useTranslations(locale);
 const year = new Date().getFullYear();
 ---
 
@@ -6,10 +11,10 @@ const year = new Date().getFullYear();
   <div class="footer-inner">
     <span class="copyright">&copy; {year} Jedidiah Amaraegbu</span>
     <div class="footer-meta">
-      <span>Lagos, Nigeria</span>
+      <span>{t.footer.location}</span>
       <span>&middot;</span>
-      <span>open to remote</span>
-      <span class="feedback-link"><span aria-hidden="true">&middot;</span><a href="/feedback">share feedback</a></span>
+      <span>{t.footer.remote}</span>
+      <span class="feedback-link"><span aria-hidden="true">&middot;</span><a href={localePath(locale, '/feedback')}>{t.footer.feedback}</a></span>
     </div>
   </div>
 </footer>

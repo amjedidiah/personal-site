@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { parseAvailabilityIssue, parseLatestIssue } from './current-feed';
-import { current } from '../data/current';
+import { current, getCurrent } from '../data/current';
 
 describe('current GitHub feed', () => {
   test('uses issue state for availability', () => {
@@ -21,6 +21,15 @@ describe('current GitHub feed', () => {
     expect(parseAvailabilityIssue({ state: 'open', body: '' })?.detail).toBe(current.availabilityDetail);
     expect(parseAvailabilityIssue({ state: 'open', body: 'Payment projects only.' })?.detail).toBe('Payment projects only.');
     expect(parseAvailabilityIssue({ state: 'closed', body: '' })?.detail).toBe('You can still get in touch about future work.');
+  });
+
+  test('localizes labels and uses the curated French detail instead of the English issue body', () => {
+    expect(parseAvailabilityIssue({ state: 'open', body: 'Payment projects only.' }, 'fr')).toEqual({
+      available: true,
+      label: 'Ouvert aux discussions de projet',
+      detail: getCurrent('fr').availabilityDetail,
+    });
+    expect(parseAvailabilityIssue({ state: 'closed', body: '' }, 'fr')?.label).toBe('Pas de nouveaux projets pour le moment');
   });
 
   test('uses the latest issue title, first paragraph, and edit time', () => {

@@ -1,52 +1,56 @@
 ---
 import { Check } from '@lucide/astro';
-import { feedbackSuccess } from '../data/feedback-copy';
+import { feedbackSuccessCopy } from '../data/feedback-copy';
+import { localePath, toLocale } from '../i18n/config';
+import { useTranslations } from '../i18n/ui';
 
 interface Props {
   project?: { id: string; title: string };
 }
 
 const { project } = Astro.props;
+const locale = toLocale(Astro.currentLocale);
+const t = useTranslations(locale).feedback;
+const feedbackSuccess = feedbackSuccessCopy[locale];
+const returnHref = localePath(locale, project ? `/projects/${project.id}` : '/');
 const source = project ? `project:${project.id}` : 'site';
-const directEmail = `mailto:imunacode@gmail.com?subject=${encodeURIComponent(project ? `Project feedback: ${project.title}` : 'Site feedback')}`;
-const directWhatsAppMessage = project
-  ? `Hi Jedidiah, I have feedback on ${project.title}: `
-  : 'Hi Jedidiah, I have feedback on your site: ';
+const directEmail = `mailto:imunacode@gmail.com?subject=${encodeURIComponent(t.emailSubject(project?.title))}`;
+const directWhatsAppMessage = t.whatsAppMessage(project?.title);
 const directWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComponent(directWhatsAppMessage)}`;
 ---
 
 <div class="feedback-page">
-  <a class="back-link" href={project ? `/projects/${project.id}` : '/'}><span aria-hidden="true">&larr;</span> {project ? 'back to project' : 'back home'}</a>
+  <a class="back-link" href={returnHref}><span aria-hidden="true">&larr;</span> {project ? t.backToProject : t.backHome}</a>
   <div class="feedback-layout">
     <header>
-      <h1>Share your feedback</h1>
-      <p class="intro">What worked well? What could be clearer?<br />A short note is plenty.</p>
-      {project && <p class="context">About <strong>{project.title}</strong></p>}
+      <h1>{t.heading}</h1>
+      <p class="intro" set:html={t.intro} />
+      {project && <p class="context">{t.about} <strong>{project.title}</strong></p>}
     </header>
     <div class="form-column">
-      <form action="/api/feedback" method="post" data-feedback-form>
+      <form action={locale === 'en' ? '/api/feedback' : `/api/feedback?locale=${locale}`} method="post" data-feedback-form>
         <input type="hidden" name="source" value={source} />
         <div class="trap" aria-hidden="true"><label for="feedback-website">Website</label><input id="feedback-website" name="website" type="text" tabindex="-1" autocomplete="off" /></div>
         <div class="field">
-          <label for="feedback-message">Your feedback <span>required</span></label>
+          <label for="feedback-message">{t.message} <span>{t.required}</span></label>
           <textarea id="feedback-message" name="message" rows="7" minlength="5" maxlength="3000" required aria-describedby="message-hint"></textarea>
-          <p class="hint" id="message-hint">Thoughts, bugs, questions, or a detail you noticed.</p>
+          <p class="hint" id="message-hint">{t.messageHint}</p>
         </div>
         <div class="field">
-          <label for="feedback-email">Email <span>optional</span></label>
+          <label for="feedback-email">{t.email} <span>{t.optional}</span></label>
           <input id="feedback-email" name="email" type="email" autocomplete="email" maxlength="254" aria-describedby="email-hint" />
-          <p class="hint" id="email-hint">Only if you’d like a reply. Your note goes privately to my inbox.</p>
+          <p class="hint" id="email-hint">{t.emailHint}</p>
         </div>
         <div class="actions">
-          <button type="submit" data-submit>Send feedback <span aria-hidden="true">&nearr;</span></button>
+          <button type="submit" data-submit>{t.submit} <span aria-hidden="true">&nearr;</span></button>
         </div>
         <div class="feedback-error" data-feedback-error hidden>
-          <strong>Feedback not sent</strong>
+          <strong>{t.notSent}</strong>
           <p data-feedback-error-text></p>
-          <p>Your message is still here. Try again, or use the contact option below.</p>
+          <p>{t.retry}</p>
         </div>
-        <p class="direct-contact direct-email">Prefer email? <a href={directEmail}>Write to me directly</a>.</p>
-        <p class="direct-contact direct-whatsapp">Prefer WhatsApp? <a href={directWhatsApp} target="_blank" rel="noopener noreferrer">Message me directly<span class="visually-hidden"> (opens in a new tab)</span></a>.</p>
+        <p class="direct-contact direct-email">{t.preferEmail} <a href={directEmail}>{t.writeDirectly}</a>.</p>
+        <p class="direct-contact direct-whatsapp">{t.preferWhatsApp} <a href={directWhatsApp} target="_blank" rel="noopener noreferrer">{t.messageDirectly}<span class="visually-hidden">{useTranslations(locale).meta.newTab}</span></a>.</p>
       </form>
       <p class="visually-hidden" data-feedback-pending role="status"></p>
       <p class="visually-hidden" data-feedback-error-live role="alert"></p>
@@ -54,13 +58,16 @@ const directWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComponent(di
         <span class="success-mark" aria-hidden="true"><Check size={16} strokeWidth={2} /></span>
         <h2>{feedbackSuccess.title}</h2>
         <p>{feedbackSuccess.detail}</p>
-        <a href={project ? `/projects/${project.id}` : '/'}>{project ? 'Return to project' : 'Return home'} <span aria-hidden="true">&rarr;</span></a>
+        <a href={returnHref}>{project ? t.returnToProject : t.returnHome} <span aria-hidden="true">&rarr;</span></a>
       </div>
     </div>
   </div>
 </div>
 
 <script>
+  import { clientStrings } from '../i18n/client';
+
+  const strings = clientStrings().feedback;
   const form = document.querySelector<HTMLFormElement>('[data-feedback-form]');
   const errorPanel = form?.querySelector<HTMLElement>('[data-feedback-error]');
   const errorText = form?.querySelector<HTMLElement>('[data-feedback-error-text]');
@@ -73,7 +80,7 @@ const directWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComponent(di
     if (!errorPanel || !errorText) return;
     errorPanel.hidden = false;
     errorText.textContent = message;
-    if (errorLive) errorLive.textContent = `Feedback not sent. ${message} Your message is still here.`;
+    if (errorLive) errorLive.textContent = strings.notSent(message);
     errorPanel.scrollIntoView({ block: 'nearest' });
   };
 
@@ -87,8 +94,8 @@ const directWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComponent(di
     if (errorLive) errorLive.textContent = '';
     submit.disabled = true;
     form.setAttribute('aria-busy', 'true');
-    submit.textContent = 'Sending…';
-    if (pendingStatus) pendingStatus.textContent = 'Sending your feedback…';
+    submit.textContent = strings.sending;
+    if (pendingStatus) pendingStatus.textContent = strings.sendingStatus;
 
     try {
       const body = new URLSearchParams();
@@ -102,7 +109,7 @@ const directWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComponent(di
       });
       const result = await response.json().catch(() => ({})) as { message?: string };
       if (!response.ok || typeof result.message !== 'string') {
-        showError(typeof result.message === 'string' ? result.message : 'Couldn’t confirm your feedback was sent. Please try again.');
+        showError(typeof result.message === 'string' ? result.message : strings.unconfirmed);
         return;
       }
 
@@ -110,7 +117,7 @@ const directWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComponent(di
       success.hidden = false;
       success.focus();
     } catch {
-      showError('Couldn’t confirm your feedback was sent. Check your connection and try again.');
+      showError(strings.offline);
     } finally {
       if (pendingStatus) pendingStatus.textContent = '';
       submit.disabled = false;
