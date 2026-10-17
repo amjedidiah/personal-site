@@ -17,7 +17,7 @@
   "dependencies": {
     "@astro-community/astro-embed-link-preview": "^0.3.1",
     "@astrojs/sitemap": "^3.7.4",
-    "@astrojs/vercel": "^11.0.13",
+    "@astrojs/vercel": "11.0.15",
     "@lucide/astro": "^1.52.0",
     "astro": "^7.3.6",
     "nodemailer": "^10.0.16",
