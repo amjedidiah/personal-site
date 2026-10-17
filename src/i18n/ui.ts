@@ -121,7 +121,7 @@ const en = {
     inquiryMessage: 'Hi Jedidiah, I’d like to discuss an app, payment integration or workflow improvement. Here’s what I’m working on: ',
     caseFocus: { 'cocktail-book-club': 'Mobile · community', gwela: 'Collaborative AI' } as Record<string, string>,
     sections: { now: 'now', build: 'what I build', work: 'featured work', writing: 'featured articles', experience: 'experience', contact: 'work together' },
-    logoStrip: 'Where I’ve worked and contributed',
+    logoStrip: 'Worked with, contributed to and certified by',
     seenIn: 'See it in',
     availability: 'Availability',
     statusReviewed: 'Status last reviewed',
@@ -141,7 +141,7 @@ const en = {
     experienceSummary: (years: number, mentored: number) =>
       `${years}+ years building software, remote work with teams in the US, Europe and Asia, and ${mentored}+ developers mentored.`,
     ctaHeadline: 'Have an app, payment flow or workflow to improve?',
-    ctaProof: ['Payments', 'AI app reviews', 'Product engineering'],
+    ctaProof: ['Web & mobile apps', 'Payments', 'AI features'],
     ctaLede: 'Tell me what you’re building, what needs work, and when you need it. I usually reply within a few days.',
     emailMe: 'Email me',
     whatsApp: 'WhatsApp',
@@ -213,7 +213,7 @@ const en = {
       { name: 'Fiverr Pro', role: 'Freelance Full Stack & Payments Developer', dates: '2023–present', description: 'Built a Stripe Connect integration for a platform serving 100+ government contractors. Client work includes payment APIs, integration tests, and documentation for support teams.' },
       { name: 'Remotebase', role: 'Full Stack Software Engineer', dates: '2022–2023', description: 'Built a custom podcast player, automated cross-border payments for the finance team, and improved page loading with static site generation. Mentored 5 engineers.' },
       { name: 'GoMyCode', role: 'Full Stack JavaScript Instructor', dates: '2021–2022', description: 'Taught full-stack JavaScript across 4 cohorts through practical workshops and team projects. Volunteered to lead a 1-week frontend and API development bootcamp in Benin Republic.' },
-      { name: 'Woozeee', role: 'Full Stack Web Developer', dates: '2021', description: 'Built responsive interfaces for mobile users on limited bandwidth, and improved page loading through code optimisation and reusable components.' },
+      { name: 'Woozeee', role: 'Full Stack Web Developer', dates: '2021', description: 'Built the landing page and the movies section, a streaming service for local films, with pages that load quickly for mobile users on limited bandwidth.' },
     ],
     credentialsTitle: 'credentials & proof',
     credentials: {
@@ -512,7 +512,7 @@ const fr: Dictionary = {
     inquiryMessage: 'Bonjour Jedidiah, j’aimerais discuter d’une application, d’une intégration de paiement ou de l’amélioration d’un workflow. Voici mon projet\u00a0: ',
     caseFocus: { 'cocktail-book-club': 'Mobile · communauté', gwela: 'IA collaborative' },
     sections: { now: 'en ce moment', build: 'ce que je construis', work: 'projets phares', writing: 'articles à la une', experience: 'expérience', contact: 'travaillons ensemble' },
-    logoStrip: 'Là où j’ai travaillé et contribué',
+    logoStrip: 'Expériences, contributions et certification',
     seenIn: 'À voir dans',
     availability: 'Disponibilité',
     statusReviewed: 'Statut vérifié le',
@@ -532,7 +532,7 @@ const fr: Dictionary = {
     experienceSummary: (years, mentored) =>
       `Plus de ${years}\u00a0ans à concevoir des logiciels, en télétravail avec des équipes aux États-Unis, en Europe et en Asie, et plus de ${mentored}\u00a0développeurs accompagnés.`,
     ctaHeadline: 'Une application, un parcours de paiement ou un workflow à améliorer\u00a0?',
-    ctaProof: ['Paiements', 'Audit d’apps IA', 'Ingénierie produit'],
+    ctaProof: ['Applications web et mobiles', 'Paiements', 'Fonctionnalités d’IA'],
     ctaLede: 'Dites-moi ce que vous construisez, ce qui doit être amélioré et pour quand. Je réponds généralement sous quelques jours.',
     emailMe: 'Écrivez-moi',
     whatsApp: 'WhatsApp',
@@ -604,7 +604,7 @@ const fr: Dictionary = {
       { name: 'Fiverr Pro', role: 'Développeur full-stack et paiements, freelance', dates: '2023–aujourd’hui', description: 'Intégration Stripe Connect pour une plateforme au service de plus de 100\u00a0prestataires du secteur public. Les missions clients comprennent des API de paiement, des tests d’intégration et de la documentation pour les équipes support.' },
       { name: 'Remotebase', role: 'Ingénieur logiciel full-stack', dates: '2022–2023', description: 'Conception d’un lecteur de podcast sur mesure, automatisation des paiements transfrontaliers pour l’équipe finance et accélération du chargement des pages grâce à la génération statique. Mentorat de 5\u00a0ingénieurs.' },
       { name: 'GoMyCode', role: 'Formateur JavaScript full-stack', dates: '2021–2022', description: 'Enseignement du JavaScript full-stack à 4\u00a0promotions, à travers des ateliers pratiques et des projets en équipe. Animation bénévole d’un bootcamp d’une semaine sur le front-end et le développement d’API au Bénin.' },
-      { name: 'Woozeee', role: 'Développeur web full-stack', dates: '2021', description: 'Conception d’interfaces responsive pour des utilisateurs mobiles à faible bande passante, et accélération du chargement des pages grâce à l’optimisation du code et à des composants réutilisables.' },
+      { name: 'Woozeee', role: 'Développeur web full-stack', dates: '2021', description: 'Conception de la page d’accueil et de la section films, un service de streaming de films locaux, avec des pages rapides à charger pour les utilisateurs mobiles à faible bande passante.' },
     ],
     credentialsTitle: 'certifications et preuves',
     credentials: {

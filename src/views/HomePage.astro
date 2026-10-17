@@ -11,7 +11,7 @@ import { getExternalPosts, getPosts } from '../lib/blog';
 import { imagePlaceholders } from '../data/image-placeholders';
 import { pickHomeFeaturedArticles } from '../lib/home-featured-articles';
 import { coverThumbnail } from '../lib/cover-paths';
-import { experienceClients } from '../data/experience-clients';
+import { experienceClients, experienceWork } from '../data/experience-clients';
 import { getProjects } from '../lib/projects';
 import { intlLocale, localePath, toLocale } from '../i18n/config';
 import { useTranslations } from '../i18n/ui';
@@ -98,7 +98,7 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
                 c.logoShape === 'gdg' && 'experience-logo--gdg',
               ]}
               src={c.logo}
-              alt=""
+              alt={c.name ? '' : c.logoAlt}
               width="112"
               height="28"
               decoding="async"
@@ -269,7 +269,7 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
       </div>
       <p class="experience-summary">{home.experienceSummary(profile.yearsExperience, profile.developersMentored)}</p>
       <ul class="experience-grid">
-        {experienceClients.map((c, index) => (
+        {experienceWork.map((c, index) => (
           <li>
             <a
               class="experience-card"
@@ -291,7 +291,7 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
                   c.logoShape === 'gdg' && 'experience-logo--gdg',
                 ]}
                 src={c.logo}
-                alt=""
+                alt={c.name ? '' : c.logoAlt}
                 width="112"
                 height="28"
                 loading="lazy"
@@ -606,7 +606,7 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
   /* where I've worked */
   .logo-strip {
     padding: clamp(1rem, 2vw, 1.35rem) 0;
-    border-top: 1px solid var(--border);
+    border-block: 1px solid var(--border);
   }
   .logo-strip-inner {
     display: flex;
@@ -657,21 +657,7 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
       line-height: 1.35;
     }
     .logo-strip-list {
-      flex-wrap: nowrap;
-      align-items: center;
-      gap: 1.1rem;
-      margin-inline: calc(-1 * var(--gutter));
-      padding-inline: var(--gutter);
-      overflow-x: auto;
-      overscroll-behavior-x: contain;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-      scroll-snap-type: x proximity;
-    }
-    .logo-strip-list::-webkit-scrollbar { display: none; }
-    .logo-strip-list li {
-      flex: none;
-      scroll-snap-align: start;
+      gap: .7rem 1.25rem;
     }
     .logo-strip-list li span:not(:empty) {
       font-size: .78rem;

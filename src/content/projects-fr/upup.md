@@ -19,7 +19,7 @@ Upup permet aux développeurs d’ajouter l’envoi de fichiers sans construire 
 
 ## Le défi principal
 
-Les envois vers le cloud exigent une frontière claire entre le navigateur et le service qui signe les requêtes. J’ai travaillé sur les URL d’upload présignées et les intégrations de stockage, tout en gardant la progression, les aperçus de fichiers et le glisser-déposer cohérents dans l’interface React.
+Les fichiers partent directement du navigateur de l’utilisateur vers le stockage S3 ou Azure du client : le navigateur ne doit donc jamais détenir les clés de stockage. Un serveur signe chaque envoi avec une URL à durée de vie courte, et les deux fournisseurs signent différemment. L’outil d’envoi devait pourtant se comporter de la même façon dans les deux cas : la même progression, les mêmes aperçus et les mêmes erreurs, quel que soit le stockage derrière.
 
 ## Ce sur quoi j’ai travaillé
 

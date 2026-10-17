@@ -9,6 +9,8 @@ export type ExperienceClient = {
   logoAlt: string;
   /** Tunes logo footprint in the experience grid */
   logoShape?: 'wordmark' | 'mark' | 'gdg';
+  /** A credential, not work: shown in the home logo row only, not the experience grid. */
+  credential?: boolean;
 };
 
 export const experienceClients: ExperienceClient[] = [
@@ -58,4 +60,16 @@ export const experienceClients: ExperienceClient[] = [
     logo: '/brands/hackerone.svg',
     logoAlt: 'HackerOne',
   },
+  {
+    name: 'Stripe',
+    note: { en: 'certified payments developer', fr: 'développeur paiements certifié' },
+    href: 'https://stripe.com/',
+    logo: '/brands/stripe.svg',
+    logoAlt: 'Stripe',
+    logoShape: 'mark',
+    credential: true,
+  },
 ];
+
+/** Work and contributions, for the experience grid. */
+export const experienceWork = experienceClients.filter((client) => !client.credential);

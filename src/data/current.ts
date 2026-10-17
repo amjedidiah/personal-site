@@ -3,9 +3,9 @@ import type { Locale } from '../i18n/config';
 // Curated current work and offers; availability is a fallback for the GitHub feed.
 // Review monthly and when the work or services offered change, in both languages.
 export const current = {
-  reviewedAt: '2026-10-13',
+  reviewedAt: '2026-10-17',
   availability: 'Open to project conversations',
-  availabilityDetail: 'Product engineering, payment integrations, workflow improvements, and AI app polish.',
+  availabilityDetail: 'Websites, mobile apps, payments and AI features.',
   appReview: 'I also polish AI-generated apps, test critical flows, and address security issues before launch.',
   work: {
     name: 'Gwela',
@@ -19,7 +19,7 @@ export const current = {
 const currentFr: typeof current = {
   ...current,
   availability: 'Ouvert aux discussions de projet',
-  availabilityDetail: 'Ingénierie produit, intégrations de paiement, amélioration de workflows et finition d’applications générées par IA.',
+  availabilityDetail: 'Sites web, applications mobiles, paiements et fonctionnalités d’IA.',
   appReview: 'Je peaufine aussi les applications générées par IA, je teste les parcours critiques et je corrige les failles de sécurité avant le lancement.',
   work: {
     ...current.work,

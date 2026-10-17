@@ -26,7 +26,7 @@ Upup lets developers add file uploads without building the picker, previews, pro
 
 ## Hardest challenge
 
-Cloud uploads need a clear boundary between the browser and the service that signs requests. I worked on presigned upload URLs and storage integrations while keeping progress, file previews, and drag-and-drop consistent in the React interface.
+Files go straight from the user’s browser to the customer’s own S3 or Azure storage, so the browser must never hold the storage keys. A server signs each upload with a short-lived URL instead, and the two providers sign in different ways. The uploader still had to behave the same for both: one set of progress, previews and errors, whichever storage sat behind it.
 
 ## What I worked on
 
