@@ -7,7 +7,7 @@ import vercel from '@astrojs/vercel';
 // The public origin behind canonical URLs, hreflang, the sitemap and share
 // links. Set PUBLIC_SITE_URL (e.g. https://amjedidiah.com) once the custom
 // domain is live; until then the Vercel production address stands in.
-const site = process.env.PUBLIC_SITE_URL || 'https://personal-site-flame-theta.vercel.app';
+const site = process.env.PUBLIC_SITE_URL || 'https://amjedidiah.vercel.app';
 
 // Private or utility pages: kept out of the sitemap (they're also noindex).
 const unlisted = /\/(feedback|offline)(\/|$)/;
