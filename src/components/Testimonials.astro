@@ -1,0 +1,136 @@
+---
+// Verbatim LinkedIn recommendations (src/data/testimonials.ts). Translated pages
+// show a labelled translation with the English original underneath; a quote
+// without a translation shows in English, marked lang="en".
+// Deliberately no Review schema: self-published reviews are ineligible for
+// Google's review snippets.
+import { ArrowUpRight } from '@lucide/astro';
+import { linkedInRecommendationsUrl, type Testimonial } from '../data/testimonials';
+import { toLocale } from '../i18n/config';
+import { useTranslations } from '../i18n/ui';
+
+interface Props {
+  items: Testimonial[];
+  /** Show the link to every recommendation on LinkedIn. */
+  showSource?: boolean;
+}
+
+const { items, showSource = true } = Astro.props;
+const locale = toLocale(Astro.currentLocale);
+const t = useTranslations(locale);
+const entries = items.map((item) => {
+  const translation = locale === 'en' ? undefined : item.translations[locale];
+  return { item, text: translation ?? item.quote, translated: Boolean(translation) };
+});
+const fallbackLang = locale === 'en' ? undefined : 'en';
+---
+
+<div class:list={['testimonials', { 'testimonials--single': items.length === 1 }]}>
+  {entries.map(({ item, text, translated }) => (
+    <figure class="testimonial">
+      <blockquote cite={linkedInRecommendationsUrl} lang={translated ? undefined : fallbackLang}>
+        <p>{text}</p>
+      </blockquote>
+      {translated && (
+        <details class="testimonial-original">
+          <summary>{t.testimonials.showOriginal}</summary>
+          <p lang="en">“{item.quote}”</p>
+        </details>
+      )}
+      <figcaption>
+        <strong>{item.name}</strong>
+        <span>{item.role}</span>
+        <span class="testimonial-meta">{t.testimonials.relationship[item.relationship]} · {item.year}</span>
+      </figcaption>
+    </figure>
+  ))}
+</div>
+{showSource && (
+  <a class="testimonials-source" href={linkedInRecommendationsUrl} target="_blank" rel="noopener noreferrer">
+    {t.testimonials.source}
+    <ArrowUpRight size={14} strokeWidth={1.8} aria-hidden="true" />
+    <span class="visually-hidden">{t.meta.newTab}</span>
+  </a>
+)}
+
+<style>
+  .testimonials {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: clamp(.875rem, 1.5vw, 1.25rem);
+  }
+  .testimonials--single { grid-template-columns: minmax(0, 46rem); }
+  .testimonial {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin: 0;
+    padding: clamp(1.25rem, 2vw, 1.75rem);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--surface) 30%, var(--bg));
+  }
+  blockquote {
+    flex: 1;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  blockquote p {
+    margin: 0;
+    color: var(--fg);
+    font: 400 .98rem/1.65 var(--font-sans);
+    font-style: normal;
+    text-wrap: pretty;
+  }
+  /* Quote marks follow the quote's language: “English” and « français ». */
+  blockquote p { quotes: '“' '”'; }
+  blockquote p:lang(fr) { quotes: '«\00a0' '\00a0»'; }
+  blockquote p::before { content: open-quote; }
+  blockquote p::after { content: close-quote; }
+  .testimonial-original {
+    margin-top: -.5rem;
+    color: var(--dim);
+  }
+  .testimonial-original summary {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font: .72rem/1.4 var(--font-mono);
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .testimonial-original summary:is(:hover, :focus-visible) { color: var(--accent); }
+  .testimonial-original summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .testimonial-original p {
+    margin: .25rem 0 0;
+    font: 400 .88rem/1.6 var(--font-sans);
+    font-style: italic;
+  }
+  figcaption {
+    display: grid;
+    gap: .2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    font: .8rem/1.45 var(--font-sans);
+    color: var(--dim);
+  }
+  figcaption strong { color: var(--fg); font-weight: 600; }
+  .testimonial-meta {
+    color: var(--accent);
+    font: 600 .68rem/1.35 var(--font-mono);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .testimonials-source {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    min-height: 44px;
+    margin-top: .75rem;
+    color: var(--accent);
+    font: .8rem/1.4 var(--font-mono);
+    touch-action: manipulation;
+  }
+  .testimonials-source:is(:hover, :focus-visible) { text-decoration: underline; text-underline-offset: .22em; opacity: 1; }
+</style>

@@ -8,14 +8,16 @@ import CurrentWork from '../components/CurrentWork.astro';
 import ProgressiveImage from '../components/ProgressiveImage.astro';
 import { getCurrent } from '../data/current';
 import { getProfile } from '../data/profile';
-import { getHashnodePosts } from '../data/hashnode-fr';
-import { getPosts } from '../lib/blog';
+import { getExternalPosts, getPosts } from '../lib/blog';
 import { imagePlaceholders } from '../data/image-placeholders';
 import { pickHomeFeaturedArticles } from '../lib/home-featured-articles';
 import { experienceClients } from '../data/experience-clients';
 import { getProjects } from '../lib/projects';
 import { intlLocale, localePath, toLocale } from '../i18n/config';
 import { useTranslations } from '../i18n/ui';
+import { serviceNode } from '../lib/structured-data';
+import Testimonials from '../components/Testimonials.astro';
+import { clientTestimonials } from '../data/testimonials';
 import { ArrowRight, ArrowUpRight } from '@lucide/astro';
 
 const locale = toLocale(Astro.currentLocale);
@@ -34,7 +36,7 @@ const caseStudies = caseStudyIds
   .filter((p): p is (typeof projects)[number] => p !== undefined);
 const otherFeatured = projects.filter((p) => !caseStudyIds.includes(p.id));
 
-const featuredArticles = pickHomeFeaturedArticles(await getPosts(locale), getHashnodePosts(locale), 2)
+const featuredArticles = pickHomeFeaturedArticles(await getPosts(locale), await getExternalPosts(locale), 2)
   .map((article) => (article.external ? article : { ...article, href: href(article.href) }));
 
 const caseFocus = home.caseFocus;
@@ -48,7 +50,12 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
 
 ---
 
-<Base title={profile.homeTitle} description={profile.description} fullBleed>
+<Base
+  title={profile.homeTitle}
+  description={profile.description}
+  fullBleed
+  structuredData={Astro.site ? [serviceNode(Astro.site, locale)] : []}
+>
   <!-- HERO -->
   <section class="hero hero-frame" aria-labelledby="hero-title">
     <div class="hero-frame-inner">
@@ -154,6 +161,8 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
       <div class="section-label section-label--plain">
         <h2 id="writing-title">{home.sections.writing}</h2>
       </div>
+      <!-- Described, not named, so "opens in a new tab" stays out of the headings. -->
+      <span id="writing-new-tab" hidden>{t.meta.newTab.trim().replace(/^\((.*)\)$/, '$1')}</span>
       <div class="featured-writing">
         {featuredArticles.map((article) => (
           <article class="writing-card">
@@ -170,10 +179,9 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
               <h3 class="writing-title" lang={article.lang}>
                 <a
                   href={article.href}
-                  {...(article.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                  {...(article.external ? { target: '_blank', rel: 'noopener noreferrer', 'aria-describedby': 'writing-new-tab' } : {})}
                 >
                   {article.title}
-                  {article.external && <span class="visually-hidden" lang={locale}>{t.meta.newTab}</span>}
                 </a>
               </h3>
               {article.description && <p class="writing-description" lang={article.lang}>{article.description}</p>}
@@ -239,6 +247,16 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
           </li>
         ))}
       </ul>
+    </div>
+  </section>
+
+  <!-- RECOMMENDATIONS -->
+  <section class="testimonials-section home-band" aria-labelledby="testimonials-title">
+    <div class="constrained">
+      <div class="section-label section-label--plain">
+        <h2 id="testimonials-title">{t.testimonials.homeTitle}</h2>
+      </div>
+      <Testimonials items={clientTestimonials} />
     </div>
   </section>
 
@@ -740,6 +758,11 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     .experience-card,
     .featured-card,
     .writing-card { transition: none; }
+  }
+
+  /* recommendations */
+  .testimonials-section {
+    border-top: 1px solid var(--border);
   }
 
   /* experience */

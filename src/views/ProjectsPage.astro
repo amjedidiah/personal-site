@@ -4,6 +4,7 @@ import { ArrowRight } from '@lucide/astro';
 import { getProjects } from '../lib/projects';
 import { localePath, toLocale } from '../i18n/config';
 import { useTranslations } from '../i18n/ui';
+import { breadcrumbNode } from '../lib/structured-data';
 import { formatProjectScope } from '../data/project-scope';
 import ListingPageControls from '../components/ListingPageControls.astro';
 import ListingPageIntro from '../components/ListingPageIntro.astro';
@@ -73,7 +74,14 @@ const projectAttrs = (project: (typeof numberedProjects)[number]['project']) => 
 });
 ---
 
-<Base title={`${copy.title}${t.meta.titleSuffix}`} description={copy.metaDescription}>
+<Base
+  title={t.seo.projectsTitle}
+  description={copy.metaDescription}
+  structuredData={Astro.site ? [breadcrumbNode(Astro.site, [
+    { name: t.nav.tabs.home, path: localePath(locale, '/') },
+    { name: t.nav.tabs.projects, path: localePath(locale, '/projects') },
+  ])] : []}
+>
   <div class:list={['projects-page', { 'is-empty': allProjects.length === 0 }]} data-view="timeline" data-listing-item-transitions data-listing-motion>
     <ListingPageIntro title={copy.title} description={copy.description} />
     {allProjects.length > 0 && (

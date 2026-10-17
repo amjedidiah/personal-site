@@ -22,7 +22,7 @@ describe('isPrecacheable', () => {
   });
 
   test('skips the worker, 404 page, social card, dotfiles and source maps', () => {
-    for (const file of ['sw.js', '404.html', 'og.png', '.DS_Store', '_astro/motion.js.map']) {
+    for (const file of ['sw.js', '404.html', 'og.png', 'robots.txt', 'llms.txt', '.DS_Store', '_astro/motion.js.map']) {
       expect(isPrecacheable(file)).toBe(false);
     }
   });
@@ -33,10 +33,10 @@ describe('toPrecacheEntry', () => {
     expect(toPrecacheEntry('index.html')).toEqual({ url: '/', key: '/' });
   });
 
-  test('fetches nested pages by directory URL and keys them without the trailing slash', () => {
-    expect(toPrecacheEntry('about/index.html')).toEqual({ url: '/about/', key: '/about' });
+  test('fetches and keys nested pages by their canonical slash-free URL', () => {
+    expect(toPrecacheEntry('about/index.html')).toEqual({ url: '/about', key: '/about' });
     expect(toPrecacheEntry('blog/hello-world/index.html')).toEqual({
-      url: '/blog/hello-world/',
+      url: '/blog/hello-world',
       key: '/blog/hello-world',
     });
   });

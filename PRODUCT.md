@@ -22,7 +22,7 @@ Jedidiah Amaraegbu's personal professional website presents his work, writing, e
 
 ## Positioning
 
-The durable promise is apps and payments that hold up in production. Primary roles are full-stack engineer and Stripe Implementation Architect, with TypeScript, React.js and Node.js as the core stack. AI-native workflows with Cursor and Claude Code support delivery; security research remains a supporting capability and current activity. Established positioning lives in `src/data/profile.ts`; the social preview and installed-app description are generated from it during prebuild. Current work and offers, including code review, interface improvements, testing, and security fixes for AI-generated apps, live in `src/data/current.ts`. Project records distinguish independent builds, client work, and open-source contributions, with project-specific roles, scope, and evidence.
+The durable promise is apps and payments that hold up in production. Primary roles are full-stack engineer and Stripe-certified developer (the Implementation Architect certification expired on 1 October 2026, so it is history, not a current title), with TypeScript, React.js and Node.js as the core stack. AI-native workflows with Cursor and Claude Code support delivery; security research remains a supporting capability and current activity. Established positioning lives in `src/data/profile.ts`; the social preview and installed-app description are generated from it during prebuild. Current work and offers, including code review, interface improvements, testing, and security fixes for AI-generated apps, live in `src/data/current.ts`. Project records distinguish independent builds, client work, and open-source contributions, with project-specific roles, scope, and evidence.
 
 ## Operating Context
 
@@ -42,6 +42,8 @@ The durable promise is apps and payments that hold up in production. Primary rol
 - Feedback is sent by email through `/api/feedback`; the site does not store submissions in a database. Delivery requires environment configuration. Failed submissions retain the draft and offer recovery.
 - Core browsing and reading remain usable without JavaScript. Interactive views and preferences enhance the rendered content.
 - The site is bilingual: English at `/`, French at `/fr/` for Francophone clients. Interface copy lives in `src/i18n/` and page markup in `src/views/`, so `src/pages/` and `src/pages/fr/` are thin wrappers. French case studies in `src/content/projects-fr/` hold only translatable fields and merge over the English facts. On-site posts are translated in `src/content/blog-fr/`; Hashnode articles stay in English on Hashnode, with French titles and summaries in `src/data/hashnode-fr.ts` (add one there when a new Hashnode post is scraped, or it lists in English). French copy began as a machine draft: files marked `reviewed: false` (and `ui.ts`) await native review. When English copy changes, update the French alongside it.
+- The Stripe Connect article is republished on the site from Hashnode; an on-site post whose id matches a Hashnode slug replaces the Hashnode entry in listings (`getExternalPosts` in `src/lib/blog.ts`). Its Hashnode copy should point its canonical URL at the site.
+- Search: `site` comes from `PUBLIC_SITE_URL` (falling back to the Vercel production address) and drives canonical URLs, hreflang, the sitemap and JSON-LD (`src/lib/structured-data.ts`). URLs never end in a slash. `/llms.txt` summarises the site for AI assistants and is generated from the same data, so it needs no manual upkeep. `robots.txt` allows every crawler, AI ones included, on purpose.
 - Development uses `astro dev --background`, managed with `astro dev stop`, `astro dev status`, and `astro dev logs`, as required by `AGENTS.md`.
 
 ## Brand Commitments
@@ -53,6 +55,7 @@ The durable promise is apps and payments that hold up in production. Primary rol
 ## Evidence on Hand
 
 - Project case studies and their explicit role/evidence fields: `src/content/projects/`.
+- LinkedIn recommendations, quoted verbatim with the recommender's name, headline and relationship: `src/data/testimonials.ts`. Shown on the home page (clients), About (all) and the related case studies. Never reword or add to them, and never mark them up as Review schema. French pages show labelled translations (machine drafts awaiting review) with the original one click away.
 - Local articles and the external writing archive: `src/content/blog/` and `src/data/hashnode.ts`.
 - Experience, credential references, speaking links, and contact information: `src/views/AboutPage.astro` with copy in `src/i18n/ui.ts`.
 - Project imagery: `src/assets/projects/`, with optional captions and alt text in project records. Some preview images are intentionally disabled pending readiness.

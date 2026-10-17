@@ -1,5 +1,5 @@
 // French typography for translated Markdown: a no-break space before ? ! : ;
-// and inside « », so punctuation never wraps onto its own line.
+// and %, and inside « », so punctuation never wraps onto its own line.
 // Usage: node scripts/french-spacing.mjs [--check]
 // --check exits non-zero if any file needs fixing, without writing.
 import { readdir, readFile, writeFile } from 'node:fs/promises';
@@ -16,6 +16,7 @@ export function frenchSpacing(line) {
       if (index % 2 === 1) return part;
       return part
         .replace(/ ([?!:;])(?=\s|$|["»)*_])/g, `${NBSP}$1`)
+        .replace(/(\d) %/g, `$1${NBSP}%`)
         .replace(/« /g, `«${NBSP}`)
         .replace(/ »/g, `${NBSP}»`);
     })

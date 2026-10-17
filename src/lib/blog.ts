@@ -24,6 +24,15 @@ export async function getPosts(locale: Locale): Promise<LocalizedPost[]> {
   });
 }
 
+/**
+ * Hashnode posts that aren't republished here. An on-site post with the same id
+ * as a Hashnode slug replaces it, so the archive never lists an article twice.
+ */
+export async function getExternalPosts(locale: Locale) {
+  const onSite = new Set((await getCollection('blog')).map((post) => post.id));
+  return getHashnodePosts(locale).filter((post) => !onSite.has(post.slug));
+}
+
 export type ArchiveLink = {
   id: string;
   title: string;
@@ -46,7 +55,7 @@ export async function getBlogPaths(locale: Locale) {
       external: false,
       lang: post.translated ? undefined : 'en',
     })),
-    ...getHashnodePosts(locale).map((post) => ({
+    ...(await getExternalPosts(locale)).map((post) => ({
       id: post.slug,
       title: post.title,
       date: new Date(post.date),

@@ -115,6 +115,9 @@
   article:is(.project-article, .article-shell) .article-layout .prose {
     position: relative;
     z-index: 0;
+    /* The stacked layout aligns items to the start, which would size the
+       article to its widest line; code blocks scroll inside it instead. */
+    align-self: stretch;
   }
   article:is(.project-article, .article-shell) .article-layout .article-rail {
     position: sticky;
