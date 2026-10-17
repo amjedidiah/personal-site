@@ -52,6 +52,7 @@ const en = {
     notSent: (message: string) => `Feedback not sent. ${message} Your message is still here.`,
     unconfirmed: 'Couldn’t confirm your feedback was sent. Please try again.',
     offline: 'Couldn’t confirm your feedback was sent. Check your connection and try again.',
+    rateLimited: 'Too many messages in a short time. Please wait about ten minutes and try again.',
   },
 };
 
@@ -107,6 +108,7 @@ const fr: ClientStrings = {
     notSent: (message) => `Avis non envoyé. ${message} Votre message est toujours là.`,
     unconfirmed: 'Impossible de confirmer l’envoi de votre avis. Veuillez réessayer.',
     offline: 'Impossible de confirmer l’envoi de votre avis. Vérifiez votre connexion et réessayez.',
+    rateLimited: 'Trop de messages en peu de temps. Veuillez patienter une dizaine de minutes, puis réessayer.',
   },
 };
 

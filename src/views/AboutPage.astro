@@ -153,7 +153,7 @@ const newTab = t.meta.newTab;
       <a href="https://docs.google.com/document/d/1_6ohHcb4bY9K7168NzdT5_nF9qKQSTtr70kRpAQrN6o/edit?usp=sharing" target="_blank" rel="noopener noreferrer">{about.contactLinks.resume}<span class="visually-hidden">{newTab}</span></a>
     </div>
   </section>
-  <script type="application/json" data-typewriter-messages set:html={JSON.stringify({ hero: about.heroMessages, contact: about.contactMessages })} />
+  <script type="application/json" data-typewriter-messages set:html={JSON.stringify({ hero: about.heroMessages, contact: about.contactMessages }).replace(/</g, '\\u003c')} />
 </Base>
 
 <style>

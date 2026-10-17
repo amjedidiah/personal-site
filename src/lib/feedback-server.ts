@@ -10,6 +10,8 @@ const MAX_EMAIL_LENGTH = 254;
 const RESPONSE_HEADERS = {
   'Cache-Control': 'no-store',
   'X-Content-Type-Options': 'nosniff',
+  // The no-JavaScript error page below has one inline <style> and no scripts.
+  'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
 };
 
 type Feedback = { message: string; email: string; source: string; website: string };

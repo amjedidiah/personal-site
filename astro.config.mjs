@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig, fontProviders } from 'astro/config';
+import cspInlineHashes from './integrations/csp-hashes/index.mjs';
 import serviceWorker from './integrations/service-worker/index.mjs';
 import sitemap from '@astrojs/sitemap';
 import vercel from '@astrojs/vercel';
@@ -23,6 +24,32 @@ export default defineConfig({
     allowedHosts: ['prepituitary-chasidy-phonesthemic.ngrok-free.dev'],
   },
   devToolbar: { enabled: false },
+  // Content Security Policy, emitted as a <meta> on every page with a hash for
+  // each inline script and style. The site loads nothing from other origins
+  // except the GitHub API (availability status). Inline style *attributes*
+  // (Shiki code blocks, a few layout values) are allowed through style-src-attr
+  // only, so <style> elements still need a hash. frame-ancestors can't be set
+  // from a <meta>; vercel.json sends it as a header with the other headers.
+  security: {
+    csp: {
+      directives: [
+        "default-src 'self'",
+        "connect-src 'self' https://api.github.com",
+        "img-src 'self'",
+        "font-src 'self'",
+        "media-src 'self'",
+        "manifest-src 'self'",
+        "worker-src 'self'",
+        "object-src 'none'",
+        "base-uri 'self'",
+        "form-action 'self'",
+        'upgrade-insecure-requests',
+      ],
+      styleDirective: {
+        resources: ["'self'", { resource: "'unsafe-inline'", kind: 'attribute' }],
+      },
+    },
+  },
   // English stays at the root; French lives under /fr/. Keep in sync with src/i18n/config.ts.
   i18n: {
     locales: ['en', 'fr'],
@@ -39,6 +66,8 @@ export default defineConfig({
     fallbacks: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
   }],
   integrations: [
+    // Before serviceWorker(), which versions the precache from the final HTML.
+    cspInlineHashes(),
     serviceWorker(),
     sitemap({
       filter: (page) => !unlisted.test(new URL(page).pathname),

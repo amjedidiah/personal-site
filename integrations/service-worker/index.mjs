@@ -30,7 +30,7 @@ async function listFiles(root, dir = root) {
 
 export function isPrecacheable(file) {
   return !EXCLUDED_FILES.has(file)
-    && !path.posix.basename(file).startsWith('.')
+    && !file.split('/').some((segment) => segment.startsWith('.'))
     && !file.endsWith('.map')
     && !LAZY_EXTENSIONS.has(path.posix.extname(file).toLowerCase())
     && (!LOCALE_PAGE.test(file) || LOCALE_PRECACHED.has(file));

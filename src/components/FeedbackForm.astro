@@ -107,6 +107,11 @@ const directWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComponent(di
         body,
         headers: { 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
       });
+      // The Vercel firewall rate-limits this endpoint and answers 429 itself.
+      if (response.status === 429) {
+        showError(strings.rateLimited);
+        return;
+      }
       const result = await response.json().catch(() => ({})) as { message?: string };
       if (!response.ok || typeof result.message !== 'string') {
         showError(typeof result.message === 'string' ? result.message : strings.unconfirmed);
