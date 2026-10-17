@@ -7,6 +7,8 @@ metric: "Site d’église géré par CMS"
 urlLabel: "voir le site"
 role: "Cadrage, développement et intégration CMS"
 evidence: "Site en ligne avec des sections ministères, événements et méditations"
+imageAlt: "Page d’accueil de CRM Praise Centre avec un message de bienvenue, les boutons Join Us et Watch Sermons, et le visuel du thème 2026"
+imageCaption: "La page d’accueil en ligne, capturée en octobre 2026."
 ---
 
 CRM Praise Centre offre aux visiteurs un accès clair aux programmes, ministères, événements et méditations de l’église.

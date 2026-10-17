@@ -7,6 +7,8 @@ metric: "Envois signés + interface React"
 urlLabel: "essayer la démo"
 role: "Contributeur open source"
 evidence: "Contributions publiques, paquets publiés et démo en ligne"
+imageAlt: "Page d’accueil d’upup avec le titre « Open-source file uploader for every framework » à côté du widget d’envoi"
+imageCaption: "La page d’accueil du projet, capturée en octobre 2026."
 ---
 
 J’ai contribué au composant d’upload de fichiers React d’Upup. Mon travail a porté sur les intégrations de stockage cloud, les URL d’upload signées, les aperçus, le style responsive, le glisser-déposer et les tests.

@@ -15,14 +15,14 @@ describe('isPrecacheable', () => {
     expect(isPrecacheable('free-tribe/index.html')).toBe(true);
   });
 
-  test('leaves photos to the runtime image cache', () => {
-    for (const file of ['hero-portrait.webp', '_astro/me.CIwkFSJR_116WBv.webp', 'photo.JPG']) {
+  test('leaves photos and covers to the runtime image cache', () => {
+    for (const file of ['hero-portrait.webp', '_astro/me.CIwkFSJR_116WBv.webp', 'photo.JPG', 'covers/en/ssh-480.webp']) {
       expect(isPrecacheable(file)).toBe(false);
     }
   });
 
   test('skips the worker, 404 page, social card, dotfiles and source maps', () => {
-    for (const file of ['sw.js', '404.html', 'og.png', 'robots.txt', 'llms.txt', '.DS_Store', '.well-known/security.txt', '_astro/motion.js.map']) {
+    for (const file of ['sw.js', '404.html', 'og.png', 'robots.txt', 'llms.txt', '.DS_Store', '.well-known/security.txt', 'covers/fr/post.png', '_astro/motion.js.map']) {
       expect(isPrecacheable(file)).toBe(false);
     }
   });

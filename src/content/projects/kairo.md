@@ -13,6 +13,9 @@ url: "https://kairotoken.com/"
 urlLabel: "explore live site"
 role: "Full-stack website development"
 evidence: "Live website with Echo Tree, oracle, and story pages"
+image: "../../assets/projects/kairo-home.webp"
+imageAlt: "Kairo homepage with the headline “The market has a new frequency” and Connect Wallet and Telegram buttons"
+imageCaption: "The live homepage, captured October 2026."
 ---
 
 Kairo is an interactive website built around a fictional world. Its sections invite visitors to explore the Echo Tree, consult an AI-guided oracle, and follow a comic-style story.

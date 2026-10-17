@@ -4,6 +4,7 @@ import ArticleToc from '../components/ArticleToc.astro';
 import Base from '../layouts/Base.astro';
 import ProgressiveImage from '../components/ProgressiveImage.astro';
 import { render } from 'astro:content';
+import { getImage } from 'astro:assets';
 import { imagePlaceholders } from '../data/image-placeholders';
 import ProjectArticleMeta from '../components/ProjectArticleMeta.astro';
 import type { LocalizedProject } from '../lib/projects';
@@ -31,8 +32,12 @@ const { Content, headings } = await render(project.content);
 const bodyLang = project.translated ? undefined : 'en';
 const pagePath = href(`/projects/${project.id}`);
 const projectTestimonials = testimonials.filter((item) => item.projectId === project.id);
+// Link previews show the screenshot, cropped to the 1200×630 social card shape.
+const socialCard = project.data.image
+  ? await getImage({ src: project.data.image, width: 1200, height: 630, fit: 'cover', position: 'top', format: 'jpeg', quality: 82 })
+  : undefined;
 const structuredData = Astro.site ? [
-  caseStudyNode(Astro.site, locale, project, pagePath),
+  caseStudyNode(Astro.site, locale, project, pagePath, socialCard?.src),
   breadcrumbNode(Astro.site, [
     { name: t.nav.tabs.home, path: href('/') },
     { name: t.nav.tabs.projects, path: href('/projects') },
@@ -42,10 +47,14 @@ const structuredData = Astro.site ? [
 const tocHeadings = headings.filter((heading) => heading.depth === 2);
 ---
 
-<Base title={t.seo.caseStudyTitle(project.data.title)} description={project.data.description} structuredData={structuredData}>
+<Base
+  title={t.seo.caseStudyTitle(project.data.title)}
+  description={project.data.description}
+  structuredData={structuredData}
+  socialImage={socialCard && { src: socialCard.src, alt: project.data.imageAlt || project.data.title, type: 'image/jpeg' }}
+>
   <article class:list={['project-article', { 'project-article--with-toc': tocHeadings.length > 0 }]} data-article-motion data-reading-kind="project">
-    {/* TODO: finalize project figure preview */}
-    {false && project.data.image && <figure class="project-figure">
+    {project.data.image && <figure class="project-figure">
       <ProgressiveImage src={project.data.image} alt={project.data.imageAlt ?? project.data.title} placeholder={imagePlaceholders[project.id]} sizes="(max-width: 916px) calc(100vw - 6rem), 820px" priority />
       {project.data.imageCaption && <figcaption>{project.data.imageCaption}</figcaption>}
     </figure>}

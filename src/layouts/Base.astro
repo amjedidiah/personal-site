@@ -25,6 +25,8 @@ interface Props {
   hreflang?: boolean;
   /** Page-specific schema.org nodes, added to the site and author nodes every page carries. */
   structuredData?: JsonLdNode[];
+  /** Link-preview image (1200×630); defaults to the site card, /og.png. */
+  socialImage?: { src: string; alt: string; type: 'image/png' | 'image/jpeg' | 'image/webp' };
 }
 
 const locale = toLocale(Astro.currentLocale);
@@ -38,6 +40,7 @@ const {
   alternates = Object.fromEntries(locales.map((code) => [code, localePath(code, Astro.url.pathname)])) as Record<Locale, string>,
   hreflang = true,
   structuredData = [],
+  socialImage,
 } = Astro.props;
 // SW_KILL_SWITCH=1 builds ship a self-unregistering sw.js, so pages must stop registering it.
 const registerServiceWorker = import.meta.env.PROD && process.env.SW_KILL_SWITCH !== '1';
@@ -48,8 +51,10 @@ const alternateURLs = hreflang && Astro.site
 const jsonLd = Astro.site && !noindex
   ? serializeJsonLd([websiteNode(Astro.site, locale), personNode(Astro.site, locale), ...structuredData])
   : undefined;
-const socialImageURL = Astro.site ? new URL('/og.png', Astro.site) : '/og.png';
-const socialImageAlt = `${profile.name}, ${profile.roles.replace(' · ', locale === 'fr' ? ' et ' : ' and ')}`;
+const socialImagePath = socialImage?.src ?? '/og.png';
+const socialImageURL = Astro.site ? new URL(socialImagePath, Astro.site) : socialImagePath;
+const socialImageType = socialImage?.type ?? 'image/png';
+const socialImageAlt = socialImage?.alt ?? `${profile.name}, ${profile.roles.replace(' · ', locale === 'fr' ? ' et ' : ' and ')}`;
 ---
 
 <!doctype html>
@@ -126,7 +131,7 @@ const socialImageAlt = `${profile.name}, ${profile.roles.replace(' · ', locale 
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
   <meta property="og:image" content={socialImageURL} />
-  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:type" content={socialImageType} />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content={socialImageAlt} />

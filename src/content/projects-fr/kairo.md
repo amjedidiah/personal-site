@@ -7,6 +7,8 @@ metric: "Univers narratif interactif"
 urlLabel: "explorer le site"
 role: "Développement web full-stack"
 evidence: "Site en ligne avec l’Echo Tree, l’oracle et les pages du récit"
+imageAlt: "Page d’accueil de Kairo avec le titre « The market has a new frequency » et les boutons Connect Wallet et Telegram"
+imageCaption: "La page d’accueil en ligne, capturée en octobre 2026."
 ---
 
 Kairo est un site interactif construit autour d’un univers de fiction. Ses sections invitent les visiteurs à explorer l’Echo Tree, à consulter un oracle guidé par l’IA et à suivre un récit façon bande dessinée.

@@ -13,6 +13,9 @@ url: "https://www.crmpraisecenter.org/"
 urlLabel: "visit live site"
 role: "Planning, development and CMS integration"
 evidence: "Live website with ministry, event, and devotional sections"
+image: "../../assets/projects/crm-praise-centre-home.webp"
+imageAlt: "CRM Praise Centre homepage with a welcome message, Join Us and Watch Sermons buttons, and the 2026 theme artwork"
+imageCaption: "The live homepage, captured October 2026."
 ---
 
 CRM Praise Centre gives visitors a clear route into the church's programs, ministries, events, and devotional content.

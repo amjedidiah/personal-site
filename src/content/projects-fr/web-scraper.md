@@ -7,6 +7,7 @@ metric: "Algorithmes de score sur mesure"
 urlLabel: "voir le code"
 role: "Développement back-end"
 evidence: "Code source public avec tests du crawler, tests d’API et stockage SQLite"
+imageAlt: ""
 ---
 
 J’ai construit un crawler basé sur Crawlee qui collecte les liens d’un site, identifie les contacts et les documents, puis les classe selon des règles de score configurables. Une API REST expose les résultats enregistrés.

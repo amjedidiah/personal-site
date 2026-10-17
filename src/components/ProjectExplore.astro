@@ -13,6 +13,7 @@ interface ProjectItem {
   href: string;
   platforms: string;
   yearStart: number;
+  thumb?: { src: string; srcset: string };
 }
 
 interface Props {
@@ -32,6 +33,7 @@ const papers: ListingExplorePaper[] = projects.map((project) => ({
   detailMetaA: project.scope,
   detailMetaB: project.typeLabel,
   exploreJump: String(project.yearStart),
+  thumb: project.thumb,
   filterAttrs: {
     'data-project-type': project.type,
     'data-project-platforms': project.platforms,

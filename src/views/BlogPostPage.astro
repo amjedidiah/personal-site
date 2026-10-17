@@ -1,5 +1,6 @@
 ---
 import ArticleToc from '../components/ArticleToc.astro';
+import { coverSocialCard } from '../lib/cover-paths';
 import ShareButton from '../components/ShareButton.astro';
 import Base from '../layouts/Base.astro';
 import { render } from 'astro:content';
@@ -41,7 +42,12 @@ const structuredData = Astro.site ? [
 ] : [];
 ---
 
-<Base title={`${post.data.title}${t.meta.titleSuffix}`} description={post.data.description} structuredData={structuredData}>
+<Base
+  title={`${post.data.title}${t.meta.titleSuffix}`}
+  description={post.data.description}
+  structuredData={structuredData}
+  socialImage={{ src: coverSocialCard(locale, post.id), alt: post.data.title, type: 'image/png' }}
+>
   <article class="article-shell" data-article-motion>
     <div class:list={['article-layout', 'has-rail', { 'has-toc': tocHeadings.length > 0 }]}>
       <div class="article-chrome">

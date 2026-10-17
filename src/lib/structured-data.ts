@@ -6,6 +6,7 @@
 // AggregateRating: Google treats reviews a business publishes about itself as
 // self-serving and ignores or penalises them.
 import { getProfile } from '../data/profile';
+import { coverSocialCard } from './cover-paths';
 import { localePath, type Locale } from '../i18n/config';
 import type { LocalizedPost } from './blog';
 import type { LocalizedProject } from './projects';
@@ -124,10 +125,11 @@ export function profilePageNode(site: URL, locale: Locale, path: string): JsonLd
   };
 }
 
-export function caseStudyNode(site: URL, locale: Locale, project: LocalizedProject, path: string): JsonLdNode {
+export function caseStudyNode(site: URL, locale: Locale, project: LocalizedProject, path: string, imagePath?: string): JsonLdNode {
   return {
     '@type': 'CreativeWork',
     name: project.data.title,
+    ...(imagePath ? { image: absolute(site, imagePath) } : {}),
     description: project.data.description,
     url: absolute(site, path),
     inLanguage: project.translated ? locale : 'en',
@@ -148,7 +150,7 @@ export function blogPostingNode(site: URL, locale: Locale, post: LocalizedPost, 
     mainEntityOfPage: absolute(site, path),
     inLanguage: post.translated ? locale : 'en',
     datePublished: post.data.date.toISOString(),
-    image: absolute(site, '/og.png'),
+    image: absolute(site, coverSocialCard(locale, post.id)),
     author: { '@id': ids(site).person, name: getProfile(locale).name, url: absolute(site, localePath(locale, '/about')) },
     publisher: { '@id': ids(site).person },
     ...(post.data.tags?.length ? { keywords: post.data.tags.join(', ') } : {}),

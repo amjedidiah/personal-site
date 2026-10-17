@@ -7,6 +7,8 @@ metric: "Capacité de 750 places"
 urlLabel: "voir le site de l’événement"
 role: "Développement full-stack et parcours d’inscription"
 evidence: "Page publique de l’événement et parcours d’inscription"
+imageAlt: "Page d’inscription de Stone Watch Party indiquant 749 places restantes sur 750, le lieu, la date et un bouton Register Now"
+imageCaption: "La page d’inscription en ligne, capturée en octobre 2026."
 ---
 
 Stone Watch Party a été conçu pour la projection d’une finale de Coupe du monde dans une salle de 750 places. Le site offre aux invités un parcours adapté au mobile, des informations sur l’événement jusqu’à l’inscription, tout en gérant l’attribution des places en coulisses.

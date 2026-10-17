@@ -13,6 +13,8 @@ url: "https://github.com/amjedidiah/resume-tailor"
 urlLabel: "view source"
 role: "Full-stack development, AWS architecture and payment integration"
 evidence: "Public source for the web app and document-processing pipeline"
+image: "../../assets/projects/resume-tailor-cover.webp"
+imageAlt: ""
 ---
 
 Resume Tailor uses a job description to suggest changes to a resume, then generates a formatted PDF for email delivery.

@@ -1,0 +1,52 @@
+---
+// A thumbnail in a project or blog listing row. Decorative: the row's title is
+// the link text, so the image adds no words of its own (alt="").
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  /** A project screenshot or cover, resized by Astro. */
+  image?: ImageMetadata;
+  /** A generated blog cover (see src/lib/cover-paths.ts). */
+  cover?: { src: string; srcset: string; width: number; height: number };
+  sizes: string;
+  variant?: 'project' | 'post';
+}
+
+const { image, cover, sizes, variant = 'project' } = Astro.props;
+---
+
+{(image || cover) && (
+  <span class:list={['listing-thumb', `listing-thumb--${variant}`]} aria-hidden="true">
+    {image ? (
+      <Image src={image} alt="" widths={[320, 480, 720, 960]} sizes={sizes} format="webp" quality={72} loading="lazy" decoding="async" />
+    ) : (
+      <img src={cover!.src} srcset={cover!.srcset} sizes={sizes} width={cover!.width} height={cover!.height} alt="" loading="lazy" decoding="async" />
+    )}
+  </span>
+)}
+
+<style is:global>
+  .listing-thumb {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--surface);
+  }
+  .listing-thumb--project { aspect-ratio: 16 / 10; }
+  .listing-thumb--post { aspect-ratio: 1200 / 630; }
+  .listing-thumb img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    transition: transform .45s cubic-bezier(.2, .7, .2, 1);
+  }
+  a:is(:hover, :focus-visible) .listing-thumb img { transform: scale(1.04); }
+  @media (prefers-reduced-motion: reduce) {
+    .listing-thumb img { transition: none; }
+  }
+</style>

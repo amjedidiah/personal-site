@@ -7,6 +7,7 @@ metric: "Pipeline de microservices AWS"
 urlLabel: "voir le code"
 role: "Développement full-stack, architecture AWS et intégration des paiements"
 evidence: "Code source public de l’application web et du pipeline de traitement des documents"
+imageAlt: ""
 ---
 
 Resume Tailor s’appuie sur une offre d’emploi pour proposer des modifications à un CV, puis génère un PDF mis en forme envoyé par e-mail.

@@ -28,8 +28,12 @@ async function listFiles(root, dir = root) {
   return nested.flat();
 }
 
+// Generated social cards (covers/<locale>/<post>.png) are for link previews only.
+const SOCIAL_CARD = /^covers\/.+\.png$/;
+
 export function isPrecacheable(file) {
   return !EXCLUDED_FILES.has(file)
+    && !SOCIAL_CARD.test(file)
     && !file.split('/').some((segment) => segment.startsWith('.'))
     && !file.endsWith('.map')
     && !LAZY_EXTENSIONS.has(path.posix.extname(file).toLowerCase())

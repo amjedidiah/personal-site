@@ -13,6 +13,8 @@ url: "https://github.com/amjedidiah/web-scrapper"
 urlLabel: "view source"
 role: "Backend development"
 evidence: "Public source with crawler tests, API tests, and SQLite storage"
+image: "../../assets/projects/web-scraper-cover.webp"
+imageAlt: ""
 ---
 
 I built a Crawlee-based crawler that collects website links, identifies contacts and documents, and ranks them using configurable scoring rules. A REST API exposes the stored results.

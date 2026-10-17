@@ -6,6 +6,8 @@ description: "Une application mobile pour suivre ses lectures, partager des avis
 metric: "Application publiée sur iOS et Android"
 role: "Développement de l’application React Native"
 evidence: "Application publiée sur l’App Store d’Apple et sur Google Play"
+imageAlt: "Trois écrans de l’application Cocktail & Book Club : statistiques de lecture, bilan de lecture à partager et objectifs de lecture annuels et quotidiens"
+imageCaption: "Captures de l’App Store de l’application publiée."
 ---
 
 Cocktail & Book Club réunit les listes de lecture et la dimension sociale des clubs de lecture dans une seule expérience mobile. Les lecteurs peuvent suivre leurs livres, partager des avis, rejoindre des groupes et trouver des événements.

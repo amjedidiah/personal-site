@@ -10,6 +10,8 @@ import ListingTimelineYear from '../components/ListingTimelineYear.astro';
 import ListingPageControls from '../components/ListingPageControls.astro';
 import ListingPageIntro from '../components/ListingPageIntro.astro';
 import ListingFilterSheet from '../components/ListingFilterSheet.astro';
+import ListingThumb from '../components/ListingThumb.astro';
+import { coverThumbnail } from '../lib/cover-paths';
 import '../styles/motion.css';
 import '../styles/blog-motion.css';
 
@@ -42,6 +44,7 @@ const localPosts = (await getPosts(locale)).map((p) => ({
   external: false,
   lang: p.translated ? undefined : 'en',
   categories: categoriesForTags(p.data.tags),
+  cover: coverThumbnail(locale, p.id),
 }));
 
 const externalPosts = (await getExternalPosts(locale)).map((p) => ({
@@ -52,6 +55,7 @@ const externalPosts = (await getExternalPosts(locale)).map((p) => ({
   external: true,
   lang: p.lang,
   categories: categoriesForTags(p.tags),
+  cover: coverThumbnail(locale, p.slug),
 }));
 
 const allPosts = [...localPosts, ...externalPosts].sort(
@@ -165,7 +169,7 @@ const letterKeys = Array.from(postsByLetter.keys()).sort((a, b) => a.localeCompa
         <ListingTimelineYear year={year} entriesClass="year-posts">
           {posts.map((post) => (
             <li class="timeline-item post-item" data-blog-post data-post-href={post.href} data-categories={post.categories.join(' ')}>
-                <a href={post.href} class="post timeline-entry" target={post.external ? '_blank' : undefined} rel={post.external ? 'noopener noreferrer' : undefined}>
+                <a href={post.href} class="post timeline-entry has-thumb thumb-compact" target={post.external ? '_blank' : undefined} rel={post.external ? 'noopener noreferrer' : undefined}>
                   <time class="timeline-entry-aside" datetime={post.date.toISOString()}>
                     {post.date.toLocaleDateString(intlLocale[locale], { day: '2-digit', month: 'short' })}
                   </time>
@@ -173,6 +177,7 @@ const letterKeys = Array.from(postsByLetter.keys()).sort((a, b) => a.localeCompa
                     <span class="timeline-entry-title post-title">{post.title}</span>
                     {post.description && <span class="timeline-entry-desc post-desc">{post.description}</span>}
                   </span>
+                  <ListingThumb cover={post.cover} variant="post" sizes="(max-width: 760px) 6.5rem, 12rem" />
                   {post.external && <span class="timeline-entry-action post-source">{copy.externalSource} <ArrowUpRight size={13} strokeWidth={1.7} aria-hidden="true" /><span class="visually-hidden">{t.meta.newTab}</span></span>}
                 </a>
             </li>
@@ -187,7 +192,7 @@ const letterKeys = Array.from(postsByLetter.keys()).sort((a, b) => a.localeCompa
           <ol class="letter-posts">
             {postsByLetter.get(letter)!.map((post) => (
               <li class="post-item" data-blog-post data-post-href={post.href} data-sort-title={post.title} data-categories={post.categories.join(' ')}>
-                <a href={post.href} class="post" target={post.external ? '_blank' : undefined} rel={post.external ? 'noopener noreferrer' : undefined}>
+                <a href={post.href} class="post has-thumb" target={post.external ? '_blank' : undefined} rel={post.external ? 'noopener noreferrer' : undefined}>
                   <time datetime={post.date.toISOString()}>
                     {post.date.toLocaleDateString(intlLocale[locale], { day: 'numeric', month: 'short', year: 'numeric' })}
                   </time>
@@ -195,6 +200,7 @@ const letterKeys = Array.from(postsByLetter.keys()).sort((a, b) => a.localeCompa
                     <span class="post-title">{post.title}</span>
                     {post.description && <span class="post-desc">{post.description}</span>}
                   </span>
+                  <ListingThumb cover={post.cover} variant="post" sizes="(max-width: 760px) 6.5rem, 11rem" />
                   {post.external && <span class="post-source">{copy.externalSource} <ArrowUpRight size={13} strokeWidth={1.7} aria-hidden="true" /><span class="visually-hidden">{t.meta.newTab}</span></span>}
                 </a>
               </li>
@@ -321,6 +327,9 @@ const letterKeys = Array.from(postsByLetter.keys()).sort((a, b) => a.localeCompa
     padding: 0;
   }
   .blog-view[data-view="list"] .list-archive .post-copy { grid-column: 1 / -1; grid-row: 2; }
+  .blog-view[data-view="list"] .list-archive .post.has-thumb { grid-template-columns: minmax(0, 1fr) auto clamp(8rem, 14vw, 11rem); column-gap: 1.25rem; }
+  .blog-view[data-view="list"] .list-archive .post.has-thumb .post-copy { grid-column: 1 / 3; }
+  .blog-view[data-view="list"] .list-archive .post.has-thumb :global(.listing-thumb) { grid-column: 3; grid-row: 1 / span 2; align-self: start; }
   .blog-view[data-view="list"] .list-archive .post-desc {
     display: -webkit-box;
     -webkit-box-orient: vertical;
@@ -348,6 +357,9 @@ const letterKeys = Array.from(postsByLetter.keys()).sort((a, b) => a.localeCompa
       grid-row: 1;
       justify-self: end;
     }
+    .blog-view[data-view="list"] .list-archive .post.has-thumb { grid-template-columns: minmax(0, 1fr) auto; }
+    .blog-view[data-view="list"] .list-archive .post.has-thumb .post-copy { grid-column: 1; }
+    .blog-view[data-view="list"] .list-archive .post.has-thumb :global(.listing-thumb) { grid-column: 2; grid-row: 2; width: 6.5rem; margin-top: .2rem; }
   }
 
   @media (max-width: 520px) {

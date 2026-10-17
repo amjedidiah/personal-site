@@ -2,6 +2,8 @@ import type { CollectionEntry } from 'astro:content';
 import type { HashnodePost } from '../data/hashnode';
 
 export type HomeFeaturedArticle = {
+  /** The post id or Hashnode slug; names its generated cover. */
+  slug: string;
   title: string;
   description?: string;
   date: Date;
@@ -17,6 +19,7 @@ type LocalInput = CollectionEntry<'blog'> & { translated?: boolean };
 type HashnodeInput = HashnodePost & { lang?: string };
 
 const toLocal = (post: LocalInput): HomeFeaturedArticle => ({
+  slug: post.id,
   title: post.data.title,
   description: post.data.description,
   date: post.data.date,
@@ -27,6 +30,7 @@ const toLocal = (post: LocalInput): HomeFeaturedArticle => ({
 });
 
 const toHashnode = (post: HashnodeInput): HomeFeaturedArticle => ({
+  slug: post.slug,
   title: post.title,
   description: post.brief,
   date: new Date(`${post.date}T00:00:00Z`),

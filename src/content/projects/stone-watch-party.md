@@ -13,6 +13,9 @@ url: "https://stone-watch-party.vercel.app/"
 urlLabel: "view event site"
 role: "Full-stack development and registration workflows"
 evidence: "Public event page and registration flow"
+image: "../../assets/projects/stone-watch-party-home.webp"
+imageAlt: "Stone Watch Party registration page showing 749 of 750 seats left, the venue, date and a Register Now button"
+imageCaption: "The live registration page, captured October 2026."
 ---
 
 Stone Watch Party was built for a World Cup final screening with a 750-seat venue. The site gives guests a mobile-friendly route from event details to registration while supporting seat allocation behind the scenes.

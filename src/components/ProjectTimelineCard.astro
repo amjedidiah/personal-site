@@ -1,5 +1,6 @@
 ---
 import { ArrowRight } from '@lucide/astro';
+import ListingThumb from './ListingThumb.astro';
 import { formatProjectScope } from '../data/project-scope';
 import { formatProjectDate } from '../data/project-timeline';
 import type { CollectionEntry } from 'astro:content';
@@ -27,7 +28,7 @@ const platforms = project.data.platforms.join(' ');
 >
   <a
     href={href}
-    class="timeline-entry project-entry"
+    class:list={['timeline-entry', 'project-entry', { 'has-thumb thumb-full': project.data.image }]}
   >
     <time class="timeline-entry-aside" datetime={project.data.dateStart} title={project.data.type === 'oss' ? t.projectMeta.firstContribution : t.projectMeta.firstCommit}>{formatProjectDate(project.data.dateStart, locale)}</time>
     <span class="timeline-entry-copy" data-listing-key={project.id}>
@@ -36,6 +37,7 @@ const platforms = project.data.platforms.join(' ');
       <span class="timeline-entry-scope">{formatProjectScope(project.data, locale)}</span>
       <span class="timeline-entry-desc" id={`project-${project.id}-desc`}>{project.data.description}</span>
     </span>
+    <ListingThumb image={project.data.image} sizes="(max-width: 760px) calc(100vw - 5rem), 12rem" />
     <span class="timeline-entry-action view-cue">
       {t.listing.viewProject} <ArrowRight size={13} strokeWidth={1.7} aria-hidden="true" />
     </span>

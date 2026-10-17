@@ -37,7 +37,8 @@ export default defineConfig({
       directives: [
         "default-src 'self'",
         "connect-src 'self' https://api.github.com",
-        "img-src 'self'",
+        // data: for the blurred placeholders shown while project images load.
+        "img-src 'self' data:",
         "font-src 'self'",
         "media-src 'self'",
         "manifest-src 'self'",

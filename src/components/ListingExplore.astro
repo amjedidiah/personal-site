@@ -19,6 +19,8 @@ export interface ListingExplorePaper {
   lang?: string;
   /** Extra attributes for listing-page filters (e.g. data-blog-post, data-project-type). */
   filterAttrs?: Record<string, string | undefined>;
+  /** Image shown in the detail panel while this item is selected. */
+  thumb?: { src: string; srcset: string };
 }
 
 interface Props {
@@ -79,6 +81,8 @@ const t = useTranslations(Astro.currentLocale);
               data-explore-meta-a={paper.detailMetaA}
               data-explore-meta-b={paper.detailMetaB}
               data-external={paper.external ? 'true' : 'false'}
+              data-thumb-src={paper.thumb?.src}
+              data-thumb-srcset={paper.thumb?.srcset}
               lang={paper.lang}
               {...paper.filterAttrs}
             >
@@ -115,11 +119,22 @@ const t = useTranslations(Astro.currentLocale);
         <span data-paper-position>{first ? `01 / ${String(papers.length).padStart(2, '0')}` : '00 / 00'}</span>
       </p>
       <div class="selected-content">
+        <img
+          class:list={['selected-thumb', `selected-thumb--${surface}`]}
+          data-selected-thumb
+          src={first?.thumb?.src}
+          srcset={first?.thumb?.srcset}
+          sizes="(max-width: 760px) calc(100vw - 4.5rem), 18rem"
+          alt=""
+          hidden={!first?.thumb}
+          loading="lazy"
+          decoding="async"
+        />
         <p class="selected-meta">
           <span data-selected-date>{first?.detailMetaA ?? ''}</span>
           <span data-selected-source>{first?.detailMetaB ?? ''}</span>
         </p>
-        <h3 data-selected-title aria-live="polite">{first?.title ?? wire.emptyTitle}</h3>
+        <h2 class="selected-title" data-selected-title aria-live="polite">{first?.title ?? wire.emptyTitle}</h2>
         <p class="selected-description" data-selected-description>{first?.description ?? ''}</p>
       </div>
       <a class="selected-read" data-selected-read href={first?.href ?? wire.fallbackHref} hidden={!first} target={first?.external ? '_blank' : undefined} rel={first?.external ? 'noopener noreferrer' : undefined}>

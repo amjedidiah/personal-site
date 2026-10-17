@@ -7,6 +7,8 @@ metric: "Ressources et programmes multilingues"
 urlLabel: "voir le site"
 role: "Cadrage, développement et intégration CMS"
 evidence: "Site public de l’ONG avec des pages programmes et ressources"
+imageAlt: "Page d’accueil de Free Tribe Network avec une bannière de campagne sur la santé reproductive, les boutons Support et liste de diffusion, et une intervenante sur scène"
+imageCaption: "La page d’accueil en ligne, capturée en octobre 2026."
 ---
 
 Progressive Web App multilingue de plaidoyer en santé, conçue pour aider une ONG à étendre sa portée internationale.

@@ -1,5 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
+import { getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
 import { ArrowRight } from '@lucide/astro';
 import { getProjects } from '../lib/projects';
 import { localePath, toLocale } from '../i18n/config';
@@ -12,6 +14,7 @@ import ListingFilterSheet from '../components/ListingFilterSheet.astro';
 import ProjectExplore from '../components/ProjectExplore.astro';
 import ListingTimelineYear from '../components/ListingTimelineYear.astro';
 import ProjectTimelineCard from '../components/ProjectTimelineCard.astro';
+import ListingThumb from '../components/ListingThumb.astro';
 import '../styles/motion.css';
 import '../styles/projects-motion.css';
 
@@ -54,6 +57,14 @@ for (const entry of [...numberedProjects].sort((a, b) =>
 }
 const letterKeys = Array.from(projectsByLetter.keys()).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
 
+// Explore's detail panel swaps images client-side, so it needs plain URLs.
+const exploreThumb = async (image: ImageMetadata | undefined) => {
+  if (!image) return undefined;
+  const [small, large] = await Promise.all([480, 960].map((width) => getImage({ src: image, width, format: 'webp', quality: 72 })));
+  return { src: small.src, srcset: `${small.src} 480w, ${large.src} 960w` };
+};
+const exploreThumbs = new Map(await Promise.all(numberedProjects.map(async ({ project }) => [project.id, await exploreThumb(project.data.image)] as const)));
+
 const exploreProjects = numberedProjects.map(({ project }) => ({
   id: project.id,
   title: project.data.title,
@@ -64,6 +75,7 @@ const exploreProjects = numberedProjects.map(({ project }) => ({
   href: projectHref(project.id),
   platforms: project.data.platforms.join(' '),
   yearStart: Number(project.data.dateStart.slice(0, 4)),
+  thumb: exploreThumbs.get(project.id),
 }));
 
 const projectAttrs = (project: (typeof numberedProjects)[number]['project']) => ({
@@ -202,7 +214,7 @@ const projectAttrs = (project: (typeof numberedProjects)[number]['project']) => 
                   data-project-href={attrs.href}
                   data-sort-title={attrs.sortTitle}
                 >
-                  <a href={attrs.href} class="project-row">
+                  <a href={attrs.href} class:list={['project-row', { 'has-thumb': project.data.image }]}>
                     <span class="project-row-meta">
                       <span style={`color: ${typeColor[project.data.type]}`}>{typeLabel[project.data.type]}</span>
                       <span>{formatProjectScope(project.data, locale)}</span>
@@ -211,6 +223,7 @@ const projectAttrs = (project: (typeof numberedProjects)[number]['project']) => 
                       <span class="project-row-title" id={`list-${project.id}-title`}>{project.data.title}</span>
                       {project.data.description && <span class="project-row-desc">{project.data.description}</span>}
                     </span>
+                    <ListingThumb image={project.data.image} sizes="(max-width: 760px) calc(100vw - 2rem), 11rem" />
                     <span class="view-cue">{t.listing.viewProject} <ArrowRight size={16} strokeWidth={1.8} aria-hidden="true" /></span>
                   </a>
                 </li>
@@ -346,6 +359,13 @@ const projectAttrs = (project: (typeof numberedProjects)[number]['project']) => 
     overflow: hidden;
   }
   .project-row .view-cue { grid-column: 2; grid-row: 1; align-self: start; padding-top: .05rem; }
+  .project-row.has-thumb { grid-template-columns: minmax(0, 1fr) auto clamp(8rem, 14vw, 11rem); column-gap: 1.25rem; }
+  .project-row.has-thumb :global(.listing-thumb) { grid-column: 3; grid-row: 1 / span 2; align-self: start; }
+  @media (max-width: 760px) {
+    .project-row.has-thumb { grid-template-columns: minmax(0, 1fr) auto; }
+    .project-row.has-thumb :global(.listing-thumb) { grid-column: 1 / -1; grid-row: 2; margin: .35rem 0 .4rem; }
+    .project-row.has-thumb .project-row-copy { grid-row: 3; }
+  }
 
   .projects-page[data-view="list"] .timeline-item::before { display: none; }
   .view-cue { display: inline-flex; align-items: center; gap: .3rem; color: var(--accent); font: .74rem/1.4 var(--font-mono); white-space: nowrap; }

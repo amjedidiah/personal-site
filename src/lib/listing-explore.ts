@@ -195,6 +195,7 @@ type ExploreDetailPanels = {
   selectedSource: HTMLElement;
   selectedRead: HTMLAnchorElement;
   previewNote: HTMLElement;
+  selectedThumb: HTMLImageElement;
 };
 
 type ExploreDetailTitleMotion = {
@@ -242,6 +243,7 @@ function getExploreDetailPanels(detail: HTMLElement): ExploreDetailPanels | null
     selectedSource: detail.querySelector('[data-selected-source]'),
     selectedRead: detail.querySelector('[data-selected-read]'),
     previewNote: detail.querySelector('[data-preview-note]'),
+    selectedThumb: detail.querySelector('[data-selected-thumb]'),
   };
   if (!isCompleteExploreDetailPanels(panels)) return null;
   return panels;
@@ -286,6 +288,12 @@ function writeExploreDetailPanels(options: WriteExploreDetailPanelsOptions) {
   panels.selectedDate.textContent = paper.dataset.exploreMetaA ?? '';
   panels.selectedSource.textContent = paper.dataset.exploreMetaB ?? '';
   syncExploreReadLink(panels.selectedRead, paper, wire);
+  const { thumbSrc, thumbSrcset } = paper.dataset;
+  panels.selectedThumb.hidden = !thumbSrc;
+  if (thumbSrc && panels.selectedThumb.getAttribute('src') !== thumbSrc) {
+    panels.selectedThumb.srcset = thumbSrcset ?? '';
+    panels.selectedThumb.src = thumbSrc;
+  }
   panels.selectedRead.hidden = preview;
   panels.previewNote.hidden = !preview;
 }

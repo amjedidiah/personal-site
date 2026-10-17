@@ -17,6 +17,9 @@ urlSecondary: "https://play.google.com/store/apps/details?id=com.alexlatte.cockt
 urlSecondaryLabel: "Google Play"
 role: "React Native app engineering"
 evidence: "Published app on the Apple App Store and Google Play Store"
+image: "../../assets/projects/cocktail-book-club-app.webp"
+imageAlt: "Three Cocktail & Book Club app screens: reading stats, a shareable reading summary, and yearly and daily reading goals"
+imageCaption: "App Store screenshots of the published app."
 ---
 
 Cocktail & Book Club brings reading lists and the social side of book clubs into one mobile experience. Readers can track books, share reviews, connect with groups, and find events.

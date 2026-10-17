@@ -14,6 +14,9 @@ url: "https://www.freetribenetwork.org/en"
 urlLabel: "visit live site"
 role: "Planning, development and CMS integration"
 evidence: "Public NGO website with program and resource pages"
+image: "../../assets/projects/free-tribe-network-home.webp"
+imageAlt: "Free Tribe Network homepage with a reproductive-health campaign banner, Support and mailing-list buttons, and a speaker on stage"
+imageCaption: "The live homepage, captured October 2026."
 ---
 
 Multilingual health-advocacy Progressive Web App built for an NGO to expand their international reach.

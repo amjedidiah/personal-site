@@ -12,6 +12,7 @@ interface Post {
   external: boolean;
   lang?: string;
   categories: string[];
+  cover?: { src: string; srcset: string };
 }
 
 interface Props {
@@ -35,6 +36,7 @@ const papers: ListingExplorePaper[] = groups.flatMap(([year, posts]) =>
     metaLine: post.date.toLocaleDateString(intlLocale[locale], { day: '2-digit', month: 'short' }),
     exploreJump: String(year),
     external: post.external,
+    thumb: post.cover,
     lang: post.lang,
     filterAttrs: {
       'data-blog-post': '',

@@ -2,7 +2,6 @@
 import Base from '../layouts/Base.astro';
 import HeroScene from '../components/HeroScene.astro';
 import ProjectDiagram from '../components/ProjectDiagram.astro';
-import ArticleMark from '../components/ArticleMark.astro';
 import '../styles/motion.css';
 import CurrentWork from '../components/CurrentWork.astro';
 import ProgressiveImage from '../components/ProgressiveImage.astro';
@@ -11,6 +10,7 @@ import { getProfile } from '../data/profile';
 import { getExternalPosts, getPosts } from '../lib/blog';
 import { imagePlaceholders } from '../data/image-placeholders';
 import { pickHomeFeaturedArticles } from '../lib/home-featured-articles';
+import { coverThumbnail } from '../lib/cover-paths';
 import { experienceClients } from '../data/experience-clients';
 import { getProjects } from '../lib/projects';
 import { intlLocale, localePath, toLocale } from '../i18n/config';
@@ -40,8 +40,6 @@ const featuredArticles = pickHomeFeaturedArticles(await getPosts(locale), await 
   .map((article) => (article.external ? article : { ...article, href: href(article.href) }));
 
 const caseFocus = home.caseFocus;
-/** TODO: set true when featured case study images are ready to ship */
-const showCaseStudyImages = false;
 
 const projectInquirySubject = home.inquirySubject;
 const projectInquiryMessage = home.inquiryMessage;
@@ -117,15 +115,14 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
       <div class="featured-work">
         {caseStudies.map((p) => (
           <article class="featured-card">
-            <ProjectDiagram projectId={p.id} />
-            {showCaseStudyImages && p.data.image && (
+            {/* A real screenshot when there is one; the concept diagram otherwise. */}
+            {p.data.image ? (
               <a href={href(`/projects/${p.id}`)} class="featured-card-media" aria-label={home.readCaseStudy(p.data.title)}>
                 <div class="case-image">
                   <ProgressiveImage src={p.data.image} alt={p.data.imageAlt ?? p.data.title} placeholder={imagePlaceholders[p.id]} sizes="(max-width: 900px) calc(100vw - 2rem), 50vw" />
                 </div>
-                {p.data.imageCaption && <span class="case-caption">{p.data.imageCaption}</span>}
               </a>
-            )}
+            ) : <ProjectDiagram projectId={p.id} />}
             <div class="featured-card-body">
               <h3 class="featured-title"><a href={href(`/projects/${p.id}`)}>{p.data.title}</a></h3>
               {caseFocus[p.id] && <p class="featured-focus">{caseFocus[p.id]}</p>}
@@ -168,8 +165,10 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
       <div class="featured-writing">
         {featuredArticles.map((article) => (
           <article class="writing-card">
+            <div class="writing-card-media" aria-hidden="true">
+              <img {...coverThumbnail(locale, article.slug)} sizes="(max-width: 900px) calc(100vw - 2rem), 36rem" alt="" loading="lazy" decoding="async" />
+            </div>
             <div class="writing-card-body">
-              <ArticleMark />
               <header class="writing-card-head">
                 <time datetime={article.date.toISOString().slice(0, 10)} class="writing-date">
                   {article.date.toLocaleDateString(intlLocale[locale], { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })}
@@ -595,6 +594,21 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
   .featured-card-media .case-caption {
     padding: 0 1.1rem .75rem;
   }
+  .writing-card-media {
+    overflow: hidden;
+    aspect-ratio: 1200 / 630;
+    border-bottom: 1px solid var(--border);
+    border-radius: 6px 6px 0 0;
+    background: var(--surface);
+  }
+  .writing-card-media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .45s cubic-bezier(.2, .7, .2, 1);
+  }
+  .writing-card:is(:hover, :focus-within) .writing-card-media img { transform: scale(1.03); }
   .featured-card-body, .writing-card-body {
     display: flex;
     flex: 1;
@@ -760,6 +774,7 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     .experience-card,
     .featured-card,
     .writing-card { transition: none; }
+    .writing-card-media img { transition: none; }
   }
 
   /* recommendations */
@@ -935,8 +950,8 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
   .contact-track { stroke: var(--border); }
   .contact-ink { stroke: var(--accent); }
 
-  /* The writing motif unfolds in ArticleMark. These sections instead connect
-     current work, professional contributions and the contact action. Nothing
+  /* These sections connect current work, professional contributions and the
+     contact action. Nothing
      here is a status, loading bar or measure of professional experience. */
   @keyframes now-underline { from { --flow-position: 0%; } to { --flow-position: 100%; } }
   @keyframes now-divider { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0); } }

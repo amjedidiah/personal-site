@@ -13,6 +13,9 @@ dateStart: "2024-11-04"
 dateEnd: "2025-02-25"
 role: "Open-source contributor"
 evidence: "Public contributions, published packages, and a live demo"
+image: "../../assets/projects/upup-home.webp"
+imageAlt: "upup homepage with the headline “Open-source file uploader for every framework” beside the uploader widget"
+imageCaption: "The project homepage, captured October 2026."
 ---
 
 I contributed to Upup’s React file uploader. My work covered cloud-storage integrations, signed upload URLs, previews, responsive styling, drag-and-drop, and tests.
