@@ -7,7 +7,8 @@ const templateDir = path.dirname(fileURLToPath(import.meta.url));
 
 // 404.html is served by the host for unknown routes; offline misses use /offline instead.
 // og.png is only fetched by social crawlers, never by the page.
-const EXCLUDED_FILES = new Set(['sw.js', '404.html', 'og.png']);
+// robots.txt, llms.txt and the sitemap are for crawlers, not visitors.
+const EXCLUDED_FILES = new Set(['sw.js', '404.html', 'og.png', 'robots.txt', 'llms.txt']);
 // Photos (and every srcset width of them) are cached on first view by sw.js
 // instead, so a visit doesn't download images the visitor never looks at.
 const LAZY_EXTENSIONS = new Set(['.webp', '.avif', '.jpg', '.jpeg', '.gif']);
@@ -37,14 +38,14 @@ export function isPrecacheable(file) {
 
 /**
  * Maps a build output path to the URL fetched during install and the cache key
- * it is stored under. Pages are fetched by directory URL and keyed without the
- * trailing slash so `/about` and `/about/` resolve to the same entry.
+ * it is stored under. Pages use their canonical slash-free URL (the host
+ * redirects `/about/` to `/about`), which is also the key sw.js looks up.
  */
 export function toPrecacheEntry(file) {
   if (file === 'index.html') return { url: '/', key: '/' };
   if (file.endsWith('/index.html')) {
-    const directory = `/${file.slice(0, -'index.html'.length)}`;
-    return { url: directory, key: directory.slice(0, -1) };
+    const page = `/${file.slice(0, -'/index.html'.length)}`;
+    return { url: page, key: page };
   }
   return { url: `/${file}`, key: `/${file}` };
 }

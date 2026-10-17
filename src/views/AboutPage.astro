@@ -5,8 +5,11 @@ import CountUp from '../components/CountUp.astro';
 import '../styles/motion.css';
 import { getCurrent } from '../data/current';
 import { getProfile } from '../data/profile';
-import { toLocale } from '../i18n/config';
+import { localePath, toLocale } from '../i18n/config';
 import { fill, useTranslations } from '../i18n/ui';
+import { profilePageNode } from '../lib/structured-data';
+import Testimonials from '../components/Testimonials.astro';
+import { testimonials } from '../data/testimonials';
 import { ArrowUpRight } from '@lucide/astro';
 
 const locale = toLocale(Astro.currentLocale);
@@ -21,13 +24,18 @@ const [contactFirst] = about.contactMessages;
 const newTab = t.meta.newTab;
 ---
 
-<Base title={`${about.title}${t.meta.titleSuffix}`} description={profile.description}>
+<Base
+  title={t.seo.aboutTitle}
+  description={t.seo.aboutDescription(profile.yearsExperience)}
+  structuredData={Astro.site ? [profilePageNode(Astro.site, locale, localePath(locale, '/about'))] : []}
+>
   <header class="about-hero">
     <div class="about-hero-top">
       <p class="about-path">{about.location}</p>
       <button class="typewriter-control" type="button" data-typewriter-toggle="hero" hidden>{about.pause}</button>
     </div>
-    <h1 aria-label={about.heroLabel}><span class="typewriter-prefix">{about.heroPrefix} <span data-typewriter-article aria-hidden="true">{heroFirst.article}</span></span>{' '}<span class="typewriter-text" data-typewriter-text aria-hidden="true">{heroFirst.role}</span></h1>
+    <h1 class="visually-hidden">{about.heading}</h1>
+    <p class="about-title"><span class="visually-hidden">{about.heroLabel}</span><span aria-hidden="true"><span class="typewriter-prefix">{about.heroPrefix} <span data-typewriter-article>{heroFirst.article}</span></span>{' '}<span class="typewriter-text" data-typewriter-text>{heroFirst.role}</span></span></p>
     <p class="about-deck">{profile.introduction}</p>
   </header>
 
@@ -68,6 +76,11 @@ const newTab = t.meta.newTab;
         </li>
       ))}
     </ol>
+  </section>
+
+  <section class="about-recommendations" id="recommendations">
+    <h2>{t.testimonials.aboutTitle}</h2>
+    <Testimonials items={testimonials} />
   </section>
 
   <section class="about-proof">
@@ -166,7 +179,7 @@ const newTab = t.meta.newTab;
     letter-spacing: .1em;
     text-transform: uppercase;
   }
-  .about-hero h1 {
+  .about-title {
     max-width: 13ch;
     overflow-wrap: anywhere;
     min-height: 2.1em;
@@ -215,6 +228,7 @@ const newTab = t.meta.newTab;
   .story-section:first-child { padding-top: 0; border-top: 0; }
   .story-section h2,
   .about-experience > h2,
+  .about-recommendations > h2,
   .about-proof > h2,
   .about-stack > h2,
   .about-interests > h2 {
@@ -264,6 +278,7 @@ const newTab = t.meta.newTab;
   }
 
   .about-experience,
+  .about-recommendations,
   .about-proof,
   .about-stack {
     margin-bottom: 5rem;
@@ -430,7 +445,7 @@ const newTab = t.meta.newTab;
     .stack-groups { grid-template-columns: minmax(0, 1fr); }
     .certs li:nth-child(-n+2) { border-top: 1px solid var(--border); }
     .certs li:first-child { border-top: 0; }
-    .about-experience, .about-proof, .about-stack, .about-interests { margin-bottom: 4rem; }
+    .about-experience, .about-recommendations, .about-proof, .about-stack, .about-interests { margin-bottom: 4rem; }
   }
 
   @media (max-width: 639px) {

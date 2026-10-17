@@ -14,6 +14,16 @@ const en = {
     newTab: ' (opens in a new tab)',
     imageUnavailable: 'Image unavailable',
   },
+  // Titles and descriptions written for the searches clients make; keep titles
+  // under ~60 characters and descriptions under ~160 so results don't truncate.
+  seo: {
+    aboutTitle: 'About Jedidiah Amaraegbu, Stripe-certified Developer',
+    aboutDescription: (years: number) =>
+      `Stripe-certified full-stack engineer in Lagos, Nigeria: ${years}+ years shipping TypeScript, React and Node.js apps and payment integrations.`,
+    projectsTitle: 'Web, Mobile & Stripe Projects — Jedidiah Amaraegbu',
+    blogTitle: 'Engineering Blog: Stripe, React & AI — Jedidiah Amaraegbu',
+    caseStudyTitle: (title: string) => `${title} Case Study — Jedidiah Amaraegbu`,
+  },
   nav: {
     label: 'Primary navigation',
     brandHome: 'amjedidiah, home',
@@ -62,6 +72,14 @@ const en = {
   },
   currentWork: (work: string, description: string, research: string) =>
     `I’m building ${work}, ${description}, and researching ${research}.`,
+  testimonials: {
+    homeTitle: 'what clients say',
+    aboutTitle: 'recommendations',
+    projectLabel: 'Client recommendation',
+    source: 'All recommendations on LinkedIn',
+    showOriginal: 'Translated from English · show original',
+    relationship: { client: 'client', manager: 'managed Jedidiah', colleague: 'worked with Jedidiah' },
+  },
   projectTypes: {
     long: { founder: 'independent build', client: 'client work', oss: 'OSS contributor' },
     short: { founder: 'independent', client: 'client', oss: 'OSS' },
@@ -131,6 +149,7 @@ const en = {
     title: 'About',
     location: 'Based in Lagos, Nigeria',
     pause: 'Pause text',
+    heading: 'Jedidiah Amaraegbu, Stripe-certified full-stack developer',
     heroLabel: 'Need a developer, engineer, speaker, consultant, or instructor?',
     heroPrefix: 'Need',
     heroMessages: [
@@ -216,7 +235,7 @@ const en = {
   },
   projects: {
     title: 'Projects',
-    metaDescription: 'Applications, payment integrations and workflow architecture across independent products, client work and open-source contributions.',
+    metaDescription: 'Case studies of web apps, React Native mobile apps and Stripe payment integrations: independent products, client work and open-source contributions.',
     description: 'Applications, payment flows and the architecture behind them — across independent products, client work and open-source contributions.',
     count: (count: number) => `${count} ${count === 1 ? 'project' : 'projects'}`,
     countOne: '{count} project',
@@ -263,7 +282,7 @@ const en = {
   },
   blog: {
     title: 'Blog',
-    metaDescription: 'Writing about payments, security, AI agents, and building in public.',
+    metaDescription: 'Articles on Stripe and payments, React, Node.js, security and AI-assisted development by full-stack engineer Jedidiah Amaraegbu.',
     description: 'Payments, security, AI agents, and building in public.',
     count: (count: number) => `${count} ${count === 1 ? 'article' : 'articles'}`,
     countOne: '{count} article',
@@ -370,6 +389,14 @@ const fr: Dictionary = {
     newTab: ' (s’ouvre dans un nouvel onglet)',
     imageUnavailable: 'Image indisponible',
   },
+  seo: {
+    aboutTitle: 'À propos de Jedidiah Amaraegbu, développeur certifié Stripe',
+    aboutDescription: (years) =>
+      `Ingénieur full-stack certifié Stripe à Lagos, au Nigeria\u00a0: plus de ${years}\u00a0ans d’applications TypeScript, React et Node.js et d’intégrations de paiement.`,
+    projectsTitle: 'Projets web, mobiles et Stripe — Jedidiah Amaraegbu',
+    blogTitle: 'Blog technique\u00a0: Stripe, React et IA — Jedidiah Amaraegbu',
+    caseStudyTitle: (title) => `Étude de cas ${title} — Jedidiah Amaraegbu`,
+  },
   nav: {
     label: 'Navigation principale',
     brandHome: 'amjedidiah, accueil',
@@ -418,6 +445,14 @@ const fr: Dictionary = {
   },
   currentWork: (work, description, research) =>
     `Je développe ${work}, ${description}, et j’étudie ${research}.`,
+  testimonials: {
+    homeTitle: 'ce qu’en disent mes clients',
+    aboutTitle: 'recommandations',
+    projectLabel: 'Recommandation du client',
+    source: 'Toutes les recommandations sur LinkedIn (en anglais)',
+    showOriginal: 'Traduit de l’anglais · voir l’original',
+    relationship: { client: 'client', manager: 'manager de Jedidiah', colleague: 'a travaillé avec Jedidiah' },
+  },
   projectTypes: {
     long: { founder: 'projet indépendant', client: 'mission client', oss: 'contributeur open source' },
     short: { founder: 'indépendant', client: 'client', oss: 'open source' },
@@ -487,6 +522,7 @@ const fr: Dictionary = {
     title: 'À propos',
     location: 'Basé à Lagos, au Nigeria',
     pause: 'Mettre le texte en pause',
+    heading: 'Jedidiah Amaraegbu, développeur full-stack certifié Stripe',
     heroLabel: 'Besoin d’un développeur, d’un ingénieur, d’un conférencier, d’un consultant ou d’un formateur\u00a0?',
     heroPrefix: 'Besoin',
     heroMessages: [
@@ -572,7 +608,7 @@ const fr: Dictionary = {
   },
   projects: {
     title: 'Projets',
-    metaDescription: 'Applications, intégrations de paiement et architecture de workflows, entre produits indépendants, missions clients et contributions open source.',
+    metaDescription: 'Études de cas d’applications web, d’apps mobiles React Native et d’intégrations de paiement Stripe\u00a0: produits indépendants, missions clients et open source.',
     description: 'Des applications, des parcours de paiement et l’architecture qui les porte — entre produits indépendants, missions clients et contributions open source.',
     count: (count) => `${count} ${count === 1 ? 'projet' : 'projets'}`,
     countOne: '{count} projet',
@@ -619,7 +655,7 @@ const fr: Dictionary = {
   },
   blog: {
     title: 'Blog',
-    metaDescription: 'Articles sur les paiements, la sécurité, les agents IA et le développement en public.',
+    metaDescription: 'Articles sur Stripe et les paiements, React, Node.js, la sécurité et le développement assisté par IA, par l’ingénieur full-stack Jedidiah Amaraegbu.',
     description: 'Paiements, sécurité, agents IA et développement en public. Les articles publiés sur Hashnode sont en anglais.',
     count: (count) => `${count} ${count === 1 ? 'article' : 'articles'}`,
     countOne: '{count} article',

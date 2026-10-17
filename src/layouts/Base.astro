@@ -9,6 +9,7 @@ import { getProfile } from '../data/profile';
 import { supportsMotionPreference } from '../lib/motion';
 import { locales, localePath, ogLocale, toLocale, type Locale } from '../i18n/config';
 import { useTranslations } from '../i18n/ui';
+import { personNode, serializeJsonLd, websiteNode, type JsonLdNode } from '../lib/structured-data';
 
 interface Props {
   title: string;
@@ -22,6 +23,8 @@ interface Props {
   alternates?: Record<Locale, string>;
   /** False for pages without a true translation, so search engines aren't told otherwise. */
   hreflang?: boolean;
+  /** Page-specific schema.org nodes, added to the site and author nodes every page carries. */
+  structuredData?: JsonLdNode[];
 }
 
 const locale = toLocale(Astro.currentLocale);
@@ -34,6 +37,7 @@ const {
   noindex = false,
   alternates = Object.fromEntries(locales.map((code) => [code, localePath(code, Astro.url.pathname)])) as Record<Locale, string>,
   hreflang = true,
+  structuredData = [],
 } = Astro.props;
 // SW_KILL_SWITCH=1 builds ship a self-unregistering sw.js, so pages must stop registering it.
 const registerServiceWorker = import.meta.env.PROD && process.env.SW_KILL_SWITCH !== '1';
@@ -41,6 +45,9 @@ const canonicalURL = Astro.site ? new URL(Astro.url.pathname, Astro.site) : unde
 const alternateURLs = hreflang && Astro.site
   ? locales.map((code) => ({ hreflang: code, href: new URL(alternates[code], Astro.site) }))
   : [];
+const jsonLd = Astro.site && !noindex
+  ? serializeJsonLd([websiteNode(Astro.site, locale), personNode(Astro.site, locale), ...structuredData])
+  : undefined;
 const socialImageURL = Astro.site ? new URL('/og.png', Astro.site) : '/og.png';
 const socialImageAlt = `${profile.name}, ${profile.roles.replace(' · ', locale === 'fr' ? ' et ' : ' and ')}`;
 ---
@@ -127,6 +134,7 @@ const socialImageAlt = `${profile.name}, ${profile.roles.replace(' · ', locale 
   <meta name="twitter:description" content={description} />
   <meta name="twitter:image" content={socialImageURL} />
   <meta name="twitter:image:alt" content={socialImageAlt} />
+  {jsonLd && <script type="application/ld+json" set:html={jsonLd} />}
 </head>
 <body id="page-top">
   <a class="skip-link" href="#main-content">{t.meta.skipLink}</a>

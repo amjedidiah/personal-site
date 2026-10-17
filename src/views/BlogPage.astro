@@ -1,10 +1,10 @@
 ---
 import Base from '../layouts/Base.astro';
 import { ArrowUpRight } from '@lucide/astro';
-import { getHashnodePosts } from '../data/hashnode-fr';
-import { getPosts } from '../lib/blog';
+import { getExternalPosts, getPosts } from '../lib/blog';
 import { intlLocale, localePath, toLocale } from '../i18n/config';
 import { useTranslations } from '../i18n/ui';
+import { breadcrumbNode } from '../lib/structured-data';
 import BlogExplore from '../components/BlogExplore.astro';
 import ListingTimelineYear from '../components/ListingTimelineYear.astro';
 import ListingPageControls from '../components/ListingPageControls.astro';
@@ -44,7 +44,7 @@ const localPosts = (await getPosts(locale)).map((p) => ({
   categories: categoriesForTags(p.data.tags),
 }));
 
-const externalPosts = getHashnodePosts(locale).map((p) => ({
+const externalPosts = (await getExternalPosts(locale)).map((p) => ({
   title: p.title,
   description: p.brief,
   date: new Date(p.date),
@@ -79,7 +79,14 @@ for (const post of [...allPosts].sort((a, b) => a.title.localeCompare(b.title, u
 const letterKeys = Array.from(postsByLetter.keys()).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
 ---
 
-<Base title={`${copy.title}${t.meta.titleSuffix}`} description={copy.metaDescription}>
+<Base
+  title={t.seo.blogTitle}
+  description={copy.metaDescription}
+  structuredData={Astro.site ? [breadcrumbNode(Astro.site, [
+    { name: t.nav.tabs.home, path: localePath(locale, '/') },
+    { name: t.nav.tabs.blog, path: localePath(locale, '/blog') },
+  ])] : []}
+>
   <div class:list={['blog-view', { 'is-empty': allPosts.length === 0 }]} data-view="timeline" data-listing-motion data-listing-item-transitions data-listing-viewport-transitions>
     <ListingPageIntro title={copy.title} description={copy.description} />
     <ListingPageControls collapseOnMobile summary={copy.count(allPosts.length)}>

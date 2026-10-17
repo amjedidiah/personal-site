@@ -6,6 +6,7 @@ import { render } from 'astro:content';
 import type { ArchiveLink, LocalizedPost } from '../lib/blog';
 import { intlLocale, localePath, toLocale } from '../i18n/config';
 import { useTranslations } from '../i18n/ui';
+import { blogPostingNode, breadcrumbNode } from '../lib/structured-data';
 import '../styles/reading.css';
 import '../styles/article-motion.css';
 import '../styles/motion.css';
@@ -29,9 +30,18 @@ const articleDate = post.data.date.toLocaleDateString(intlLocale[locale], { day:
 const tocHeadings = headings.filter((heading) => heading.depth === 2);
 // An untranslated post renders its English body; mark it for assistive tech.
 const bodyLang = post.translated ? undefined : 'en';
+const pagePath = href(`/blog/${post.id}`);
+const structuredData = Astro.site ? [
+  blogPostingNode(Astro.site, locale, post, pagePath),
+  breadcrumbNode(Astro.site, [
+    { name: t.nav.tabs.home, path: href('/') },
+    { name: t.nav.tabs.blog, path: href('/blog') },
+    { name: post.data.title, path: pagePath },
+  ]),
+] : [];
 ---
 
-<Base title={`${post.data.title}${t.meta.titleSuffix}`} description={post.data.description}>
+<Base title={`${post.data.title}${t.meta.titleSuffix}`} description={post.data.description} structuredData={structuredData}>
   <article class="article-shell" data-article-motion>
     <div class:list={['article-layout', 'has-rail', { 'has-toc': tocHeadings.length > 0 }]}>
       <div class="article-chrome">
