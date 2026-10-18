@@ -8,7 +8,7 @@ type: "client"
 metric: "Content-managed church website"
 order: 8
 dateStart: "2026-01-29"
-dateEnd: "2026-10-12"
+dateEnd: "2026-03-21"
 url: "https://www.crmpraisecenter.org/"
 urlLabel: "visit live site"
 role: "Planning, development and CMS integration"
