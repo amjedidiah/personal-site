@@ -38,6 +38,7 @@ const en = {
   footer: {
     location: 'Lagos, Nigeria',
     remote: 'open to remote',
+    visa: 'J-1 visa eligible',
     feedback: 'share feedback',
   },
   preferences: {
@@ -429,6 +430,7 @@ const fr: Dictionary = {
   footer: {
     location: 'Lagos, Nigeria',
     remote: 'disponible à distance',
+    visa: 'visa J-1 éligible',
     feedback: 'donner votre avis',
   },
   preferences: {

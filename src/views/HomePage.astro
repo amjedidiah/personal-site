@@ -67,7 +67,7 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
     </div>
     <HeroScene />
     <div class="hero-copy">
-      <p class="hero-lede">{profile.delivery} {current.appReview}</p>
+      <p class="hero-lede">{profile.delivery}</p>
       <div class="hero-actions">
         <a
           class="btn-primary hero-contact"
@@ -75,8 +75,10 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
           data-contact-primary
           data-email-href={projectInquiryEmail}
           data-whatsapp-href={projectInquiryWhatsApp}
+          data-email-label={home.emailMe}
+          data-whatsapp-label={home.whatsApp}
         >
-          {home.discuss}
+          {home.emailMe}
         </a>
         <a class="btn-ghost" href={href('/projects/gwela')}>{home.exploreGwela}</a>
       </div>
@@ -114,6 +116,7 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
   <section class="build-section home-band" aria-labelledby="build-title">
     <div class="constrained">
       <div class="section-label section-label--plain">
+        <span class="section-number" aria-hidden="true">01</span>
         <h2 id="build-title">{home.sections.build}</h2>
       </div>
       <ul class="build-grid">
@@ -141,6 +144,7 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
   <section class="now-section" data-nav-surface="surface" aria-labelledby="now-title" data-home-current>
     <div class="constrained">
       <div class="section-label section-label--plain">
+        <span class="section-number" aria-hidden="true">02</span>
         <h2 id="now-title">{home.sections.now}</h2>
       </div>
       <div class="now-panel">
@@ -166,6 +170,7 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
   <section class="work-section home-band" aria-labelledby="work-title">
     <div class="constrained">
       <div class="section-label section-label--plain">
+        <span class="section-number" aria-hidden="true">03</span>
         <h2 id="work-title">{home.sections.work}</h2>
       </div>
       <div class="featured-work">
@@ -214,6 +219,7 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
   <section class="writing-section home-band" aria-labelledby="writing-title">
     <div class="constrained">
       <div class="section-label section-label--plain">
+        <span class="section-number" aria-hidden="true">04</span>
         <h2 id="writing-title">{home.sections.writing}</h2>
       </div>
       <!-- Described, not named, so "opens in a new tab" stays out of the headings. -->
@@ -265,6 +271,7 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
   <section class="clients-section home-band" data-nav-surface="surface" aria-labelledby="experience-title">
     <div class="constrained">
       <div class="section-label section-label--plain">
+        <span class="section-number" aria-hidden="true">05</span>
         <h2 id="experience-title">{home.sections.experience}</h2>
       </div>
       <p class="experience-summary">{home.experienceSummary(profile.yearsExperience, profile.developersMentored)}</p>
@@ -468,6 +475,12 @@ const projectInquiryWhatsApp = `https://wa.me/2348165972229?text=${encodeURIComp
   }
   .now-section .section-label--plain h2 {
     flex: none;
+  }
+  .section-number {
+    font: 500 .75rem/1 var(--font-mono);
+    color: var(--accent);
+    letter-spacing: .04em;
+    flex-shrink: 0;
   }
   .section-label h2 {
     min-width: 0;

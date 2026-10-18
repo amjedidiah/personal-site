@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "src/views/HomePage.astro"
+        ],
+        "createdAt": "2026-10-18T13:19:35.742Z",
+        "reason": "coverThumbnail() generates src at build time; empty alt is intentional for decorative aria-hidden image"
+      }
+    ]
+  }
+}
