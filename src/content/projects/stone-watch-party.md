@@ -34,6 +34,8 @@ Two guests can try to claim the same remaining seat at once. The booking service
 
 The availability shown in a browser cannot be the final authority for a booking. Database-backed allocation and concurrency tests were needed to protect the seat count when requests arrive together.
 
+Why I chose Drizzle for this, and how the last-seat claim works in code: [Prisma vs. Drizzle: Why I Reach for the Lighter ORM](/blog/prisma-vs-drizzle).
+
 ## Evidence and status
 
 [Event site](https://stone-watch-party.vercel.app/) - built around a 750-seat venue. The source includes database integration tests for concurrent seat allocation and registration throttling.

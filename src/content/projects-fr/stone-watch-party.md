@@ -27,6 +27,8 @@ Deux invités peuvent tenter de réserver la même dernière place au même mome
 
 La disponibilité affichée dans un navigateur ne peut pas faire foi pour une réservation. Une attribution gérée en base de données et des tests de concurrence ont été nécessaires pour protéger le nombre de places quand les requêtes arrivent simultanément.
 
+Pourquoi j’ai choisi Drizzle pour ce projet, et comment la réservation de la dernière place fonctionne dans le code : [Prisma ou Drizzle : pourquoi je choisis l’ORM le plus léger](/fr/blog/prisma-vs-drizzle).
+
 ## Preuves et statut
 
 [Site de l’événement](https://stone-watch-party.vercel.app/) : conçu pour une salle de 750 places. Le code source comprend des tests d’intégration en base de données pour l’attribution simultanée des places et la limitation du débit des inscriptions.
