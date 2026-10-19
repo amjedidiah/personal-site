@@ -67,12 +67,14 @@ const structuredData = Astro.site ? [
       <div class="prose">
         <header class="article-details" data-reading-meta>
           <div class="article-meta">
-            <span>{copy.journal}</span>
-            <time datetime={post.data.date.toISOString()}>{articleDate}</time>
-            <span>{copy.readingTime(readingMinutes)}</span>
-            {post.data.tags?.length > 0 && (
-              <span class="article-tags">{post.data.tags.map((tag) => <span class="article-tag">{tag}</span>)}</span>
-            )}
+            <div class="article-meta-info">
+              <span>{copy.journal}</span>
+              <time datetime={post.data.date.toISOString()}>{articleDate}</time>
+              <span>{copy.readingTime(readingMinutes)}</span>
+              {post.data.tags?.length > 0 && (
+                <span class="article-tags">{post.data.tags.map((tag) => <span class="article-tag">{tag}</span>)}</span>
+              )}
+            </div>
             <ShareButton title={post.data.title} />
           </div>
         </header>
@@ -146,15 +148,23 @@ const structuredData = Astro.site ? [
 
   .article-meta {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    gap: .35rem .8rem;
+    gap: .8rem;
     margin-bottom: 1rem;
     color: var(--article-muted);
     font: .7rem/1.4 var(--font-mono);
     text-transform: uppercase;
     letter-spacing: .07em;
   }
+  /* Date, reading time and tags wrap among themselves; Share stays beside them. */
+  .article-meta-info {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .35rem .8rem;
+    min-width: 0;
+  }
+  .article-meta :global(.share-button) { flex-shrink: 0; }
   .article-tag {
     color: var(--accent);
     white-space: nowrap;
@@ -373,7 +383,7 @@ const structuredData = Astro.site ? [
   }
 
   @media (max-width: 560px) {
-    .article-meta { gap: .3rem .6rem; }
+    .article-meta-info { gap: .3rem .6rem; }
     .article-nav, .related-list { grid-template-columns: 1fr; }
     .article-nav-link--next { text-align: left; }
   }
